@@ -1,5 +1,7 @@
-#include <print>
+#include <Window.hpp>
 
 int main() {
-    std::println("Hello World!");
+    Window::instance = new Window(1280, 800, "Hello OpenGL!");
+    Window::instance->mainLoop();
+    delete Window::instance;
 }
