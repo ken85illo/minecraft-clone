@@ -6,7 +6,13 @@
 // clang-format on
 
 #include "Shader.hpp"
+#include "Texture.hpp"
+#include <cmath>
+#include <print>
+#include <stb_image.h>
+
 typedef unsigned int uint;
+typedef unsigned char uchar;
 
 class Window {
 public:
@@ -22,9 +28,10 @@ private:
     GLFWwindow* m_window;
 
     // Vertex and Fragment Shader
-    Shader *shader1, *shader2;
+    Shader* shader;
+    Texture* tex;
     uint VBO, VAO, EBO;
-    uint VBO1, VAO1;
+
 
     void initWindow();
     void render();

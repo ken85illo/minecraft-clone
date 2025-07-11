@@ -1,5 +1,4 @@
 #include "Window.hpp"
-#include <print>
 
 Window* Window::instance = nullptr;
 
@@ -24,6 +23,11 @@ Window::Window(uint16_t width, uint16_t height, const char* title)
 }
 
 Window::~Window() {
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    delete tex;
+    delete shader;
     glfwTerminate();
 }
 
@@ -45,24 +49,7 @@ void Window::mainLoop() {
     if(!m_window)
         return;
 
-    shader1 = new Shader();
-    shader2 = new Shader();
-
-    uint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    uint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    uint fragmentShader0 = glCreateShader(GL_FRAGMENT_SHADER);
-
-    shader1->loadShader("../src/shader.vert", vertexShader);
-    shader1->loadShader("../src/shader.frag", fragmentShader);
-    shader1->linkProgram();
-
-    shader2->loadShader("../src/shader.vert", vertexShader);
-    shader2->loadShader("../src/shader0.frag", fragmentShader0);
-    shader2->linkProgram();
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    glDeleteShader(fragmentShader0);
+    shader = new Shader("../src/shaders/shader.vert", "../src/shaders/shader.frag");
 
     float vertices[] = {
         // rectangle
@@ -71,18 +58,11 @@ void Window::mainLoop() {
         // 0.5f, 0.5f, 0.0f,   // top-right
         // 0.5f, -0.5f, 0.0f,  // bottom-right
 
-        // first triangle
-        -0.95f, -0.5f, 0.0f, //
-        -0.5f, 0.5f, 0.0f,   //
-        -0.05f, -0.5f, 0.0f, //
-
-    };
-
-    float vertices1[] = {
-        // second triangle
-        0.05f, -0.5f, 0.0f, //
-        0.5f, 0.5f, 0.0f,   //
-        0.95f, -0.5f, 0.0f  //
+        // vertex           //color         //tex coords
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+        -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f,  // top-left
+        0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 2.0f, 2.0f,   // top-right
+        0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 2.0f, 0.0f,  // bottom-right
     };
 
     uint indices[] = {
@@ -100,24 +80,36 @@ void Window::mainLoop() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(
+    1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(
+    2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    glGenVertexArrays(1, &VAO1);
-    glGenBuffers(1, &VBO1);
-    glBindVertexArray(VAO1);
+    tex = new Texture(GL_TEXTURE_2D, 2);
+    tex->setParameter(0, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    tex->setParameter(0, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    tex->setParameter(0, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    tex->setParameter(0, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    tex->loadImage(0, "../res/brick.jpg");
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
-    glEnableVertexAttribArray(0);
+    tex->setParameter(1, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    tex->setParameter(1, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    tex->setParameter(1, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    tex->setParameter(1, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    tex->loadImage(1, "../res/dog.jpg");
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
+    shader->use();
+    shader->setInt("texture0", 0);
+    shader->setInt("texture1", 1);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while(!glfwWindowShouldClose(m_window)) {
@@ -127,26 +119,17 @@ void Window::mainLoop() {
         glfwPollEvents();
         glfwSwapBuffers(m_window);
     }
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-    glDeleteProgram(shader1->getProgram());
-    glDeleteProgram(shader2->getProgram());
 }
 
 void Window::render() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(shader1->getProgram());
+    shader->use();
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
-
-    glUseProgram(shader2->getProgram());
-    glBindVertexArray(VAO1);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    tex->use(0);
+    tex->use(1);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 
