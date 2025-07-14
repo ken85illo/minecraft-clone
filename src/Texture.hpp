@@ -3,18 +3,18 @@
 #include <glad/glad.h>
 #include <print>
 #include <stb_image.h>
+#include <sys/types.h>
 
-typedef unsigned int uint;
-typedef unsigned char uchar;
 
 class Texture {
 public:
     Texture(int target, int size);
     ~Texture();
 
-    void loadImage(int index, const char* filepath);
-    void setParameter(int index, int name, int value);
-    void use(int index);
+    void loadImage(const char* filepath);
+    void bind(int index);
+    void unbind(int index);
+    void setParameter(int name, int value);
 
 private:
     uint* m_ID;
