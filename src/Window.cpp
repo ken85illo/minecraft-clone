@@ -45,7 +45,8 @@ void Window::initWindow() {
     glfwMakeContextCurrent(m_window);
     glfwSetFramebufferSizeCallback(m_window, frameBufferSizeCallback);
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(m_window, Camera::instance->getCallback());
+    glfwSetCursorPosCallback(m_window, Camera::instance->getCursorCallback());
+    glfwSetScrollCallback(m_window, Camera::instance->getScrollCallback());
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::println("Failed to initialize GLAD!");
@@ -57,11 +58,6 @@ void Window::initWindow() {
 
     m_shader = new Shader("../src/shaders/shader.vert", "../src/shaders/shader.frag");
 
-    glm::mat4 projection;
-    projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
-
-    m_shader->use();
-    m_shader->setMat4("projection", projection);
     m_shader->setInt("texture0", 0);
 }
 
@@ -113,8 +109,11 @@ void Window::update() {
         Camera::instance->moveLeft();
 
     glm::mat4 view = Camera::getViewMat4();
+    glm::mat4 projection = Camera::getProjectionMat4();
+
     m_shader->use();
     m_shader->setMat4("view", view);
+    m_shader->setMat4("projection", projection);
 }
 
 void Window::render() {

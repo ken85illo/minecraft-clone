@@ -8,6 +8,7 @@ glm::vec3 Camera::m_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 uint16_t* Camera::m_windowWidth = nullptr;
 uint16_t* Camera::m_windowHeight = nullptr;
 float Camera::m_sensitivity = 0.0f;
+float Camera::m_fov = 45.0f;
 
 Camera::Camera(float m_cameraSpeed,
 float sensitivity,
@@ -48,6 +49,12 @@ glm::mat4 Camera::getViewMat4() {
     return glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
 }
 
+glm::mat4 Camera::getProjectionMat4() {
+    return glm::perspective(
+    glm::radians(m_fov), *m_windowWidth / (float)*m_windowHeight, 1.0f, 100.0f);
+}
+
+
 void Camera::mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
     static bool firstMouse = true;
     static float lastX = *m_windowWidth / 2.0f;
@@ -86,6 +93,19 @@ void Camera::mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos
     m_cameraFront = glm::normalize(direction);
 }
 
-GLFWcursorposfun Camera::getCallback() {
+void Camera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    m_fov -= (float)yoffset;
+
+    if(m_fov < 1.0f)
+        m_fov = 1.0f;
+    if(m_fov > 45.0f)
+        m_fov = 45.0f;
+}
+
+GLFWcursorposfun Camera::getCursorCallback() {
     return mouseCursorPosCallback;
+}
+
+GLFWscrollfun Camera::getScrollCallback() {
+    return scrollCallback;
 }
