@@ -1,12 +1,20 @@
 #include "Cube.hpp"
 
-Cube::Cube(int size, Shader* shader, const char* texturePath, Block type)
-: m_size(size),
-  m_shader(shader),
-  m_VAO(new uint32_t[size]),
-  m_VBO(new uint32_t[size]),
-  m_EBO(new uint32_t[size]),
-  m_properties(new Properties[size]) {
+Cube::Cube(Shader* shader, Texture* texture, uint32_t textureIndex, Block type = NONE)
+: m_shader(shader),
+  m_texture(texture),
+  m_textureIndex(textureIndex),
+  m_properties(Properties{
+  .x = 0.0f,
+  .y = 0.0f,
+  .z = 0.0f,
+  .width = 1.0f,
+  .height = 1.0f,
+  .depth = 1.0f,
+  .rotX = 0.0f,
+  .rotY = 0.0f,
+  .rotZ = 0.0f,
+  }) {
 
     float vertices[] = {
         // vertex           //tex coords
@@ -73,10 +81,6 @@ Cube::Cube(int size, Shader* shader, const char* texturePath, Block type)
         20, 22, 23, //
     };
 
-    glGenVertexArrays(size, m_VAO);
-    glGenBuffers(size, m_VBO);
-    glGenBuffers(size, m_EBO);
-
     if(type != NONE) {
         m_atlas = new Atlas(16, 256, vertices);
 
@@ -92,151 +96,126 @@ Cube::Cube(int size, Shader* shader, const char* texturePath, Block type)
         }
     }
 
+    glGenVertexArrays(1, &m_VAO);
+    glGenBuffers(1, &m_VBO);
+    glGenBuffers(1, &m_EBO);
 
-    for(int i = 0; i < size; i++) {
-        m_properties[i] = Properties{
-            .x = 0.0f,
-            .y = 0.0f,
-            .z = 0.0f,
-            .width = 1.0f,
-            .height = 1.0f,
-            .depth = 1.0f,
-            .rotX = 0.0f,
-            .rotY = 0.0f,
-            .rotZ = 0.0f,
-        };
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-        glBindVertexArray(m_VAO[i]);
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO[i]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO[i]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+    1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
-        glVertexAttribPointer(
-        1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-    }
-
-    m_texture = new Texture(GL_TEXTURE_2D, 1);
-    m_texture->bind(0);
-    m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_texture->loadImage(texturePath);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 Cube::~Cube() {
-    glDeleteVertexArrays(m_size, m_VAO);
-    glDeleteBuffers(m_size, m_VBO);
-    glDeleteBuffers(m_size, m_EBO);
-    delete[] m_VAO;
-    delete[] m_VBO;
-    delete[] m_EBO;
+    glDeleteVertexArrays(1, &m_VAO);
+    glDeleteBuffers(1, &m_VBO);
+    glDeleteBuffers(1, &m_EBO);
 }
 
 void Cube::render() {
-    m_texture->bind(0);
-    for(int i = 0; i < m_size; i++) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model,
-        glm::vec3(m_properties[i].x, m_properties[i].y, m_properties[i].z));
+    m_texture->bind(m_textureIndex);
 
-        model = glm::rotate(
-        model, glm::radians(m_properties[i].rotX), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 model = glm::mat4(1.0f);
+    model =
+    glm::translate(model, glm::vec3(m_properties.x, m_properties.y, m_properties.z));
+    model =
+    glm::rotate(model, glm::radians(m_properties.rotX), glm::vec3(1.0f, 0.0f, 0.0f));
+    model =
+    glm::rotate(model, glm::radians(m_properties.rotY), glm::vec3(0.0f, 1.0f, 0.0f));
+    model =
+    glm::rotate(model, glm::radians(m_properties.rotZ), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::scale(model,
+    glm::vec3(m_properties.width, m_properties.height, m_properties.depth));
 
-        model = glm::rotate(
-        model, glm::radians(m_properties[i].rotY), glm::vec3(0.0f, 1.0f, 0.0f));
-
-        model = glm::rotate(
-        model, glm::radians(m_properties[i].rotZ), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        model = glm::scale(model,
-        glm::vec3(m_properties[i].width, m_properties[i].height, m_properties[i].depth));
-
-        m_shader->setMat4("model", model);
-        glBindVertexArray(m_VAO[i]);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-    }
+    m_shader->setMat4("model", model);
+    glBindVertexArray(m_VAO);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
 }
 
-void Cube::setPos(uint32_t index, float x, float y, float z) {
-    m_properties[index].x = x;
-    m_properties[index].y = y;
-    m_properties[index].z = z;
+void Cube::setPos(float x, float y, float z) {
+    m_properties.x = x;
+    m_properties.y = y;
+    m_properties.z = z;
 }
 
-void Cube::setPosX(uint32_t index, float x) {
-    m_properties[index].x = x;
+void Cube::setPosX(float x) {
+    m_properties.x = x;
 }
 
-void Cube::setPosY(uint32_t index, float y) {
-    m_properties[index].y = y;
+void Cube::setPosY(float y) {
+    m_properties.y = y;
 }
 
-void Cube::setPosZ(uint32_t index, float z) {
-    m_properties[index].z = z;
+void Cube::setPosZ(float z) {
+    m_properties.z = z;
 }
 
-void Cube::move(uint32_t index, float x, float y, float z) {
-    m_properties[index].x += x;
-    m_properties[index].y += y;
-    m_properties[index].z += z;
+void Cube::move(float x, float y, float z) {
+    m_properties.x += x;
+    m_properties.y += y;
+    m_properties.z += z;
 }
 
-void Cube::setScale(uint32_t index, float x, float y, float z) {
-    m_properties[index].width = x;
-    m_properties[index].height = y;
-    m_properties[index].depth = z;
+void Cube::setScale(float x, float y, float z) {
+    m_properties.width = x;
+    m_properties.height = y;
+    m_properties.depth = z;
 }
 
-void Cube::setScaleX(uint32_t index, float x) {
-    m_properties[index].width = x;
+void Cube::setScaleX(float x) {
+    m_properties.width = x;
 }
 
-void Cube::setScaleY(uint32_t index, float y) {
-    m_properties[index].height = y;
+void Cube::setScaleY(float y) {
+    m_properties.height = y;
 }
 
-void Cube::setScaleZ(uint32_t index, float z) {
-    m_properties[index].depth = z;
+void Cube::setScaleZ(float z) {
+    m_properties.depth = z;
 }
 
-void Cube::scale(uint32_t index, float x, float y, float z) {
-    m_properties[index].width *= x;
-    m_properties[index].height *= y;
-    m_properties[index].depth *= z;
+void Cube::scale(float x, float y, float z) {
+    m_properties.width *= x;
+    m_properties.height *= y;
+    m_properties.depth *= z;
 }
 
-void Cube::setRotation(uint32_t index, float x, float y, float z) {
-    m_properties[index].rotX = x;
-    m_properties[index].rotY = y;
-    m_properties[index].rotZ = z;
+void Cube::setRotation(float x, float y, float z) {
+    m_properties.rotX = x;
+    m_properties.rotY = y;
+    m_properties.rotZ = z;
 }
 
-void Cube::setRotationX(uint32_t index, float x) {
-    m_properties[index].rotX = x;
+void Cube::setRotationX(float x) {
+    m_properties.rotX = x;
 }
 
-void Cube::setRotationY(uint32_t index, float y) {
-    m_properties[index].rotY = y;
+void Cube::setRotationY(float y) {
+    m_properties.rotY = y;
 }
 
-void Cube::setRotationZ(uint32_t index, float z) {
-    m_properties[index].rotZ = z;
+void Cube::setRotationZ(float z) {
+    m_properties.rotZ = z;
 }
 
-void Cube::rotate(uint32_t index, float x, float y, float z) {
-    m_properties[index].rotX *= x;
-    m_properties[index].rotY *= y;
-    m_properties[index].rotZ *= z;
+void Cube::rotate(float x, float y, float z) {
+    m_properties.rotX *= x;
+    m_properties.rotY *= y;
+    m_properties.rotZ *= z;
 }
 
-uint32_t Cube::size() const {
-    return m_size;
-}
-
-Cube::Properties& Cube::get(uint32_t index) const {
-    return m_properties[index];
+Cube::Properties Cube::getProperty() const {
+    return m_properties;
 }

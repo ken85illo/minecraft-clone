@@ -34,9 +34,11 @@ private:
     const char* m_title;
     GLFWwindow* m_window;
     Shader* m_shader;
-    Cube* cubes;
+    Texture* m_texture;
     float m_deltaTime;
     bool m_wireFrameMode;
+
+    std::vector<Cube> chunk;
 
     void initWindow();
     void update();

@@ -5,10 +5,9 @@ Window* Window::instance = nullptr;
 
 Window::Window(uint16_t width, uint16_t height, const char* title, GLFWmonitor* monitor)
 : m_width(width), m_height(height), m_title(title), m_deltaTime(0.0f), m_wireFrameMode(false) {
+
     srand(static_cast<unsigned>(time(0)));
-
     m_window = glfwCreateWindow(m_width, m_height, m_title, monitor, nullptr);
-
     initWindow();
 
     int nrAttributes;
@@ -19,7 +18,6 @@ Window::Window(uint16_t width, uint16_t height, const char* title, GLFWmonitor* 
 Window::~Window() {
     delete cam;
     delete m_shader;
-    delete cubes;
     glfwDestroyWindow(m_window);
     glfwTerminate();
 }
@@ -49,6 +47,12 @@ void Window::initWindow() {
     m_shader = new Shader("../src/shaders/shader.vert", "../src/shaders/shader.frag");
     m_shader->use();
     m_shader->setInt("texture0", 0);
+
+    m_texture = new Texture(GL_TEXTURE_2D, 1);
+    m_texture->bind(0);
+    m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_texture->loadImage("../res/atlas.png");
 }
 
 void Window::mainLoop() {
@@ -72,17 +76,21 @@ void Window::mainLoop() {
     //     cubes->setPos(i, x, y, z);
     // }
 
-    uint32_t rows = 16;
-    uint32_t columns = 16;
-    uint32_t depth = 16;
-    cubes = new Cube(rows * columns * depth, m_shader, "../res/atlas.png", GRASS_BLOCK);
+    const uint32_t rows = 16;
+    const uint32_t columns = 16;
+    const uint32_t depth = 16;
+    chunk.reserve(rows * columns * depth);
 
-    for(int i = 0; i < rows; i++)
-        for(int j = 0; j < columns; j++)
+    for(int i = 0; i < rows; i++) {
+        for(int j = 0; j < columns; j++) {
             for(int k = 0; k < depth; k++) {
-                uint32_t index = i * columns * depth + j * depth + k;
-                cubes->setPos(index, j, i, k - static_cast<float>(depth));
+                chunk.emplace_back(m_shader, m_texture, 0,
+                (i == rows - 1) ? GRASS_BLOCK : DIRT_BLOCK);
+                chunk.back().setPos(static_cast<float>(j),
+                static_cast<float>(i), static_cast<float>(k) - 16.0f);
             }
+        }
+    }
 
     float lastFrame = 0.0f;
     while(!glfwWindowShouldClose(m_window)) {
@@ -128,7 +136,8 @@ void Window::render() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    cubes->render();
+    for(auto& cube : chunk)
+        cube.render();
 }
 
 void Window::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
