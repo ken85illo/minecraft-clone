@@ -19,7 +19,7 @@ void Texture::loadImage(const char* filepath) {
     if(!data) {
         std::println("Failed to load image texture!");
     } else {
-        glTexImage2D(m_target, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(m_target, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(m_target);
     }
 
