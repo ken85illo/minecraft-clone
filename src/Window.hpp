@@ -20,23 +20,28 @@
 class Window {
 public:
     static Window* instance; // singleton
+    Camera* cam;
 
-    Window(uint16_t width, uint16_t height, const char* title);
+    Window(uint16_t width, uint16_t height, const char* title, GLFWmonitor* monitor);
     ~Window();
     void mainLoop();
 
+    void onKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    void onWindowResize(int width, int height);
+
 private:
-    static glm::vec3 m_cameraPos, m_cameraFront, m_cameraUp;
-    static uint16_t m_width, m_height;
+    uint16_t m_width, m_height;
     const char* m_title;
     GLFWwindow* m_window;
     Shader* m_shader;
-    float m_deltaTime;
     Cube* cubes;
+    float m_deltaTime;
+    bool m_wireFrameMode;
 
     void initWindow();
     void update();
     void render();
 
     static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
+    static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 };

@@ -1,61 +1,80 @@
 #include "Camera.hpp"
+#include "Window.hpp"
 
-Camera* Camera::instance = nullptr;
-glm::vec3 Camera::m_cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 Camera::m_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 Camera::m_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-uint16_t* Camera::m_windowWidth = nullptr;
-uint16_t* Camera::m_windowHeight = nullptr;
-float Camera::m_sensitivity = 0.0f;
-float Camera::m_fov = 45.0f;
-
-Camera::Camera(float m_cameraSpeed,
-float sensitivity,
-uint16_t* windowWidth,
-uint16_t* windowHeight,
-float* deltaTime)
-: m_cameraSpeed(m_cameraSpeed), m_deltaTime(deltaTime) {
-    m_windowWidth = windowWidth;
-    m_windowHeight = windowHeight;
-    m_sensitivity = sensitivity;
-
-    m_cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    m_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+Camera::Camera(float cameraSpeed, float sensitivity, uint16_t* windowWidth, uint16_t* windowHeight, float* deltaTime)
+: m_cameraSpeed(cameraSpeed),
+  m_sensitivity(sensitivity),
+  m_windowWidth(windowWidth),
+  m_windowHeight(windowHeight),
+  m_deltaTime(deltaTime),
+  m_fov(45.0f),
+  m_cameraPos(glm::vec3(0.0f, 0.0f, 3.0f)),
+  m_cameraFront(glm::vec3(0.0f, 0.0f, -1.0f)),
+  m_cameraUp(glm::vec3(0.0f, 1.0f, 0.0f)),
+  m_frontVec(glm::vec3(0.0f, 0.0f, -1.0f)) {
 }
 
 void Camera::moveFront() {
     float speed = *m_deltaTime * m_cameraSpeed;
-    m_cameraPos += m_cameraFront * speed;
+    m_cameraPos += m_frontVec * speed;
 }
 
 void Camera::moveBack() {
     float speed = *m_deltaTime * m_cameraSpeed;
-    m_cameraPos -= m_cameraFront * speed;
+    m_cameraPos -= m_frontVec * speed;
 }
 
 void Camera::moveRight() {
     float speed = *m_deltaTime * m_cameraSpeed;
-    m_cameraPos += glm::normalize(glm::cross(m_cameraFront, m_cameraUp)) * speed;
+    m_cameraPos += glm::normalize(glm::cross(m_frontVec, m_cameraUp)) * speed;
 }
 
 void Camera::moveLeft() {
     float speed = *m_deltaTime * m_cameraSpeed;
-    m_cameraPos -= glm::normalize(glm::cross(m_cameraFront, m_cameraUp)) * speed;
+    m_cameraPos -= glm::normalize(glm::cross(m_frontVec, m_cameraUp)) * speed;
+}
+
+void Camera::moveUp() {
+    float speed = *m_deltaTime * m_cameraSpeed;
+    m_cameraPos += m_cameraUp * speed;
+}
+
+void Camera::moveDown() {
+    float speed = *m_deltaTime * m_cameraSpeed;
+    m_cameraPos -= m_cameraUp * speed;
 }
 
 glm::mat4 Camera::getViewMat4() {
-    return glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
+    glm::vec3 dir = glm::normalize(m_cameraPos - (m_cameraPos + m_cameraFront));
+    glm::vec3 right = glm::normalize(glm::cross(m_cameraUp, dir));
+    glm::vec3 up = glm::cross(dir, right);
+
+    glm::mat4 first = glm::mat4(1.0f);
+    first[0] = glm::vec4(right.x, up.x, dir.x, 0.0f);
+    first[1] = glm::vec4(right.y, up.y, dir.y, 0.0f);
+    first[2] = glm::vec4(right.z, up.z, dir.z, 0.0f);
+
+    glm::mat4 second = glm::mat4(1.0f);
+    second[3] = glm::vec4(-m_cameraPos, 1.0f);
+
+    // same implementation as glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp)
+    // just experimenting for a bit lol (its part of an exercise in learnopengl)
+    return first * second;
 }
 
 glm::mat4 Camera::getProjectionMat4() {
     return glm::perspective(
-    glm::radians(m_fov), *m_windowWidth / (float)*m_windowHeight, 1.0f, 100.0f);
+    glm::radians(m_fov), *m_windowWidth / (float)*m_windowHeight, 0.1f, 100.0f);
 }
 
-
 void Camera::mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+    static Window* windowClass = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    if(windowClass && windowClass->cam)
+        windowClass->cam->onCursorMove(xpos, ypos);
+}
+
+void Camera::onCursorMove(double xpos, double ypos) {
     static bool firstMouse = true;
     static float lastX = *m_windowWidth / 2.0f;
     static float lastY = *m_windowHeight / 2.0f;
@@ -70,7 +89,7 @@ void Camera::mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos
     float yoffset = lastY - ypos;
     lastX = xpos;
     lastY = ypos;
-    std::println("{} {}", xpos, ypos);
+    // std::println("{} {}", xpos, ypos);
 
     xoffset *= m_sensitivity;
     yoffset *= m_sensitivity;
@@ -86,14 +105,26 @@ void Camera::mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos
     if(pitch < -89.0f)
         pitch = -89.0f;
 
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    m_cameraFront = glm::normalize(direction);
+    glm::vec3 directionXZ;
+    directionXZ.x = cos(glm::radians(yaw));
+    directionXZ.z = sin(glm::radians(yaw));
+    m_frontVec = glm::normalize(directionXZ);
+
+    glm::vec3 directionXYZ;
+    directionXYZ.x = directionXZ.x * cos(glm::radians(pitch));
+    directionXYZ.y = sin(glm::radians(pitch));
+    directionXYZ.z = directionXZ.z * cos(glm::radians(pitch));
+    m_cameraFront = glm::normalize(directionXYZ);
 }
 
 void Camera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    static Window* windowClass = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    if(windowClass && windowClass->cam)
+        windowClass->cam->onScroll(xoffset, yoffset);
+}
+
+void Camera::onScroll(double xoffset, double yoffset) {
     m_fov -= (float)yoffset;
 
     if(m_fov < 1.0f)
