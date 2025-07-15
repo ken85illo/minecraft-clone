@@ -1,6 +1,6 @@
 #include "Cube.hpp"
 
-Cube::Cube(int size, Shader* shader, const char* texturePath)
+Cube::Cube(int size, Shader* shader, const char* texturePath, Block type)
 : m_size(size),
   m_shader(shader),
   m_VAO(new uint32_t[size]),
@@ -77,6 +77,22 @@ Cube::Cube(int size, Shader* shader, const char* texturePath)
     glGenBuffers(size, m_VBO);
     glGenBuffers(size, m_EBO);
 
+    if(type != NONE) {
+        m_atlas = new Atlas(16, 256, vertices);
+
+        switch(type) {
+        case NONE: break;
+        case DIRT_BLOCK:
+            m_atlas->map(DIRT_TEX, DIRT_TEX, DIRT_TEX, DIRT_TEX, DIRT_TEX, DIRT_TEX);
+            break;
+        case GRASS_BLOCK:
+            m_atlas->map(GRASS_SIDE_TEX, GRASS_SIDE_TEX, GRASS_TOP_TEX,
+            DIRT_TEX, GRASS_SIDE_TEX, GRASS_SIDE_TEX);
+            break;
+        }
+    }
+
+
     for(int i = 0; i < size; i++) {
         m_properties[i] = Properties{
             .x = 0.0f,
@@ -85,6 +101,9 @@ Cube::Cube(int size, Shader* shader, const char* texturePath)
             .width = 1.0f,
             .height = 1.0f,
             .depth = 1.0f,
+            .rotX = 0.0f,
+            .rotY = 0.0f,
+            .rotZ = 0.0f,
         };
 
         glBindVertexArray(m_VAO[i]);
@@ -103,8 +122,8 @@ Cube::Cube(int size, Shader* shader, const char* texturePath)
 
     m_texture = new Texture(GL_TEXTURE_2D, 1);
     m_texture->bind(0);
-    m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_texture->loadImage(texturePath);
 }
 
@@ -117,7 +136,6 @@ Cube::~Cube() {
     delete[] m_EBO;
 }
 
-
 void Cube::render() {
     m_texture->bind(0);
     for(int i = 0; i < m_size; i++) {
@@ -125,9 +143,14 @@ void Cube::render() {
         model = glm::translate(model,
         glm::vec3(m_properties[i].x, m_properties[i].y, m_properties[i].z));
 
-        model = glm::rotate(model,
-        glm::radians((float)glfwGetTime() * m_properties[i].x * 20.0f),
-        glm::vec3(1.0f, 0.5f, 0.25f));
+        model = glm::rotate(
+        model, glm::radians(m_properties[i].rotX), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        model = glm::rotate(
+        model, glm::radians(m_properties[i].rotY), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        model = glm::rotate(
+        model, glm::radians(m_properties[i].rotZ), glm::vec3(0.0f, 0.0f, 1.0f));
 
         model = glm::scale(model,
         glm::vec3(m_properties[i].width, m_properties[i].height, m_properties[i].depth));
@@ -161,12 +184,59 @@ void Cube::move(uint32_t index, float x, float y, float z) {
     m_properties[index].y += y;
     m_properties[index].z += z;
 }
+
 void Cube::setScale(uint32_t index, float x, float y, float z) {
     m_properties[index].width = x;
     m_properties[index].height = y;
     m_properties[index].depth = z;
 }
 
-uint32_t Cube::getSize() const {
+void Cube::setScaleX(uint32_t index, float x) {
+    m_properties[index].width = x;
+}
+
+void Cube::setScaleY(uint32_t index, float y) {
+    m_properties[index].height = y;
+}
+
+void Cube::setScaleZ(uint32_t index, float z) {
+    m_properties[index].depth = z;
+}
+
+void Cube::scale(uint32_t index, float x, float y, float z) {
+    m_properties[index].width *= x;
+    m_properties[index].height *= y;
+    m_properties[index].depth *= z;
+}
+
+void Cube::setRotation(uint32_t index, float x, float y, float z) {
+    m_properties[index].rotX = x;
+    m_properties[index].rotY = y;
+    m_properties[index].rotZ = z;
+}
+
+void Cube::setRotationX(uint32_t index, float x) {
+    m_properties[index].rotX = x;
+}
+
+void Cube::setRotationY(uint32_t index, float y) {
+    m_properties[index].rotY = y;
+}
+
+void Cube::setRotationZ(uint32_t index, float z) {
+    m_properties[index].rotZ = z;
+}
+
+void Cube::rotate(uint32_t index, float x, float y, float z) {
+    m_properties[index].rotX *= x;
+    m_properties[index].rotY *= y;
+    m_properties[index].rotZ *= z;
+}
+
+uint32_t Cube::size() const {
     return m_size;
+}
+
+Cube::Properties& Cube::get(uint32_t index) const {
+    return m_properties[index];
 }
