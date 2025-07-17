@@ -1,5 +1,4 @@
 #include "Window.hpp"
-#include <random>
 
 Window* Window::instance = nullptr;
 
@@ -16,6 +15,7 @@ Window::Window(uint16_t width, uint16_t height, const char* title, GLFWmonitor* 
 }
 
 Window::~Window() {
+    delete m_world;
     delete cam;
     delete m_shader;
     glfwDestroyWindow(m_window);
@@ -23,7 +23,9 @@ Window::~Window() {
 }
 
 void Window::initWindow() {
-    cam = new Camera(3.0f, 0.1f, &m_width, &m_height, &m_deltaTime);
+    cam = new Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f,
+    60.0f, &m_width, &m_height, &m_deltaTime);
+
     if(!m_window) {
         std::println("Failed to initialize window!");
         return;
@@ -43,16 +45,8 @@ void Window::initWindow() {
     }
 
     glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_CULL_FACE);
     m_shader = new Shader("../src/shaders/shader.vert", "../src/shaders/shader.frag");
-    m_shader->use();
-    m_shader->setInt("texture0", 0);
-
-    m_texture = new Texture(GL_TEXTURE_2D, 1);
-    m_texture->bind(0);
-    m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_texture->loadImage("../res/atlas.png");
 }
 
 void Window::mainLoop() {
@@ -63,7 +57,7 @@ void Window::mainLoop() {
     // float max_x = 50.0f, min_x = -50.0f;
     // float max_y = 50.0f, min_y = -50.0f;
     // float max_z = 50.0f, min_z = -50.0f;
-    // cubes = new Cube(1000, m_shader, "../res/nerd_hd.jpg");
+    // cubes = new Block(1000, m_shader, "../res/nerd_hd.jpg");
     // for(int i = 0; i < cubes->size(); i++) {
     //     float x = min_x +
     //     static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max_x - min_x)));
@@ -76,21 +70,8 @@ void Window::mainLoop() {
     //     cubes->setPos(i, x, y, z);
     // }
 
-    const uint32_t rows = 16;
-    const uint32_t columns = 16;
-    const uint32_t depth = 16;
-    chunk.reserve(rows * columns * depth);
 
-    for(int i = 0; i < rows; i++) {
-        for(int j = 0; j < columns; j++) {
-            for(int k = 0; k < depth; k++) {
-                chunk.emplace_back(m_shader, m_texture, 0,
-                (i == rows - 1) ? GRASS_BLOCK : DIRT_BLOCK);
-                chunk.back().setPos(static_cast<float>(j),
-                static_cast<float>(i), static_cast<float>(k) - 16.0f);
-            }
-        }
-    }
+    m_world = new World(10, m_shader);
 
     float lastFrame = 0.0f;
     while(!glfwWindowShouldClose(m_window)) {
@@ -136,8 +117,7 @@ void Window::render() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for(auto& cube : chunk)
-        cube.render();
+    m_world->render();
 }
 
 void Window::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -172,4 +152,9 @@ void Window::onKeyCallback(GLFWwindow* window, int key, int scancode, int action
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
+
+    if(key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
+        cam->speedUp();
+    if(key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
+        cam->speedDown();
 }

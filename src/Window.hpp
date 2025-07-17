@@ -1,6 +1,5 @@
 #pragma once
 
-
 // clang-format off
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -11,9 +10,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Camera.hpp"
-#include "objects/Cube.hpp"
-#include <cmath>
-#include <print>
+#include "Shader.hpp"
+#include "World.hpp"
 #include <stb_image.h>
 #include <sys/types.h>
 
@@ -34,11 +32,10 @@ private:
     const char* m_title;
     GLFWwindow* m_window;
     Shader* m_shader;
-    Texture* m_texture;
     float m_deltaTime;
     bool m_wireFrameMode;
 
-    std::vector<Cube> chunk;
+    World* m_world;
 
     void initWindow();
     void update();
