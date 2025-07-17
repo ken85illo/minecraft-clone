@@ -12,7 +12,16 @@
 
 class Camera {
 public:
-    Camera(float cameraSpeed, float sensitivity, uint16_t* windowWidth, uint16_t* windowHeight, float* deltaTime);
+    Camera(float near,
+    float far,
+    glm::vec3 pos,
+    float cameraSpeed,
+    float sensitivity,
+    float fov,
+    uint16_t* windowWidth,
+    uint16_t* windowHeight,
+    float* deltaTime);
+
     GLFWcursorposfun getCursorCallback();
     GLFWscrollfun getScrollCallback();
 
@@ -25,16 +34,18 @@ public:
     void moveLeft();
     void moveUp();
     void moveDown();
+    void speedUp();
+    void speedDown();
 
     glm::mat4 getViewMat4();
     glm::mat4 getProjectionMat4();
 
 private:
     const float m_cameraSpeed;
+    float m_currentSpeed;
     float* const m_deltaTime;
     uint16_t *m_windowWidth, *m_windowHeight;
-    float m_sensitivity;
-    float m_fov;
+    float m_sensitivity, m_fov, m_near, m_far;
 
     glm::vec3 m_cameraPos, m_cameraFront, m_cameraUp;
     glm::vec3 m_frontVec;

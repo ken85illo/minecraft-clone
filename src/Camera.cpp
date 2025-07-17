@@ -1,47 +1,66 @@
 #include "Camera.hpp"
 #include "Window.hpp"
 
-Camera::Camera(float cameraSpeed, float sensitivity, uint16_t* windowWidth, uint16_t* windowHeight, float* deltaTime)
-: m_cameraSpeed(cameraSpeed),
+Camera::Camera(float near,
+float far,
+glm::vec3 pos,
+float cameraSpeed,
+float sensitivity,
+float fov,
+uint16_t* windowWidth,
+uint16_t* windowHeight,
+float* deltaTime)
+: m_near(near),
+  m_far(far),
+  m_cameraSpeed(cameraSpeed),
+  m_currentSpeed(cameraSpeed),
   m_sensitivity(sensitivity),
   m_windowWidth(windowWidth),
   m_windowHeight(windowHeight),
   m_deltaTime(deltaTime),
-  m_fov(45.0f),
-  m_cameraPos(glm::vec3(0.0f, 0.0f, 3.0f)),
+  m_fov(fov),
+  m_cameraPos(pos),
   m_cameraFront(glm::vec3(0.0f, 0.0f, -1.0f)),
   m_cameraUp(glm::vec3(0.0f, 1.0f, 0.0f)),
   m_frontVec(glm::vec3(0.0f, 0.0f, -1.0f)) {
 }
 
 void Camera::moveFront() {
-    float speed = *m_deltaTime * m_cameraSpeed;
+    float speed = *m_deltaTime * m_currentSpeed;
     m_cameraPos += m_frontVec * speed;
 }
 
 void Camera::moveBack() {
-    float speed = *m_deltaTime * m_cameraSpeed;
+    float speed = *m_deltaTime * m_currentSpeed;
     m_cameraPos -= m_frontVec * speed;
 }
 
 void Camera::moveRight() {
-    float speed = *m_deltaTime * m_cameraSpeed;
+    float speed = *m_deltaTime * m_currentSpeed;
     m_cameraPos += glm::normalize(glm::cross(m_frontVec, m_cameraUp)) * speed;
 }
 
 void Camera::moveLeft() {
-    float speed = *m_deltaTime * m_cameraSpeed;
+    float speed = *m_deltaTime * m_currentSpeed;
     m_cameraPos -= glm::normalize(glm::cross(m_frontVec, m_cameraUp)) * speed;
 }
 
 void Camera::moveUp() {
-    float speed = *m_deltaTime * m_cameraSpeed;
+    float speed = *m_deltaTime * m_currentSpeed;
     m_cameraPos += m_cameraUp * speed;
 }
 
 void Camera::moveDown() {
-    float speed = *m_deltaTime * m_cameraSpeed;
+    float speed = *m_deltaTime * m_currentSpeed;
     m_cameraPos -= m_cameraUp * speed;
+}
+
+void Camera::speedUp() {
+    m_currentSpeed = m_cameraSpeed * 2;
+}
+
+void Camera::speedDown() {
+    m_currentSpeed = m_cameraSpeed;
 }
 
 glm::mat4 Camera::getViewMat4() {
@@ -64,7 +83,7 @@ glm::mat4 Camera::getViewMat4() {
 
 glm::mat4 Camera::getProjectionMat4() {
     return glm::perspective(
-    glm::radians(m_fov), *m_windowWidth / (float)*m_windowHeight, 0.1f, 100.0f);
+    glm::radians(m_fov), *m_windowWidth / (float)*m_windowHeight, m_near, m_far);
 }
 
 void Camera::mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
