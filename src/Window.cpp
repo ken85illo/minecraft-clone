@@ -2,11 +2,12 @@
 
 Window* Window::instance = nullptr;
 
-Window::Window(uint16_t width, uint16_t height, const char* title, GLFWmonitor* monitor)
-: m_width(width), m_height(height), m_title(title), m_deltaTime(0.0f), m_wireFrameMode(false) {
+Window::Window(const char* title, GLFWmonitor* monitor)
+: m_title(title), m_wireFrameMode(false) {
 
     srand(static_cast<unsigned>(time(0)));
-    m_window = glfwCreateWindow(m_width, m_height, m_title, monitor, nullptr);
+    m_window = glfwCreateWindow(
+    Engine::windowWidth, Engine::windowHeight, m_title, monitor, nullptr);
     initWindow();
 
     int nrAttributes;
@@ -16,28 +17,25 @@ Window::Window(uint16_t width, uint16_t height, const char* title, GLFWmonitor* 
 
 Window::~Window() {
     delete m_world;
-    delete cam;
-    delete m_shader;
     glfwDestroyWindow(m_window);
     glfwTerminate();
 }
 
 void Window::initWindow() {
-    cam = new Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f,
-    60.0f, &m_width, &m_height, &m_deltaTime);
-
     if(!m_window) {
         std::println("Failed to initialize window!");
         return;
     }
+
     glfwMakeContextCurrent(m_window);
     glfwSetWindowUserPointer(m_window, (void*)this);
 
     glfwSetFramebufferSizeCallback(m_window, frameBufferSizeCallback);
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(m_window, cam->getCursorCallback());
-    glfwSetScrollCallback(m_window, cam->getScrollCallback());
+    glfwSetCursorPosCallback(m_window, mouseCursorPosCallback);
+    glfwSetScrollCallback(m_window, scrollCallback);
     glfwSetKeyCallback(m_window, keyCallback);
+    glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::println("Failed to initialize GLAD!");
@@ -46,67 +44,46 @@ void Window::initWindow() {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    m_shader = new Shader("../src/shaders/shader.vert", "../src/shaders/shader.frag");
+
+    Engine::worldShader =
+    new Shader("../src/shaders/world.vert", "../src/shaders/world.frag");
+    Engine::lineShader = new Shader("../src/shaders/line.vert", "../src/shaders/line.frag");
 }
 
 void Window::mainLoop() {
     if(!m_window)
         return;
 
-    // Spawn cubes in a random position
-    // float max_x = 50.0f, min_x = -50.0f;
-    // float max_y = 50.0f, min_y = -50.0f;
-    // float max_z = 50.0f, min_z = -50.0f;
-    // cubes = new Block(1000, m_shader, "../res/nerd_hd.jpg");
-    // for(int i = 0; i < cubes->size(); i++) {
-    //     float x = min_x +
-    //     static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max_x - min_x)));
-    //     float y = min_y +
-    //     static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max_y - min_y)));
-    //     float z = min_z +
-    //     static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max_z - min_z)));
-    //
-    //     std::println("{} {} {}", x, y, z);
-    //     cubes->setPos(i, x, y, z);
-    // }
-
-
-    m_world = new World(10, m_shader);
+    m_player = new Player();
+    m_world = new World(m_player);
 
     float lastFrame = 0.0f;
     while(!glfwWindowShouldClose(m_window)) {
+        float currentFrame = glfwGetTime();
+        Engine::deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         update();
         render();
 
         glfwPollEvents();
         glfwSwapBuffers(m_window);
-
-        float currentFrame = glfwGetTime();
-        m_deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
     }
 }
 
 void Window::update() {
     if(glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
-        cam->moveFront();
+        m_player->moveFront();
     if(glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
-        cam->moveBack();
+        m_player->moveBack();
     if(glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
-        cam->moveRight();
+        m_player->moveRight();
     if(glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
-        cam->moveLeft();
+        m_player->moveLeft();
     if(glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        cam->moveUp();
+        m_player->moveUp();
     if(glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-        cam->moveDown();
-
-    glm::mat4 view = cam->getViewMat4();
-    glm::mat4 projection = cam->getProjectionMat4();
-
-    m_shader->use();
-    m_shader->setMat4("view", view);
-    m_shader->setMat4("projection", projection);
+        m_player->moveDown();
 }
 
 void Window::render() {
@@ -117,27 +94,39 @@ void Window::render() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glm::mat4 view = m_player->getViewMat4();
+    glm::mat4 projection = m_player->getProjectionMat4();
+
+    Engine::worldShader->use();
+    Engine::worldShader->setMat4("view", view);
+    Engine::worldShader->setMat4("projection", projection);
+
+    Engine::lineShader->use();
+    Engine::lineShader->setMat4("view", view);
+    Engine::lineShader->setMat4("projection", projection);
+
     m_world->render();
+    // m_player->drawRayLine();
 }
 
 void Window::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
-    Window* windowClass = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    static Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-    if(windowClass)
-        windowClass->onWindowResize(width, height);
+    if(self)
+        self->onWindowResize(width, height);
 }
 
 void Window::onWindowResize(int width, int height) {
-    m_width = width;
-    m_height = height;
+    Engine::windowWidth = width;
+    Engine::windowHeight = height;
 }
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    static Window* windowClass = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    static Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
 
-    if(windowClass)
-        windowClass->onKeyCallback(window, key, scancode, action, mods);
+    if(self)
+        self->onKeyCallback(window, key, scancode, action, mods);
 }
 
 void Window::onKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -154,7 +143,36 @@ void Window::onKeyCallback(GLFWwindow* window, int key, int scancode, int action
     }
 
     if(key == GLFW_KEY_LEFT_SHIFT && action == GLFW_PRESS)
-        cam->speedUp();
+        m_player->speedUp();
     if(key == GLFW_KEY_LEFT_SHIFT && action == GLFW_RELEASE)
-        cam->speedDown();
+        m_player->speedDown();
+}
+
+void Window::mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+    static Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    if(self && self->m_player)
+        self->m_player->onCursorMove(xpos, ypos);
+}
+
+
+void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    static Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    if(self && self->m_player)
+        self->m_player->onScroll(xoffset, yoffset);
+}
+
+void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    static Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    if(self)
+        self->onMouseButtonClicked(button, action, mods);
+}
+
+void Window::onMouseButtonClicked(int button, int action, int mods) {
+    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+        m_player->destroyBlock();
+    if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+        m_player->placeBlock();
 }

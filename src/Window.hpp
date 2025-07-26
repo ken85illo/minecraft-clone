@@ -9,8 +9,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Camera.hpp"
-#include "Shader.hpp"
 #include "World.hpp"
 #include <stb_image.h>
 #include <sys/types.h>
@@ -18,23 +16,21 @@
 class Window {
 public:
     static Window* instance; // singleton
-    Camera* cam;
 
-    Window(uint16_t width, uint16_t height, const char* title, GLFWmonitor* monitor);
+    Window(const char* title, GLFWmonitor* monitor);
     ~Window();
     void mainLoop();
 
     void onKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void onWindowResize(int width, int height);
+    void onMouseButtonClicked(int button, int action, int mods);
 
 private:
-    uint16_t m_width, m_height;
     const char* m_title;
     GLFWwindow* m_window;
-    Shader* m_shader;
-    float m_deltaTime;
     bool m_wireFrameMode;
 
+    Player* m_player;
     World* m_world;
 
     void initWindow();
@@ -43,4 +39,7 @@ private:
 
     static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
     static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+    static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+    static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 };
