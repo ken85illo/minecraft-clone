@@ -8,48 +8,35 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
-#include <print>
 
 class Camera {
 public:
-    Camera(float near,
-    float far,
-    glm::vec3 pos,
-    float cameraSpeed,
-    float sensitivity,
-    float fov,
-    uint16_t* windowWidth,
-    uint16_t* windowHeight,
-    float* deltaTime);
-
-    GLFWcursorposfun getCursorCallback();
-    GLFWscrollfun getScrollCallback();
+    Camera(float near, float far, glm::vec3 pos, float cameraSpeed, float sensitivity, float fov);
 
     void onCursorMove(double xpos, double ypos);
     void onScroll(double xoffset, double yoffset);
 
-    void moveFront();
-    void moveBack();
-    void moveRight();
-    void moveLeft();
-    void moveUp();
-    void moveDown();
+    virtual void moveFront();
+    virtual void moveBack();
+    virtual void moveRight();
+    virtual void moveLeft();
+    virtual void moveUp();
+    virtual void moveDown();
     void speedUp();
     void speedDown();
 
     glm::mat4 getViewMat4();
     glm::mat4 getProjectionMat4();
 
-private:
-    const float m_cameraSpeed;
+protected:
+    glm::vec3 m_pos, m_front, m_up;
+    glm::vec3 m_frontXZ;
+    float m_pitch, m_yaw;
     float m_currentSpeed;
-    float* const m_deltaTime;
-    uint16_t *m_windowWidth, *m_windowHeight;
-    float m_sensitivity, m_fov, m_near, m_far;
 
-    glm::vec3 m_cameraPos, m_cameraFront, m_cameraUp;
-    glm::vec3 m_frontVec;
+private:
+    float m_sensitivity, m_fov, m_currentFov, m_near, m_far;
+    float m_lastX, m_lastY;
 
-    static void mouseCursorPosCallback(GLFWwindow* window, double xpos, double ypos);
-    static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+    const float m_cameraSpeed;
 };
