@@ -1,22 +1,16 @@
 #include "Atlas.hpp"
 
-Atlas::Atlas(uint16_t bitsPerTexture,
-uint16_t totalBits,
-glm::vec2 texCoords[6][4],
-uint16_t textures[][6])
-: m_bitsPerTexture(bitsPerTexture),
-  m_totalBits(totalBits),
-  m_texCoords(*texCoords),
-  m_textures(*textures) {
+Atlas::Atlas(float texCoords[6][8], uint16_t textures[][6])
+: m_texCoords(*texCoords), m_textures(*textures) {
 }
 
-std::unordered_map<std::string, uint16_t> Atlas::getMap(uint16_t side) {
-    std::unordered_map<std::string, uint16_t> map;
+std::unordered_map<std::string, float> Atlas::getMap(uint16_t side) {
+    std::unordered_map<std::string, float> map;
 
-    map["left"] = (side * m_bitsPerTexture) % m_totalBits;
-    map["right"] = map["left"] + m_bitsPerTexture;
-    map["top"] = m_totalBits - ((side * m_bitsPerTexture / m_totalBits) * m_bitsPerTexture);
-    map["bottom"] = map["top"] - m_bitsPerTexture;
+    map["left"] = (side * BITS_PER_TEXTURE) % TOTAL_BITS;
+    map["right"] = map["left"] + BITS_PER_TEXTURE;
+    map["top"] = TOTAL_BITS - ((side * BITS_PER_TEXTURE / TOTAL_BITS) * BITS_PER_TEXTURE);
+    map["bottom"] = map["top"] - BITS_PER_TEXTURE;
 
     return map;
 }
@@ -36,46 +30,46 @@ void Atlas::map(uint16_t index) {
     auto mright = getMap(*(m_textures + index * 6 + 4));
     auto mleft = getMap(*(m_textures + index * 6 + 5));
 
-    glm::vec2 texMap[6][4] = {
+    float texMap[6][8] = {
         // front face
-        glm::vec2(mfront["left"], mfront["bottom"]),  // bottom-left
-        glm::vec2(mfront["right"], mfront["bottom"]), // bottom-right
-        glm::vec2(mfront["right"], mfront["top"]),    // top-right
-        glm::vec2(mfront["left"], mfront["top"]),     // top-left
+        mfront["left"], mfront["bottom"],  // bottom-left
+        mfront["right"], mfront["bottom"], // bottom-right
+        mfront["right"], mfront["top"],    // top-right
+        mfront["left"], mfront["top"],     // top-left
 
         // back face
-        glm::vec2(mback["right"], mback["bottom"]), // bottom-left
-        glm::vec2(mback["left"], mback["bottom"]),  // bottom-right
-        glm::vec2(mback["left"], mback["top"]),     // top-right
-        glm::vec2(mback["right"], mback["top"]),    // top-left
+        mback["right"], mback["bottom"], // bottom-left
+        mback["left"], mback["bottom"],  // bottom-right
+        mback["left"], mback["top"],     // top-right
+        mback["right"], mback["top"],    // top-left
 
         // top face
-        glm::vec2(mtop["left"], mtop["bottom"]),  // bottom-left
-        glm::vec2(mtop["right"], mtop["bottom"]), // bottom-right
-        glm::vec2(mtop["right"], mtop["top"]),    // top-right
-        glm::vec2(mtop["left"], mtop["top"]),     // top-left
+        mtop["left"], mtop["bottom"],  // bottom-left
+        mtop["right"], mtop["bottom"], // bottom-right
+        mtop["right"], mtop["top"],    // top-right
+        mtop["left"], mtop["top"],     // top-left
 
         // bottom face
-        glm::vec2(mbottom["right"], mbottom["bottom"]), // bottom-left
-        glm::vec2(mbottom["left"], mbottom["bottom"]),  // bottom-right
-        glm::vec2(mbottom["left"], mbottom["top"]),     // top-right
-        glm::vec2(mbottom["right"], mbottom["top"]),    // top-left
+        mbottom["right"], mbottom["bottom"], // bottom-left
+        mbottom["left"], mbottom["bottom"],  // bottom-right
+        mbottom["left"], mbottom["top"],     // top-right
+        mbottom["right"], mbottom["top"],    // top-left
 
         // right face
-        glm::vec2(mright["left"], mright["bottom"]),  // bottom-left
-        glm::vec2(mright["right"], mright["bottom"]), // bottom-right
-        glm::vec2(mright["right"], mright["top"]),    // top-right
-        glm::vec2(mright["left"], mright["top"]),     // top-left
+        mright["left"], mright["bottom"],  // bottom-left
+        mright["right"], mright["bottom"], // bottom-right
+        mright["right"], mright["top"],    // top-right
+        mright["left"], mright["top"],     // top-left
 
         // left face
-        glm::vec2(mleft["right"], mleft["bottom"]), // bottom-left
-        glm::vec2(mleft["left"], mleft["bottom"]),  // bottom-right
-        glm::vec2(mleft["left"], mleft["top"]),     // top-right
-        glm::vec2(mleft["right"], mleft["top"]),    // top-left
+        mleft["right"], mleft["bottom"], // bottom-left
+        mleft["left"], mleft["bottom"],  // bottom-right
+        mleft["left"], mleft["top"],     // top-right
+        mleft["right"], mleft["top"],    // top-left
     };
 
-    for(int i = 0; i < 24; i++) {
-        (m_texCoords + i)->x = (*texMap + i)->x / static_cast<float>(m_totalBits);
-        (m_texCoords + i)->y = (*texMap + i)->y / static_cast<float>(m_totalBits);
+    for(int i = 0; i < 48; i++) {
+        *(m_texCoords + i) = *(*texMap + i) / static_cast<float>(TOTAL_BITS);
+        *(m_texCoords + i) = *(*texMap + i) / static_cast<float>(TOTAL_BITS);
     }
 }

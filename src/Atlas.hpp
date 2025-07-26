@@ -6,20 +6,18 @@
 #include <string>
 #include <unordered_map>
 
+#define BITS_PER_TEXTURE 16
+#define TOTAL_BITS 256
+
 class Atlas {
 public:
-    Atlas(uint16_t bitsPerTexture,
-    uint16_t totalBits,
-    glm::vec2 texCoords[6][4],
-    uint16_t textures[][6]);
+    Atlas(float texCoords[6][8], uint16_t textures[][6]);
 
     void map(uint16_t index);
 
 private:
-    uint16_t m_bitsPerTexture;
-    uint16_t m_totalBits;
-    glm::vec2* m_texCoords;
+    float* m_texCoords;
     uint16_t* m_textures;
 
-    std::unordered_map<std::string, uint16_t> getMap(uint16_t side);
+    std::unordered_map<std::string, float> getMap(uint16_t side);
 };
