@@ -1,6 +1,4 @@
 #include "Camera.hpp"
-#include "Engine.hpp"
-#include "Window.hpp"
 
 Camera::Camera(float near, float far, glm::vec3 pos, float cameraSpeed, float sensitivity, float fov)
 : m_near(near),
@@ -14,39 +12,37 @@ Camera::Camera(float near, float far, glm::vec3 pos, float cameraSpeed, float se
   m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
   m_up(glm::vec3(0.0f, 1.0f, 0.0f)),
   m_frontXZ(glm::vec3(0.0f, 0.0f, -1.0f)),
-  m_lastX(Engine::windowWidth / 2.0f),
-  m_lastY(Engine::windowHeight / 2.0f),
   m_pitch(0.0f),
   m_yaw(-90.0f) {
 }
 
-void Camera::moveFront() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Camera::moveFront(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos += m_frontXZ * speed;
 }
 
-void Camera::moveBack() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Camera::moveBack(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos -= m_frontXZ * speed;
 }
 
-void Camera::moveRight() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Camera::moveRight(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos += glm::normalize(glm::cross(m_frontXZ, m_up)) * speed;
 }
 
-void Camera::moveLeft() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Camera::moveLeft(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos -= glm::normalize(glm::cross(m_frontXZ, m_up)) * speed;
 }
 
-void Camera::moveUp() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Camera::moveUp(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos += m_up * speed;
 }
 
-void Camera::moveDown() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Camera::moveDown(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos -= m_up * speed;
 }
 
@@ -76,14 +72,16 @@ glm::mat4 Camera::getViewMat4() {
     return first * second;
 }
 
-glm::mat4 Camera::getProjectionMat4() {
+glm::mat4 Camera::getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight) {
     return glm::perspective(glm::radians(m_currentFov),
-    Engine::windowWidth / (float)Engine::windowHeight, m_near, m_far);
+    windowWidth / (float)windowHeight, m_near, m_far);
 }
 
 
-void Camera::onCursorMove(double xpos, double ypos) {
+void Camera::onCursorMove(double xpos, double ypos, uint16_t windowWidth, uint16_t windowHeight) {
     static bool firstMouse = true;
+    static double lastX = windowWidth / 2.0;
+    static double lastY = windowHeight / 2.0;
 
     if(firstMouse) {
         m_lastX = xpos;

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "Chunk.hpp"
-#include "Engine.hpp"
+#include "shader/Shader.hpp"
+#include "terrain/Chunk.hpp"
 #include <stack>
 
 #define RANGE_RADIUS 8
@@ -14,14 +14,14 @@ struct ChunkCoords {
 
 class Player : public Camera {
 public:
-    Player();
+    Player(Shader* lineShader);
 
-    void moveFront() override;
-    void moveBack() override;
-    void moveRight() override;
-    void moveLeft() override;
-    void moveUp() override;
-    void moveDown() override;
+    void moveFront(float deltaTime) override;
+    void moveBack(float deltaTime) override;
+    void moveRight(float deltaTime) override;
+    void moveLeft(float deltaTime) override;
+    void moveUp(float deltaTime) override;
+    void moveDown(float deltaTime) override;
 
     void drawRayLine();
     void placeBlock();
@@ -30,6 +30,7 @@ public:
 
 private:
     Chunk* m_currentChunk;
+    Shader* m_lineShader;
     uint32_t m_VAO, m_VBO;
 
     float m_chunkFront;

@@ -1,4 +1,4 @@
-#include <Texture.hpp>
+#include "Texture.hpp"
 
 Texture::Texture(int target, int size)
 : m_ID(new uint[size]), m_target(target), m_size(size) {

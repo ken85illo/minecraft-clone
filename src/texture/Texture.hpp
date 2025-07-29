@@ -5,7 +5,6 @@
 #include <stb_image.h>
 #include <sys/types.h>
 
-
 class Texture {
 public:
     Texture(int target, int size);

@@ -13,20 +13,20 @@ class Camera {
 public:
     Camera(float near, float far, glm::vec3 pos, float cameraSpeed, float sensitivity, float fov);
 
-    void onCursorMove(double xpos, double ypos);
+    void onCursorMove(double xpos, double ypos, uint16_t windowWidth, uint16_t windowHeight);
     void onScroll(double xoffset, double yoffset);
 
-    virtual void moveFront();
-    virtual void moveBack();
-    virtual void moveRight();
-    virtual void moveLeft();
-    virtual void moveUp();
-    virtual void moveDown();
+    virtual void moveFront(float deltaTime);
+    virtual void moveBack(float deltaTime);
+    virtual void moveRight(float deltaTime);
+    virtual void moveLeft(float deltaTime);
+    virtual void moveUp(float deltaTime);
+    virtual void moveDown(float deltaTime);
     void speedUp();
     void speedDown();
 
     glm::mat4 getViewMat4();
-    glm::mat4 getProjectionMat4();
+    glm::mat4 getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight);
 
 protected:
     glm::vec3 m_pos, m_front, m_up;

@@ -1,12 +1,8 @@
 #include "Player.hpp"
 
-Player::Player()
+Player::Player(Shader* lineShader)
 : Camera(0.1f, 300.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f),
-  m_currentChunk(nullptr),
-  m_chunkFront(0.0f),
-  m_chunkBack(0.0f),
-  m_chunkLeft(0.0f),
-  m_chunkRight(0.0f) {
+  m_lineShader(lineShader) {
 
     // draw a ray
     float vertices[2][3]{
@@ -32,16 +28,16 @@ void Player::setCurrentChunk(Chunk* chunk) {
 
     static bool spawn = true;
     if(spawn) {
-        m_pos =
-        glm::vec3(chunk->position.x, chunk->highestBlock, chunk->position.z);
+        m_pos = glm::vec3(chunk->getPosition().x, chunk->getHighestBlock(),
+        chunk->getPosition().z);
         spawn = false;
     }
 
     float halfChunk = CHUNK_SIZE / 2.0f;
-    m_chunkFront = chunk->position.z + halfChunk;
-    m_chunkBack = chunk->position.z - halfChunk;
-    m_chunkRight = chunk->position.x + halfChunk;
-    m_chunkLeft = chunk->position.x - halfChunk;
+    m_chunkFront = chunk->getPosition().z + halfChunk;
+    m_chunkBack = chunk->getPosition().z - halfChunk;
+    m_chunkRight = chunk->getPosition().x + halfChunk;
+    m_chunkLeft = chunk->getPosition().x - halfChunk;
     m_currentChunk = chunk;
 }
 
@@ -50,53 +46,53 @@ void Player::updateCurrentChunk() {
         return;
 
     if(m_pos.z > m_chunkFront) {
-        setCurrentChunk(m_currentChunk->front);
+        setCurrentChunk(m_currentChunk->getFrontChunk());
         std::println("You moved to front chunk!");
     } else if(m_pos.z < m_chunkBack) {
-        setCurrentChunk(m_currentChunk->back);
+        setCurrentChunk(m_currentChunk->getBackChunk());
         std::println("You moved to back chunk!");
     }
 
     if(m_pos.x > m_chunkRight) {
-        setCurrentChunk(m_currentChunk->right);
+        setCurrentChunk(m_currentChunk->getRightChunk());
         std::println("You moved to right chunk!");
     } else if(m_pos.x < m_chunkLeft) {
-        setCurrentChunk(m_currentChunk->left);
+        setCurrentChunk(m_currentChunk->getLeftChunk());
         std::println("You moved to left chunk!");
     }
 }
 
-void Player::moveFront() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Player::moveFront(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos += m_frontXZ * speed;
     updateCurrentChunk();
 }
 
-void Player::moveBack() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Player::moveBack(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos -= m_frontXZ * speed;
     updateCurrentChunk();
 }
 
-void Player::moveRight() {
-    float speed = Engine::deltaTime * m_currentSpeed;
-    m_pos += glm::normalize(glm::cross(m_frontXZ, m_up)) * speed;
+void Player::moveRight(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
+    m_pos += glm::normalize(glm::cross(m_up, -m_frontXZ)) * speed;
     updateCurrentChunk();
 }
 
-void Player::moveLeft() {
-    float speed = Engine::deltaTime * m_currentSpeed;
-    m_pos -= glm::normalize(glm::cross(m_frontXZ, m_up)) * speed;
+void Player::moveLeft(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
+    m_pos -= glm::normalize(glm::cross(m_up, -m_frontXZ)) * speed;
     updateCurrentChunk();
 }
 
-void Player::moveUp() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Player::moveUp(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos += m_up * speed;
 }
 
-void Player::moveDown() {
-    float speed = Engine::deltaTime * m_currentSpeed;
+void Player::moveDown(float deltaTime) {
+    float speed = deltaTime * m_currentSpeed;
     m_pos -= m_up * speed;
 }
 
@@ -131,9 +127,9 @@ void Player::drawRayLine() {
         model *= rotation;
         model = glm::scale(model, glm::vec3(1.0f, length, 1.0f));
 
-        Engine::lineShader->use();
-        Engine::lineShader->setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
-        Engine::lineShader->setMat4("model", model);
+        m_lineShader->use();
+        m_lineShader->setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
+        m_lineShader->setMat4("model", model);
 
         glLineWidth(10.0f);
         glBindVertexArray(m_VAO);
@@ -225,22 +221,22 @@ ChunkCoords Player::getCoords(glm::vec3 point) {
 
     Chunk* blockChunk = m_currentChunk;
     float halfChunk = CHUNK_SIZE / 2.0f;
-    float dx = point.x + halfChunk - blockChunk->position.x; // leftmost
-    float dz = point.z + halfChunk - blockChunk->position.z; // backmost
+    float dx = point.x + halfChunk - blockChunk->getPosition().x; // leftmost
+    float dz = point.z + halfChunk - blockChunk->getPosition().z; // backmost
 
     if(dx < 0) {
-        blockChunk = (blockChunk->left) ? blockChunk->left : blockChunk;
+        blockChunk = (blockChunk->getLeftChunk()) ? blockChunk->getLeftChunk() : blockChunk;
         dx += CHUNK_SIZE;
     } else if(dx >= CHUNK_SIZE) {
-        blockChunk = (blockChunk->right) ? blockChunk->right : blockChunk;
+        blockChunk = (blockChunk->getRightChunk()) ? blockChunk->getRightChunk() : blockChunk;
         dx -= CHUNK_SIZE;
     }
 
     if(dz < 0) {
-        blockChunk = (blockChunk->back) ? blockChunk->back : blockChunk;
+        blockChunk = (blockChunk->getBackChunk()) ? blockChunk->getBackChunk() : blockChunk;
         dz += CHUNK_SIZE;
     } else if(dz >= CHUNK_SIZE) {
-        blockChunk = (blockChunk->front) ? blockChunk->front : blockChunk;
+        blockChunk = (blockChunk->getFrontChunk()) ? blockChunk->getFrontChunk() : blockChunk;
         dz -= CHUNK_SIZE;
     }
 
