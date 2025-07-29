@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "core/Window.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
@@ -22,6 +23,7 @@ public:
     virtual void moveLeft(float deltaTime);
     virtual void moveUp(float deltaTime);
     virtual void moveDown(float deltaTime);
+    virtual void movementInput(Window* window, float deltaTime);
     void speedUp();
     void speedDown();
 

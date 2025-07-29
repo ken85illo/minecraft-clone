@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Camera.hpp"
+#include "core/Window.hpp"
+#include "input/InputHandler.hpp"
 #include "shader/Shader.hpp"
 #include "terrain/Chunk.hpp"
 #include <stack>
@@ -22,6 +24,7 @@ public:
     void moveLeft(float deltaTime) override;
     void moveUp(float deltaTime) override;
     void moveDown(float deltaTime) override;
+    void movementInput(Window* window, float deltaTime) override;
 
     void drawRayLine();
     void placeBlock();

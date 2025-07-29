@@ -40,53 +40,23 @@ void Engine::mainLoop() {
 }
 
 void Engine::update(float deltaTime) {
-    // Player Controls
-    // ---------------------------------------------------------------------------
-    m_player->onCursorMove(InputHandler::getMousePosition().x,
-    InputHandler::getMousePosition().y, m_window->getWidth(), m_window->getHeight());
-    m_player->onScroll(
-    InputHandler::getMouseScroll().x, InputHandler::getMouseScroll().y);
-
-    if(InputHandler::isKeyHeld(GLFW_KEY_W))
-        m_player->moveFront(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_S))
-        m_player->moveBack(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_D))
-        m_player->moveRight(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_A))
-        m_player->moveLeft(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_SPACE))
-        m_player->moveUp(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_LEFT_CONTROL))
-        m_player->moveDown(deltaTime);
-    if(InputHandler::isMousePressed(GLFW_MOUSE_BUTTON_LEFT))
-        m_player->destroyBlock();
-    if(InputHandler::isMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
-        m_player->placeBlock();
-    if(InputHandler::isKeyHeld(GLFW_KEY_LEFT_SHIFT))
-        m_player->speedUp();
-    else
-        m_player->speedDown();
-    // ---------------------------------------------------------------------------
-
     if(InputHandler::isKeyPressed(GLFW_KEY_ESCAPE))
         m_window->setShouldClose(true);
 
-    if(InputHandler::isKeyPressed(GLFW_KEY_F1)) {
+    if(InputHandler::isKeyPressed(GLFW_KEY_F1))
         m_wireFrameMode = !m_wireFrameMode;
 
-        if(!m_wireFrameMode)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        else
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
+    m_player->movementInput(m_window, deltaTime);
 }
 
 void Engine::render() {
-    if(!m_wireFrameMode)
+    if(!m_wireFrameMode) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glClearColor(135 / 255.f, 206 / 255.f, 235 / 255.f, 1.f);
-    else
+    } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

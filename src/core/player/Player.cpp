@@ -189,7 +189,7 @@ void Player::placeBlock() {
         if(bchunk->getType(bx, by, bz) != AIR)
             break;
 
-        bchunk->updateMesh(STONE_BLOCK, bx, by, bz);
+        bchunk->updateMesh(OAK_WOOD_BLOCK, bx, by, bz);
         break;
     }
 }
@@ -245,4 +245,31 @@ ChunkCoords Player::getCoords(glm::vec3 point) {
     uint16_t nz = floor(dz);
 
     return ChunkCoords(blockChunk, nx, ny, nz);
+}
+
+void Player::movementInput(Window* window, float deltaTime) {
+    onCursorMove(InputHandler::getMousePosition().x,
+    InputHandler::getMousePosition().y, window->getWidth(), window->getHeight());
+    onScroll(InputHandler::getMouseScroll().x, InputHandler::getMouseScroll().y);
+
+    if(InputHandler::isKeyHeld(GLFW_KEY_W))
+        moveFront(deltaTime);
+    if(InputHandler::isKeyHeld(GLFW_KEY_S))
+        moveBack(deltaTime);
+    if(InputHandler::isKeyHeld(GLFW_KEY_D))
+        moveRight(deltaTime);
+    if(InputHandler::isKeyHeld(GLFW_KEY_A))
+        moveLeft(deltaTime);
+    if(InputHandler::isKeyHeld(GLFW_KEY_SPACE))
+        moveUp(deltaTime);
+    if(InputHandler::isKeyHeld(GLFW_KEY_LEFT_CONTROL))
+        moveDown(deltaTime);
+    if(InputHandler::isMousePressed(GLFW_MOUSE_BUTTON_LEFT))
+        destroyBlock();
+    if(InputHandler::isMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
+        placeBlock();
+    if(InputHandler::isKeyHeld(GLFW_KEY_LEFT_SHIFT))
+        speedUp();
+    else
+        speedDown();
 }
