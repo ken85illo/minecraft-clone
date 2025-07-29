@@ -1,15 +1,26 @@
 #pragma once
 
-#include "Shader.hpp"
-#include <cstdint>
+#include "core/Window.hpp"
+#include "core/player/Player.hpp"
+#include "shader/Shader.hpp"
+#include "terrain/World.hpp"
+#include <GLFW/glfw3.h>
 
-// define global variables
-namespace Engine {
+class Engine {
+public:
+    Engine();
+    ~Engine();
+    void mainLoop();
 
-extern int32_t windowWidth;
-extern int32_t windowHeight;
-extern float deltaTime;
-extern Shader* worldShader;
-extern Shader* lineShader;
+private:
+    bool m_wireFrameMode = false;
+    Shader* m_worldShader;
+    Shader* m_lineShader;
 
-}; // namespace Engine
+    Window* m_window;
+    Player* m_player;
+    World* m_world;
+
+    void render();
+    void update(float deltaTime);
+};
