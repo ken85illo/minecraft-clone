@@ -108,7 +108,7 @@ void Player::drawRayLine() {
         if(!chunk)
             continue;
 
-        if(chunk->getType(x, y, z) == AIR) {
+        if(chunk->getType(x, y, z) == Block::Block::AIR) {
             length += 1.0f;
             continue;
         }
@@ -150,18 +150,18 @@ void Player::placeBlock() {
         if(!chunk)
             continue;
 
-        if(chunk->getType(x, y, z) == AIR) {
+        if(chunk->getType(x, y, z) == Block::AIR) {
             length += 0.5f;
             continue;
         }
 
         glm::vec3 normals[6] = {
-            { 1.0f, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f }, // X axis
-            { 0.0f, 1.0f, 0.0f }, { 0.0f, -1.0f, 0.0f }, // Y axis
-            { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f }, // Z axis
+            { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, // X axis
+            { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, // Y axis
+            { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, // Z axis
         };
 
-        BlockRect blockRect = chunk->getBlockRect(x, y, z);
+        Block::Rect blockRect = chunk->getBlockRect(x, y, z);
         float minDist = 0.0f;
         glm::vec3 normal = glm::vec3(0.0f);
 
@@ -185,11 +185,11 @@ void Player::placeBlock() {
             }
         }
 
-        auto [bchunk, bx, by, bz] = getCoords(blockRect.position + normal);
-        if(bchunk->getType(bx, by, bz) != AIR)
+        auto [bchunk, bx, by, bz] = getCoords(blockRect.min + normal);
+        if(bchunk->getType(bx, by, bz) != Block::AIR)
             break;
 
-        bchunk->updateMesh(OAK_WOOD_BLOCK, bx, by, bz);
+        bchunk->updateMesh(Block::OAK_WOOD_BLOCK, bx, by, bz);
         break;
     }
 }
@@ -205,12 +205,12 @@ void Player::destroyBlock() {
         if(!chunk)
             continue;
 
-        if(chunk->getType(x, y, z) == AIR) {
+        if(chunk->getType(x, y, z) == Block::AIR) {
             length += 0.5f;
             continue;
         }
 
-        chunk->updateMesh(AIR, x, y, z);
+        chunk->updateMesh(Block::AIR, x, y, z);
         break;
     }
 }

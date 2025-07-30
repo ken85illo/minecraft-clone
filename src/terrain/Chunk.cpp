@@ -6,6 +6,7 @@ Chunk::Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position)
     int32_t size = CHUNK_SIZE * MAX_HEIGHT * CHUNK_SIZE;
     m_blocks.reserve(size);
 
+    uint8_t halfChunk = CHUNK_SIZE / 2;
     for(int32_t x = 0; x < CHUNK_SIZE; x++)
         for(int32_t y = 0; y < MAX_HEIGHT; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
@@ -14,14 +15,15 @@ Chunk::Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position)
                 if(height > m_highestBlock)
                     m_highestBlock = height;
 
+                glm::vec3 pos = glm::vec3(x - halfChunk, y, z - halfChunk);
                 if(y >= height)
-                    m_blocks.emplace_back(AIR);
+                    m_blocks.emplace_back(Block::Block::AIR, pos);
                 else if(y == height - 1)
-                    m_blocks.emplace_back(GRASS_BLOCK);
+                    m_blocks.emplace_back(Block::GRASS_BLOCK, pos);
                 else if(y < height * 0.75)
-                    m_blocks.emplace_back(STONE_BLOCK);
+                    m_blocks.emplace_back(Block::STONE_BLOCK, pos);
                 else if(y < height)
-                    m_blocks.emplace_back(DIRT_BLOCK);
+                    m_blocks.emplace_back(Block::DIRT_BLOCK, pos);
             }
 
     glGenVertexArrays(1, &m_VAO);
@@ -62,7 +64,7 @@ void Chunk::generateMesh() {
         for(int32_t y = 0; y < MAX_HEIGHT; y++) {
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
                 auto block = getType(x, y, z);
-                if(block == AIR)
+                if(block == Block::Block::AIR)
                     continue;
 
                 atlas.map(block);
@@ -81,18 +83,12 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
     int8_t dy[6] = { 0, 0, 1, -1, 0, 0 };
     int8_t dz[6] = { 1, -1, 0, 0, 0, 0 };
 
-    uint8_t halfChunk = CHUNK_SIZE / 2;
 
     for(uint8_t face = 0; face < 6; face++) {
-        if(getType(x + dx[face], y + dy[face], z + dz[face]) != AIR)
+        if(getType(x + dx[face], y + dy[face], z + dz[face]) != Block::Block::AIR)
             continue;
 
-        float vertices[12];
-        for(int i = 0; i < 12; i += 3) {
-            vertices[i] = m_vertices[face][i] + x - halfChunk;
-            vertices[i + 1] = m_vertices[face][i + 1] + y;
-            vertices[i + 2] = m_vertices[face][i + 2] + z - halfChunk;
-        }
+        auto& vertices = m_blocks[index].getFace(face);
         m_vertexData.insert(m_vertexData.end(), std::begin(vertices), std::end(vertices));
         m_textureData.insert(m_textureData.end(), std::begin(m_texCoords[face]),
         std::end(m_texCoords[face]));
@@ -103,8 +99,8 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
     }
 }
 
-void Chunk::updateMesh(BlockType type, int32_t x, int32_t y, int32_t z) {
-    m_blocks[getIndex(x, y, z)] = type;
+void Chunk::updateMesh(Block::Type type, int32_t x, int32_t y, int32_t z) {
+    m_blocks[getIndex(x, y, z)].setType(type);
     if(y > m_highestBlock)
         m_highestBlock = y;
 
@@ -148,21 +144,21 @@ uint8_t Chunk::getHighestBlock() const {
     return m_highestBlock;
 }
 
-BlockType Chunk::getType(int32_t x, int32_t y, int32_t z) const {
+const Block::Type Chunk::getType(int32_t x, int32_t y, int32_t z) const {
     const Chunk* currentChunk = this;
 
     if(y < 0 || y >= MAX_HEIGHT)
-        return AIR;
+        return Block::AIR;
 
     if(z >= CHUNK_SIZE) {
         if(!m_frontChunk)
-            return AIR;
+            return Block::AIR;
 
         z -= CHUNK_SIZE;
         currentChunk = m_frontChunk;
     } else if(z < 0) {
         if(!m_backChunk)
-            return AIR;
+            return Block::AIR;
 
         z += CHUNK_SIZE;
         currentChunk = m_backChunk;
@@ -170,35 +166,27 @@ BlockType Chunk::getType(int32_t x, int32_t y, int32_t z) const {
 
     if(x >= CHUNK_SIZE) {
         if(!m_rightChunk)
-            return AIR;
+            return Block::AIR;
 
         x -= CHUNK_SIZE;
         currentChunk = m_rightChunk;
     } else if(x < 0) {
         if(!m_leftChunk)
-            return AIR;
+            return Block::AIR;
 
         x += CHUNK_SIZE;
         currentChunk = m_leftChunk;
     }
 
-    return currentChunk->m_blocks[getIndex(x, y, z)];
+    return currentChunk->m_blocks[getIndex(x, y, z)].getType();
 }
 
 int32_t Chunk::getIndex(int32_t x, int32_t y, int32_t z) const {
     return x * MAX_HEIGHT * CHUNK_SIZE + y * CHUNK_SIZE + z;
 }
 
-BlockRect Chunk::getBlockRect(int32_t x, int32_t y, int32_t z) const {
-    uint8_t halfChunk = CHUNK_SIZE / 2;
-    glm::vec3 blockPos = m_position + glm::vec3(-halfChunk, 0.0f, -halfChunk) +
-    glm::vec3(x + 0.5f, y + 0.5f, z + 0.5f);
-
-    return BlockRect{
-        .position = blockPos,              //
-        .min = blockPos - glm::vec3(0.5f), //
-        .max = blockPos + glm::vec3(0.5f)  //
-    };
+const Block::Rect& Chunk::getBlockRect(int32_t x, int32_t y, int32_t z) const {
+    return m_blocks[getIndex(x, y, z)].getRect();
 }
 
 Chunk* Chunk::getFrontChunk() const {
