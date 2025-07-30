@@ -1,5 +1,6 @@
 #pragma once
 
+#include "texture/Atlas.hpp"
 #include <array>
 #include <glm/glm.hpp>
 
@@ -19,19 +20,24 @@ public:
         AIR
     };
 
-    Block(Type type, glm::vec3 min);
+    Block(Type type, glm::vec3 min, glm::vec3 chunkPosition);
 
     // Setters
     void setType(Type type);
 
     // Getters
-    const Type& getType() const;
-    const Rect& getRect() const;
+    const Type getType() const;
+    const Rect& getLocalRect() const;
+    const Rect& getGlobalRect() const;
+    const std::array<float, 8> getTexCoord(uint8_t index) const;
     const std::array<float, 12> getFace(uint8_t index) const;
 
 private:
     Type m_type;
-    Rect m_rect;
+    Rect m_localRect;
+    Rect m_globalRect;
 
     static float s_vertices[6][12];
+    static float s_texCoords[6][8];
+    static Atlas s_atlas;
 };

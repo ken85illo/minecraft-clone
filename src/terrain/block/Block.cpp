@@ -38,29 +38,49 @@ float Block::s_vertices[6][12] = {
     0.0f, 1.0f, 0.0f, // top-left
 };
 
-Block::Block(Type type, glm::vec3 min)
-: m_type(type), m_rect{ min, min + 1.0f } {
+float Block::s_texCoords[6][8];
+Atlas Block::s_atlas = Atlas(Block::s_texCoords);
+
+Block::Block(Type type, glm::vec3 min, glm::vec3 chunkPosition)
+: m_type(type),
+  m_localRect{ min, min + 1.0f },
+  m_globalRect{ min + chunkPosition, min + 1.0f + chunkPosition } {
 }
 
 void Block::setType(Type type) {
     m_type = type;
 }
 
+const std::array<float, 8> Block::getTexCoord(uint8_t index) const {
+    s_atlas.map(m_type);
+    std::array<float, 8> mappedTexCoord;
+
+    for(uint8_t i = 0; i < 8; i++)
+        mappedTexCoord[i] = s_texCoords[index][i];
+
+    return mappedTexCoord;
+}
+
 const std::array<float, 12> Block::getFace(uint8_t index) const {
     std::array<float, 12> posVertices;
 
     for(uint8_t i = 0; i < 12; i += 3) {
-        posVertices[i] = s_vertices[index][i] + m_rect.min.x;
-        posVertices[i + 1] = s_vertices[index][i + 1] + m_rect.min.y;
-        posVertices[i + 2] = s_vertices[index][i + 2] + m_rect.min.z;
+        posVertices[i] = s_vertices[index][i] + m_localRect.min.x;
+        posVertices[i + 1] = s_vertices[index][i + 1] + m_localRect.min.y;
+        posVertices[i + 2] = s_vertices[index][i + 2] + m_localRect.min.z;
     }
 
     return posVertices;
 }
 
-const Block::Type& Block::getType() const {
+const Block::Type Block::getType() const {
     return m_type;
 }
-const Block::Rect& Block::getRect() const {
-    return m_rect;
+
+const Block::Rect& Block::getLocalRect() const {
+    return m_localRect;
+}
+
+const Block::Rect& Block::getGlobalRect() const {
+    return m_globalRect;
 }

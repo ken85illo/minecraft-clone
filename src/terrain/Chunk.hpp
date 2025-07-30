@@ -25,11 +25,11 @@ public:
     void updateMesh(Block::Type type, int32_t x, int32_t y, int32_t z);
     void bindVertexArray();
     void deleteVertexArray();
+    bool isAirBlock(int32_t x, int32_t y, int32_t z);
 
     // Getters
     uint8_t getHighestBlock() const;
-    const Block::Type getType(int32_t x, int32_t y, int32_t z) const;
-    const Block::Rect& getBlockRect(int32_t x, int32_t y, int32_t z) const;
+    const Block* getBlock(int32_t x, int32_t y, int32_t z);
     Chunk* getFrontChunk() const;
     Chunk* getBackChunk() const;
     Chunk* getRightChunk() const;
@@ -40,7 +40,6 @@ public:
     void setNeighbours(Chunk* front, Chunk* back, Chunk* right, Chunk* left);
 
 private:
-    float m_texCoords[6][8];
     uint32_t m_indices[6] = {
         0, 1, 3, // first triangle
         1, 2, 3, // second triangle
@@ -57,9 +56,7 @@ private:
     std::vector<Block> m_blocks;
     glm::vec3 m_position;
 
-
     // Helper functions
     void fillFaces(int32_t x, int32_t y, int32_t z);
-    void refillFaces(int32_t x, int32_t y, int32_t z);
     int32_t getIndex(int32_t x, int32_t y, int32_t z) const;
 };

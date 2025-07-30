@@ -108,7 +108,7 @@ void Player::drawRayLine() {
         if(!chunk)
             continue;
 
-        if(chunk->getType(x, y, z) == Block::Block::AIR) {
+        if(chunk->isAirBlock(x, y, z)) {
             length += 1.0f;
             continue;
         }
@@ -150,7 +150,7 @@ void Player::placeBlock() {
         if(!chunk)
             continue;
 
-        if(chunk->getType(x, y, z) == Block::AIR) {
+        if(chunk->isAirBlock(x, y, z)) {
             length += 0.5f;
             continue;
         }
@@ -161,7 +161,7 @@ void Player::placeBlock() {
             { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, // Z axis
         };
 
-        Block::Rect blockRect = chunk->getBlockRect(x, y, z);
+        Block::Rect blockRect = chunk->getBlock(x, y, z)->getGlobalRect();
         float minDist = 0.0f;
         glm::vec3 normal = glm::vec3(0.0f);
 
@@ -186,7 +186,7 @@ void Player::placeBlock() {
         }
 
         auto [bchunk, bx, by, bz] = getCoords(blockRect.min + normal);
-        if(bchunk->getType(bx, by, bz) != Block::AIR)
+        if(!bchunk->isAirBlock(bx, by, bz))
             break;
 
         bchunk->updateMesh(Block::OAK_WOOD_BLOCK, bx, by, bz);
@@ -205,7 +205,7 @@ void Player::destroyBlock() {
         if(!chunk)
             continue;
 
-        if(chunk->getType(x, y, z) == Block::AIR) {
+        if(chunk->isAirBlock(x, y, z)) {
             length += 0.5f;
             continue;
         }
@@ -220,9 +220,9 @@ ChunkCoords Player::getCoords(glm::vec3 point) {
         return ChunkCoords{ nullptr, 0, 0, 0 };
 
     Chunk* blockChunk = m_currentChunk;
-    float halfChunk = CHUNK_SIZE / 2.0f;
-    float dx = point.x + halfChunk - blockChunk->getPosition().x; // leftmost
-    float dz = point.z + halfChunk - blockChunk->getPosition().z; // backmost
+    uint8_t halfChunk = CHUNK_SIZE / 2;
+    float dx = point.x - blockChunk->getPosition().x; // leftmost
+    float dz = point.z - blockChunk->getPosition().z; // backmost
 
     if(dx < 0) {
         blockChunk = (blockChunk->getLeftChunk()) ? blockChunk->getLeftChunk() : blockChunk;
@@ -241,8 +241,8 @@ ChunkCoords Player::getCoords(glm::vec3 point) {
     }
 
     uint16_t nx = floor(dx);
-    uint16_t ny = floor(point.y);
     uint16_t nz = floor(dz);
+    uint16_t ny = floor(point.y);
 
     return ChunkCoords(blockChunk, nx, ny, nz);
 }
