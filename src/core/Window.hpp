@@ -6,7 +6,6 @@
 // clang-format on
 
 #include "input/InputHandler.hpp"
-#include "terrain/World.hpp"
 #include <print>
 
 class Window {
