@@ -8,9 +8,9 @@
 #include <cstdint>
 #include <thread>
 
-#define WORLD_RADIUS 2
+#define WORLD_RADIUS 4
 #define PERMUTATION_SIZE 512
-#define AMPLITUDE 0.5f
+#define AMPLITUDE 1.0f
 #define FREQUENCY 0.005f
 #define NUMBER_OF_OCTAVES 4
 
