@@ -27,11 +27,11 @@ public:
     // Getters
     const Type& getType() const;
     const Rect& getRect() const;
-    const std::array<float, 12>& getFace(uint8_t index) const;
+    const std::array<float, 12> getFace(uint8_t index) const;
 
 private:
     Type m_type;
     Rect m_rect;
 
-    std::array<std::array<float, 12>, 6> m_vertices;
+    static float s_vertices[6][12];
 };
