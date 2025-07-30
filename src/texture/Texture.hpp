@@ -3,7 +3,6 @@
 #include <glad/glad.h>
 #include <print>
 #include <stb_image.h>
-#include <sys/types.h>
 
 class Texture {
 public:
@@ -16,7 +15,7 @@ public:
     void setParameter(int name, int value);
 
 private:
-    uint* m_ID;
+    uint32_t* m_ID;
     const int m_target;
     const int m_size;
 };

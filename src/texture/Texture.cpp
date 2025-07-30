@@ -14,7 +14,7 @@ Texture::~Texture() {
 
 void Texture::loadImage(const char* filepath) {
     int width, height, nrChannels;
-    u_char* data = stbi_load(filepath, &width, &height, &nrChannels, 0);
+    uint8_t* data = stbi_load(filepath, &width, &height, &nrChannels, 0);
 
     if(!data) {
         std::println("Failed to load image texture!");
