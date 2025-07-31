@@ -9,8 +9,9 @@
 #include <thread>
 
 #define WORLD_RADIUS 12
-#define PERMUTATION_SIZE 512
-#define AMPLITUDE 1.0f
+#define PERMUTATION_SIZE \
+    512 // Must be a power of 2 (e.g. 128, 256, 512, 1024...)
+#define AMPLITUDE 0.5f
 #define FREQUENCY 0.005f
 #define NUMBER_OF_OCTAVES 4
 
