@@ -33,11 +33,10 @@ void Player::setCurrentChunk(Chunk* chunk) {
         spawn = false;
     }
 
-    float halfChunk = CHUNK_SIZE / 2.0f;
-    m_chunkFront = chunk->getPosition().z + halfChunk;
-    m_chunkBack = chunk->getPosition().z - halfChunk;
-    m_chunkRight = chunk->getPosition().x + halfChunk;
-    m_chunkLeft = chunk->getPosition().x - halfChunk;
+    m_chunkFront = chunk->getPosition().z + CHUNK_SIZE - 1;
+    m_chunkBack = chunk->getPosition().z;
+    m_chunkRight = chunk->getPosition().x + CHUNK_SIZE - 1;
+    m_chunkLeft = chunk->getPosition().x;
     m_currentChunk = chunk;
 }
 
@@ -108,10 +107,9 @@ void Player::drawRayLine() {
         if(!chunk)
             continue;
 
-        if(chunk->isAirBlock(x, y, z)) {
-            length += 1.0f;
+        if(chunk->isAirBlock(x, y, z))
             continue;
-        }
+
 
         glm::vec3 dir = glm::normalize(-m_front);
         glm::vec3 right = glm::normalize(glm::cross(m_up, dir));
@@ -150,15 +148,13 @@ void Player::placeBlock() {
         if(!chunk)
             continue;
 
-        if(chunk->isAirBlock(x, y, z)) {
-            length += 0.5f;
+        if(chunk->isAirBlock(x, y, z))
             continue;
-        }
 
         glm::vec3 normals[6] = {
-            { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, // X axis
-            { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, // Y axis
-            { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f }, // Z axis
+            { 1.5f, 0.0f, 0.0f }, { -0.5f, 0.0f, 0.0f }, // X axis
+            { 0.0f, 1.5f, 0.0f }, { 0.0f, -0.5f, 0.0f }, // Y axis
+            { 0.0f, 0.0f, 1.5f }, { 0.0f, 0.0f, -0.5f }, // Z axis
         };
 
         Block::Rect blockRect = chunk->getBlock(x, y, z)->getGlobalRect();
@@ -205,10 +201,8 @@ void Player::destroyBlock() {
         if(!chunk)
             continue;
 
-        if(chunk->isAirBlock(x, y, z)) {
-            length += 0.5f;
+        if(chunk->isAirBlock(x, y, z))
             continue;
-        }
 
         chunk->updateMesh(Block::AIR, x, y, z);
         break;
@@ -241,8 +235,8 @@ ChunkCoords Player::getCoords(glm::vec3 point) {
     }
 
     uint16_t nx = floor(dx);
-    uint16_t nz = floor(dz);
     uint16_t ny = floor(point.y);
+    uint16_t nz = floor(dz);
 
     return ChunkCoords(blockChunk, nx, ny, nz);
 }
