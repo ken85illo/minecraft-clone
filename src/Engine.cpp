@@ -9,7 +9,7 @@ Engine::Engine() {
     m_lineShader =
     new Shader("../src/shader/glsl/line.vert", "../src/shader/glsl/line.frag");
     m_player = new Player(m_lineShader);
-    m_world = new World(m_player, m_worldShader);
+    m_world = new World(m_player, m_worldShader, m_lineShader);
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
@@ -73,6 +73,6 @@ void Engine::render() {
     m_lineShader->setMat4("view", view);
     m_lineShader->setMat4("projection", projection);
 
-    m_world->render();
+    m_world->render(m_wireFrameMode);
     // m_player->drawRayLine();
 }

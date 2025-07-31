@@ -1,9 +1,10 @@
 #include "World.hpp"
 
-World::World(Player* player, Shader* shader)
+World::World(Player* player, Shader* worldShader, Shader* lineShader)
 : m_size(WORLD_RADIUS * 2 + 1),
   m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES),
-  m_shader(shader) {
+  m_worldShader(worldShader),
+  m_lineShader(lineShader) {
 
     for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++)
         for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++) {
@@ -36,8 +37,8 @@ World::World(Player* player, Shader* shader)
     m_texture->setParameter(GL_TEXTURE_MAX_LEVEL, 3);
     m_texture->loadImage("../res/atlas.png");
 
-    shader->use();
-    shader->setInt("texture0", 0);
+    m_worldShader->use();
+    m_worldShader->setInt("texture0", 0);
 }
 
 World::~World() {
@@ -71,13 +72,18 @@ void World::generateHeightMap(float heightMap[CHUNK_SIZE][CHUNK_SIZE], int32_t c
 }
 
 
-void World::render() {
-    m_shader->use();
+void World::render(bool wireFrameMode) {
+    static Shader* currentShader;
+
+    m_lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
+    currentShader = (wireFrameMode) ? m_lineShader : m_worldShader;
+    currentShader->use();
+
     m_texture->bind(0);
     for(auto& chunk : m_chunks) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, chunk.getPosition());
-        m_shader->setMat4("model", model);
+        currentShader->setMat4("model", model);
 
         chunk.render();
     }

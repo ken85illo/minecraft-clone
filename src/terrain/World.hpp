@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <thread>
 
-#define WORLD_RADIUS 4
+#define WORLD_RADIUS 12
 #define PERMUTATION_SIZE 512
 #define AMPLITUDE 1.0f
 #define FREQUENCY 0.005f
@@ -16,9 +16,9 @@
 
 class World {
 public:
-    World(Player* player, Shader* shader);
+    World(Player* player, Shader* worldShader, Shader* lineShader);
     ~World();
-    void render();
+    void render(bool wireFrameMode);
 
     Chunk* getChunk(uint16_t x, uint16_t z);
 
@@ -27,7 +27,7 @@ private:
     Texture* m_texture;
     uint16_t m_size;
 
-    Shader* m_shader;
+    Shader *m_worldShader, *m_lineShader;
     PerlinNoise m_perlinNoise;
 
     void generateHeightMap(float heightMap[CHUNK_SIZE][CHUNK_SIZE], int32_t chunkX, int32_t chunkZ);
