@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 
+#include "terrain/Treeminator.hpp"
 #include "terrain/block/Block.hpp"
 #include "texture/Atlas.hpp"
 #include <cstdint>
@@ -29,7 +30,7 @@ public:
 
     // Getters
     uint8_t getHighestBlock() const;
-    const Block* getBlock(int32_t x, int32_t y, int32_t z);
+    Block* getBlock(int32_t x, int32_t y, int32_t z);
     Chunk* getFrontChunk() const;
     Chunk* getBackChunk() const;
     Chunk* getRightChunk() const;
@@ -38,6 +39,7 @@ public:
 
     // Setters
     void setNeighbours(Chunk* front, Chunk* back, Chunk* right, Chunk* left);
+    void setHighestBlock(uint8_t height);
 
 private:
     uint32_t m_indices[6] = {
@@ -55,6 +57,7 @@ private:
     uint8_t m_highestBlock;
     std::vector<Block> m_blocks;
     glm::vec3 m_position;
+    Treeminator m_treeminator;
 
     // Helper functions
     void fillFaces(int32_t x, int32_t y, int32_t z);

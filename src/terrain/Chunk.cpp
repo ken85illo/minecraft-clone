@@ -2,7 +2,8 @@
 
 Chunk::Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position)
 : m_position(glm::vec3(position.x - CHUNK_SIZE / 2.0f, 0.0f, position.z - CHUNK_SIZE / 2.0f)),
-  m_highestBlock(0) {
+  m_highestBlock(0),
+  m_treeminator(this) {
 
     int32_t size = CHUNK_SIZE * MAX_HEIGHT * CHUNK_SIZE;
     m_blocks.reserve(size);
@@ -30,6 +31,12 @@ Chunk::Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position)
                 m_blocks.emplace_back(type, pos, m_position);
             }
 
+    for(int32_t x = 2; x < CHUNK_SIZE - 2; x++)
+        for(int32_t y = 0; y < m_highestBlock; y++)
+            for(int32_t z = 2; z < CHUNK_SIZE - 2; z++) {
+                m_treeminator.spawnTree(x, y, z);
+            }
+
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_vertVBO);
     glGenBuffers(1, &m_texVBO);
@@ -52,6 +59,10 @@ void Chunk::setNeighbours(Chunk* front, Chunk* back, Chunk* right, Chunk* left) 
     m_backChunk = back;
     m_rightChunk = right;
     m_leftChunk = left;
+}
+
+void Chunk::setHighestBlock(uint8_t height) {
+    m_highestBlock = height;
 }
 
 void Chunk::generateMesh() {
@@ -145,8 +156,8 @@ uint8_t Chunk::getHighestBlock() const {
     return m_highestBlock;
 }
 
-const Block* Chunk::getBlock(int32_t x, int32_t y, int32_t z) {
-    const Chunk* currentChunk = this;
+Block* Chunk::getBlock(int32_t x, int32_t y, int32_t z) {
+    Chunk* currentChunk = this;
 
     if(y < 0 || y >= MAX_HEIGHT)
         return nullptr;
