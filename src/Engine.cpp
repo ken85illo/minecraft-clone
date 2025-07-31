@@ -28,15 +28,15 @@ void Engine::mainLoop() {
     float lastFrame = 0.0f;
     float deltaTime = 0.0f;
     while(!m_window->shouldClose()) {
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
         update(deltaTime);
         render();
 
         m_window->pollEvents();
         m_window->swapBuffers();
+
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
     }
 }
 
