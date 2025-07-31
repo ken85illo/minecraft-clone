@@ -21,6 +21,7 @@ Engine::~Engine() {
     delete m_world;
     delete m_worldShader;
     delete m_lineShader;
+    delete m_window;
 }
 
 void Engine::mainLoop() {
