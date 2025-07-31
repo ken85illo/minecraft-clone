@@ -13,7 +13,7 @@ Chunk::Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position)
                 uint8_t height = 8 + floor(heightMap[x][z] * TERRAIN_HEIGHT);
 
                 if(height > m_highestBlock)
-                    m_highestBlock = height;
+                    m_highestBlock = height + 1;
 
                 glm::vec3 pos = glm::vec3(x, y, z);
                 Block::Type type = Block::AIR;
@@ -63,7 +63,7 @@ void Chunk::generateMesh() {
         index %= 4;
 
     for(int32_t x = 0; x < CHUNK_SIZE; x++) {
-        for(int32_t y = 0; y < MAX_HEIGHT; y++) {
+        for(int32_t y = 0; y < m_highestBlock; y++) {
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
                 auto block = getBlock(x, y, z);
                 if(isAirBlock(x, y, z))
@@ -91,8 +91,8 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
 
         auto vertices = m_blocks[index].getFace(face);
         auto texCoords = m_blocks[index].getTexCoord(face);
-        m_vertexData.insert(m_vertexData.end(), std::begin(vertices), std::end(vertices));
-        m_textureData.insert(m_textureData.end(), std::begin(texCoords), std::end(texCoords));
+        m_vertexData.insert(m_vertexData.end(), vertices.first, vertices.second);
+        m_textureData.insert(m_textureData.end(), texCoords.first, texCoords.second);
         m_indexData.insert(m_indexData.end(), std::begin(m_indices), std::end(m_indices));
 
         for(auto& index : m_indices)
@@ -102,8 +102,8 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
 
 void Chunk::updateMesh(Block::Type type, int32_t x, int32_t y, int32_t z) {
     m_blocks[getIndex(x, y, z)].setType(type);
-    if(y > m_highestBlock)
-        m_highestBlock = y;
+    if((y + 1) > m_highestBlock)
+        m_highestBlock = y + 1;
 
     generateMesh();
 

@@ -29,8 +29,8 @@ public:
     const Type getType() const;
     const Rect& getLocalRect() const;
     const Rect& getGlobalRect() const;
-    const std::array<float, 8> getTexCoord(uint8_t index) const;
-    const std::array<float, 12> getFace(uint8_t index) const;
+    const std::pair<float*, float*> getTexCoord(uint8_t index) const;
+    const std::pair<float*, float*> getFace(uint8_t index) const;
 
 private:
     Type m_type;

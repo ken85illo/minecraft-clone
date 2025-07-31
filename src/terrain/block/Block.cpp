@@ -51,18 +51,13 @@ void Block::setType(Type type) {
     m_type = type;
 }
 
-const std::array<float, 8> Block::getTexCoord(uint8_t index) const {
+const std::pair<float*, float*> Block::getTexCoord(uint8_t index) const {
     s_atlas.map(m_type);
-    std::array<float, 8> mappedTexCoord;
-
-    for(uint8_t i = 0; i < 8; i++)
-        mappedTexCoord[i] = s_texCoords[index][i];
-
-    return mappedTexCoord;
+    return std::make_pair(s_texCoords[index], (s_texCoords[index] + 8));
 }
 
-const std::array<float, 12> Block::getFace(uint8_t index) const {
-    std::array<float, 12> posVertices;
+const std::pair<float*, float*> Block::getFace(uint8_t index) const {
+    static std::array<float, 12> posVertices;
 
     for(uint8_t i = 0; i < 12; i += 3) {
         posVertices[i] = s_vertices[index][i] + m_localRect.min.x;
@@ -70,7 +65,7 @@ const std::array<float, 12> Block::getFace(uint8_t index) const {
         posVertices[i + 2] = s_vertices[index][i + 2] + m_localRect.min.z;
     }
 
-    return posVertices;
+    return std::make_pair(posVertices.data(), posVertices.data() + posVertices.max_size());
 }
 
 const Block::Type Block::getType() const {
