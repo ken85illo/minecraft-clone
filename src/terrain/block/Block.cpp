@@ -38,22 +38,11 @@ float Block::s_vertices[6][12] = {
     0.0f, 1.0f, 0.0f, // top-left
 };
 
-float Block::s_texCoords[6][8];
-Atlas Block::s_atlas = Atlas(Block::s_texCoords);
 
-Block::Block(Type type, glm::vec3 min, glm::vec3 chunkPosition)
-: m_type(type),
+Block::Block(BlockType::Type type, glm::vec3 min, glm::vec3 chunkPosition)
+: BlockType(type),
   m_localRect{ min, min + 1.0f },
   m_globalRect{ min + chunkPosition, min + 1.0f + chunkPosition } {
-}
-
-void Block::setType(Type type) {
-    m_type = type;
-}
-
-const std::pair<float*, float*> Block::getTexCoord(uint8_t index) const {
-    s_atlas.map(m_type);
-    return std::make_pair(s_texCoords[index], (s_texCoords[index] + 8));
 }
 
 const std::pair<float*, float*> Block::getFace(uint8_t index) const {
@@ -66,10 +55,6 @@ const std::pair<float*, float*> Block::getFace(uint8_t index) const {
     }
 
     return std::make_pair(posVertices.data(), posVertices.data() + posVertices.max_size());
-}
-
-const Block::Type Block::getType() const {
-    return m_type;
 }
 
 const Block::Rect& Block::getLocalRect() const {

@@ -1,14 +1,7 @@
 #include "Atlas.hpp"
 
-uint16_t Atlas::m_textures[5][6] = {
-    { DIRT, DIRT, DIRT, DIRT, DIRT, DIRT }, // DIRT_BLOCK
-    { GRASS_SIDE, GRASS_SIDE, GRASS_TOP, DIRT, GRASS_SIDE, GRASS_SIDE }, // GRASS_BLOCK
-    { STONE, STONE, STONE, STONE, STONE, STONE }, // STONE BLOCK
-    { OAK_SIDE, OAK_SIDE, OAK_TOP_BOTTOM, OAK_TOP_BOTTOM, OAK_SIDE, OAK_SIDE }, // OAK WOOD BLOCK
-    { OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF }, // OAK LEAF BLOCK
-};
-
-Atlas::Atlas(float texCoords[6][8]) : m_texCoords(*texCoords) {
+Atlas::Atlas(uint16_t textures[][6], float texCoords[6][8])
+: m_textures(*textures), m_texCoords(*texCoords) {
 }
 
 std::unordered_map<std::string, uint32_t> Atlas::getMap(uint16_t side) {
@@ -30,12 +23,12 @@ void Atlas::map(uint16_t index) {
 
     lastIndex = index;
 
-    auto mfront = getMap(m_textures[index][0]);
-    auto mback = getMap(m_textures[index][1]);
-    auto mtop = getMap(m_textures[index][2]);
-    auto mbottom = getMap(m_textures[index][3]);
-    auto mright = getMap(m_textures[index][4]);
-    auto mleft = getMap(m_textures[index][5]);
+    auto mfront = getMap(*(m_textures + 6 * index));
+    auto mback = getMap(*(m_textures + 6 * index + 1));
+    auto mtop = getMap(*(m_textures + 6 * index + 2));
+    auto mbottom = getMap(*(m_textures + 6 * index + 3));
+    auto mright = getMap(*(m_textures + 6 * index + 4));
+    auto mleft = getMap(*(m_textures + 6 * index + 5));
 
     uint32_t texMap[6][8] = {
         // front face
