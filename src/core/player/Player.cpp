@@ -104,9 +104,6 @@ void Player::drawRayLine() {
         glm::vec3 point = rayOrigin + length * rayDirection;
         auto [chunk, x, y, z] = getCoords(point);
 
-        if(!chunk)
-            continue;
-
         if(chunk->isAirBlock(x, y, z))
             continue;
 
@@ -144,9 +141,6 @@ void Player::placeBlock() {
     for(float length = 0.0f; length <= floor(RANGE_RADIUS / 2.0f); length += 0.1f) {
         glm::vec3 point = rayOrigin + length * rayDirection;
         auto [chunk, x, y, z] = getCoords(point);
-
-        if(!chunk)
-            continue;
 
         if(chunk->isAirBlock(x, y, z))
             continue;
@@ -197,9 +191,6 @@ void Player::destroyBlock() {
     for(float length = 0.0f; length <= floor(RANGE_RADIUS / 2.0f); length += 0.1f) {
         glm::vec3 point = rayOrigin + length * rayDirection;
         auto [chunk, x, y, z] = getCoords(point);
-
-        if(!chunk)
-            continue;
 
         if(chunk->isAirBlock(x, y, z))
             continue;
