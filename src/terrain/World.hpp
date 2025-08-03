@@ -6,7 +6,8 @@
 #include "shader/Shader.hpp"
 #include "texture/Texture.hpp"
 #include <cstdint>
-#include <thread>
+#include <future>
+#include <queue>
 
 #define WORLD_RADIUS 12
 #define PERMUTATION_SIZE \
@@ -17,9 +18,9 @@
 
 class World {
 public:
-    World(Player* player, Shader* worldShader, Shader* lineShader);
+    World(Player* player);
     ~World();
-    void render(bool wireFrameMode);
+    void render(bool wireFrameMode, Shader* worldShader, Shader* lineShader);
 
     Chunk* getChunk(uint16_t x, uint16_t z);
 
@@ -27,9 +28,9 @@ private:
     std::vector<Chunk> m_chunks;
     Texture* m_texture;
     uint16_t m_size;
-
-    Shader *m_worldShader, *m_lineShader;
     PerlinNoise m_perlinNoise;
 
-    void generateHeightMap(float heightMap[CHUNK_SIZE][CHUNK_SIZE], int32_t chunkX, int32_t chunkZ);
+    void generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap,
+    int32_t chunkX,
+    int32_t chunkZ);
 };

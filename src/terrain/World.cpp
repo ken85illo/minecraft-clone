@@ -1,20 +1,17 @@
 #include "World.hpp"
 
-World::World(Player* player, Shader* worldShader, Shader* lineShader)
+World::World(Player* player)
 : m_size(WORLD_RADIUS * 2 + 1),
-  m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES),
-  m_worldShader(worldShader),
-  m_lineShader(lineShader) {
+  m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES) {
 
+    std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
     for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++)
         for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++) {
-            float heightMap[CHUNK_SIZE][CHUNK_SIZE];
             generateHeightMap(heightMap, chunkX + WORLD_RADIUS, chunkZ + WORLD_RADIUS);
 
-            m_chunks.emplace_back(heightMap,
-            glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
+            m_chunks.emplace_back(glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
+            m_chunks.back().initChunk(heightMap);
         }
-
 
     for(int32_t chunkX = 0; chunkX < m_size; chunkX++) {
         for(int32_t chunkZ = 0; chunkZ < m_size; chunkZ++) {
@@ -36,9 +33,6 @@ World::World(Player* player, Shader* worldShader, Shader* lineShader)
     m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_texture->setParameter(GL_TEXTURE_MAX_LEVEL, 3);
     m_texture->loadImage("../res/atlas.png");
-
-    m_worldShader->use();
-    m_worldShader->setInt("texture0", 0);
 }
 
 World::~World() {
@@ -57,7 +51,9 @@ Chunk* World::getChunk(uint16_t x, uint16_t z) {
 }
 
 
-void World::generateHeightMap(float heightMap[CHUNK_SIZE][CHUNK_SIZE], int32_t chunkX, int32_t chunkZ) {
+void World::generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap,
+int32_t chunkX,
+int32_t chunkZ) {
     for(int32_t x = 0; x < CHUNK_SIZE; x++) {
         for(int32_t z = 0; z < CHUNK_SIZE; z++) {
             float n = m_perlinNoise.fractalBrownianMotion(
@@ -72,11 +68,11 @@ void World::generateHeightMap(float heightMap[CHUNK_SIZE][CHUNK_SIZE], int32_t c
 }
 
 
-void World::render(bool wireFrameMode) {
+void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) {
     static Shader* currentShader;
 
-    m_lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
-    currentShader = (wireFrameMode) ? m_lineShader : m_worldShader;
+    lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
+    currentShader = (wireFrameMode) ? lineShader : worldShader;
     currentShader->use();
 
     m_texture->bind(0);
