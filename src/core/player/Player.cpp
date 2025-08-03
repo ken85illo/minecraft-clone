@@ -1,25 +1,47 @@
 #include "Player.hpp"
 
-Player::Player(Shader* lineShader)
-: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f),
-  m_lineShader(lineShader) {
+Player::Player()
+: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f) {
 
-    // draw a ray
-    float vertices[2][3]{
-        { 0.0f, 0.0f, 0.0f }, //
-        { 1.0f, 0.0f, 0.0f }, //
+    // Cursor vertices
+    float vertices[20] = {
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-right
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top-right
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // top-left
+    };
+
+    float indices[6] = {
+        0, 1, 3, // first triangle
+        1, 2, 3, // second triangle
     };
 
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
+    glGenBuffers(1, &m_EBO);
 
     glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(
+    1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    m_texture = new Texture(GL_TEXTURE_2D, 1);
+    m_texture->bind(0);
+    m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_texture->loadImage("../res/cursor.png");
 }
 
 void Player::setCurrentChunk(Chunk* chunk) {
@@ -95,43 +117,19 @@ void Player::moveDown(float deltaTime) {
     m_pos -= m_up * speed;
 }
 
+void Player::drawCursor(Shader* shader) {
+    static glm::vec3 rayOrigin = m_pos + (m_front * 0.1f);
 
-void Player::drawRayLine() {
-    glm::vec3 rayOrigin = m_pos + (m_front * 0.1f);
-    glm::vec3 rayDirection = m_front;
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, rayOrigin);
+    model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 
-    for(float length = 0.0f; length <= floor(RANGE_RADIUS / 2.0f); length += 0.1f) {
-        glm::vec3 point = rayOrigin + length * rayDirection;
-        auto [chunk, x, y, z] = getCoords(point);
+    shader->use();
+    m_texture->bind(0);
 
-        if(chunk->isAirBlock(x, y, z))
-            continue;
-
-
-        glm::vec3 dir = glm::normalize(-m_front);
-        glm::vec3 right = glm::normalize(glm::cross(m_up, dir));
-        glm::vec3 up = glm::cross(dir, right);
-
-        glm::mat4 rotation = glm::mat4(1.0f);
-        rotation[0] = glm::vec4(right.x, up.x, dir.x, 0.0f);
-        rotation[1] = glm::vec4(right.y, up.y, dir.y, 0.0f);
-        rotation[2] = glm::vec4(right.z, up.z, dir.z, 0.0f);
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, rayOrigin);
-        model *= rotation;
-        model = glm::scale(model, glm::vec3(1.0f, length, 1.0f));
-
-        m_lineShader->use();
-        m_lineShader->setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f));
-        m_lineShader->setMat4("model", model);
-
-        glLineWidth(10.0f);
-        glBindVertexArray(m_VAO);
-        glDrawArrays(GL_LINES, 0, 2);
-        glLineWidth(1.0f);
-        break;
-    }
+    shader->setMat4("model", model);
+    glBindVertexArray(m_VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 void Player::placeBlock() {

@@ -5,6 +5,7 @@
 #include "input/InputHandler.hpp"
 #include "shader/Shader.hpp"
 #include "terrain/Chunk.hpp"
+#include "texture/Texture.hpp"
 #include <stack>
 
 #define RANGE_RADIUS 8
@@ -16,7 +17,7 @@ struct ChunkCoords {
 
 class Player : public Camera {
 public:
-    Player(Shader* lineShader);
+    Player();
 
     void moveFront(float deltaTime) override;
     void moveBack(float deltaTime) override;
@@ -26,15 +27,15 @@ public:
     void moveDown(float deltaTime) override;
     void movementInput(Window* window, float deltaTime) override;
 
-    void drawRayLine();
+    void drawCursor(Shader* shader);
     void placeBlock();
     void destroyBlock();
     void setCurrentChunk(Chunk* chunk);
 
 private:
     Chunk* m_currentChunk;
-    Shader* m_lineShader;
-    uint32_t m_VAO, m_VBO;
+    Texture* m_texture;
+    uint32_t m_VAO, m_VBO, m_EBO;
 
     float m_chunkFront;
     float m_chunkBack;
