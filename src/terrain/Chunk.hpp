@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <map>
 #include <print>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -19,9 +20,10 @@
 
 class Chunk {
 public:
-    Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position);
+    Chunk(glm::vec3 position);
 
     void render();
+    void initChunk(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap);
     void generateMesh();
     void updateMesh(Block::Type type, int32_t x, int32_t y, int32_t z);
     void bindVertexArray();
@@ -58,6 +60,7 @@ private:
     std::vector<Block> m_blocks;
     glm::vec3 m_position;
     Treeminator m_treeminator;
+
 
     // Helper functions
     void fillFaces(int32_t x, int32_t y, int32_t z);

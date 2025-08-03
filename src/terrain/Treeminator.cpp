@@ -4,7 +4,14 @@
 Treeminator::Treeminator(Chunk* chunk) : m_chunk(chunk) {
 }
 
-void Treeminator::spawnTree(uint16_t x, uint16_t y, uint16_t z) {
+void Treeminator::spawnTrees(int32_t min, int32_t max) {
+    for(int32_t x = min; x < max; x++)
+        for(int32_t y = 0; y < m_chunk->getHighestBlock(); y++)
+            for(int32_t z = min; z < max; z++)
+                createTree(x, y, z);
+}
+
+void Treeminator::createTree(int32_t x, int32_t y, int32_t z) {
     uint8_t chance = rand() % 100;
 
     if(m_chunk->getBlock(x, y, z)->getType() != BlockType::GRASS_BLOCK || chance > 1)
@@ -15,15 +22,14 @@ void Treeminator::spawnTree(uint16_t x, uint16_t y, uint16_t z) {
     if(!addWood(treeStack, 5, x, y, z))
         return;
 
-
     uint8_t radius[4] = { 2, 2, 1, 1 };
     uint8_t removeEdge[4] = { true, true, false, true };
     uint8_t removeCenter[4] = { true, true, true, false };
 
-    for(uint8_t height = 3; height <= 6; height++) {
-        uint8_t index = height - 3;
-        if(!addLeafLayer(treeStack, radius[index], height, x, y, z,
-           removeEdge[index], removeCenter[index]))
+    for(uint8_t i = 0; i < 4; i++) {
+        uint8_t height = i + 3;
+        if(!addLeafLayer(treeStack, radius[i], height, x, y, z, removeEdge[i],
+           removeCenter[i]))
             return;
     }
 

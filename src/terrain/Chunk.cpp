@@ -1,6 +1,6 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position)
+Chunk::Chunk(glm::vec3 position)
 : m_position(glm::vec3(position.x - CHUNK_SIZE / 2.0f, 0.0f, position.z - CHUNK_SIZE / 2.0f)),
   m_highestBlock(0),
   m_treeminator(this) {
@@ -8,6 +8,14 @@ Chunk::Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position)
     int32_t size = CHUNK_SIZE * MAX_HEIGHT * CHUNK_SIZE;
     m_blocks.reserve(size);
 
+    glGenVertexArrays(1, &m_VAO);
+    glGenBuffers(1, &m_vertVBO);
+    glGenBuffers(1, &m_texVBO);
+    glGenBuffers(1, &m_EBO);
+}
+
+
+void Chunk::initChunk(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap) {
     for(int32_t x = 0; x < CHUNK_SIZE; x++)
         for(int32_t y = 0; y < MAX_HEIGHT; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
@@ -16,32 +24,22 @@ Chunk::Chunk(float heightMap[CHUNK_SIZE][CHUNK_SIZE], glm::vec3 position)
                 if(height > m_highestBlock)
                     m_highestBlock = height + 1;
 
-                glm::vec3 pos = glm::vec3(x, y, z);
+                glm::vec3 localPos = glm::vec3(x, y, z);
                 Block::Type type = Block::AIR;
 
-                if(y >= height)
-                    type = Block::AIR;
-                else if(y == height - 1)
+                if(y == height - 1)
                     type = Block::GRASS_BLOCK;
                 else if(y < height * 0.75)
                     type = Block::STONE_BLOCK;
                 else if(y < height)
                     type = Block::DIRT_BLOCK;
 
-                m_blocks.emplace_back(type, pos, m_position);
+                m_blocks.emplace_back(type, localPos, localPos + m_position);
             }
 
-    for(int32_t x = 2; x < CHUNK_SIZE - 2; x++)
-        for(int32_t y = 0; y < m_highestBlock; y++)
-            for(int32_t z = 2; z < CHUNK_SIZE - 2; z++) {
-                m_treeminator.spawnTree(x, y, z);
-            }
-
-    glGenVertexArrays(1, &m_VAO);
-    glGenBuffers(1, &m_vertVBO);
-    glGenBuffers(1, &m_texVBO);
-    glGenBuffers(1, &m_EBO);
+    m_treeminator.spawnTrees(2, CHUNK_SIZE - 2);
 }
+
 
 void Chunk::deleteVertexArray() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -73,17 +71,15 @@ void Chunk::generateMesh() {
     for(auto& index : m_indices)
         index %= 4;
 
-    for(int32_t x = 0; x < CHUNK_SIZE; x++) {
-        for(int32_t y = 0; y < m_highestBlock; y++) {
+    for(int32_t x = 0; x < CHUNK_SIZE; x++)
+        for(int32_t y = 0; y < m_highestBlock; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
-                auto block = getBlock(x, y, z);
                 if(isAirBlock(x, y, z))
                     continue;
 
                 fillFaces(x, y, z);
             }
-        }
-    }
+
 
     bindVertexArray();
 }
