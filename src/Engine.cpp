@@ -8,12 +8,15 @@ Engine::Engine() {
     new Shader("../src/shader/glsl/world.vert", "../src/shader/glsl/world.frag");
     m_lineShader =
     new Shader("../src/shader/glsl/line.vert", "../src/shader/glsl/line.frag");
-    m_player = new Player(m_lineShader);
-    m_world = new World(m_player, m_worldShader, m_lineShader);
+    m_player = new Player();
+    m_world = new World(m_player);
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     std::println("Maximum Vertex Attributes: {}", nrAttributes);
+
+    m_worldShader->use();
+    m_worldShader->setInt("texture0", 0);
 }
 
 Engine::~Engine() {
@@ -73,6 +76,8 @@ void Engine::render() {
     m_lineShader->setMat4("view", view);
     m_lineShader->setMat4("projection", projection);
 
-    m_world->render(m_wireFrameMode);
-    // m_player->drawRayLine();
+    // Render stuff here
+    //-----------------------------------------------------------
+    m_world->render(m_wireFrameMode, m_worldShader, m_lineShader);
+    m_player->drawCursor(m_worldShader);
 }
