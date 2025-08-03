@@ -39,10 +39,10 @@ float Block::s_vertices[6][12] = {
 };
 
 
-Block::Block(BlockType::Type type, glm::vec3 min, glm::vec3 chunkPosition)
+Block::Block(BlockType::Type type, glm::vec3 localPos, glm::vec3 globalPos)
 : BlockType(type),
-  m_localRect{ min, min + 1.0f },
-  m_globalRect{ min + chunkPosition, min + 1.0f + chunkPosition } {
+  m_localRect{ localPos, localPos + 1.0f },
+  m_globalRect{ globalPos, globalPos + 1.0f } {
 }
 
 const std::pair<float*, float*> Block::getFace(uint8_t index) const {
