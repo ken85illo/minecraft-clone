@@ -45,8 +45,8 @@ Block::Block(BlockType::Type type, glm::vec3 localPos, glm::vec3 globalPos)
   m_globalRect{ globalPos, globalPos + 1.0f } {
 }
 
-const std::pair<float*, float*> Block::getFace(uint8_t index) const {
-    static std::array<float, 12> posVertices;
+const std::array<float, 12> Block::getFace(uint8_t index) const {
+    std::array<float, 12> posVertices;
 
     for(uint8_t i = 0; i < 12; i += 3) {
         posVertices[i] = s_vertices[index][i] + m_localRect.min.x;
@@ -54,7 +54,7 @@ const std::pair<float*, float*> Block::getFace(uint8_t index) const {
         posVertices[i + 2] = s_vertices[index][i + 2] + m_localRect.min.z;
     }
 
-    return std::make_pair(posVertices.data(), posVertices.data() + posVertices.max_size());
+    return posVertices;
 }
 
 const Block::Rect& Block::getLocalRect() const {

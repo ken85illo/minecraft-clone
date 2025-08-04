@@ -1,4 +1,5 @@
 #include "BlockType.hpp"
+#include <print>
 
 uint16_t BlockType::s_textures[5][6] = {
     { DIRT, DIRT, DIRT, DIRT, DIRT, DIRT }, // DIRT_BLOCK
@@ -8,8 +9,8 @@ uint16_t BlockType::s_textures[5][6] = {
     { OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF }, // OAK LEAF BLOCK
 };
 
-float BlockType::s_texCoords[6][8];
-Atlas BlockType::s_atlas = Atlas(s_textures, s_texCoords);
+Atlas BlockType::s_atlas = Atlas(s_textures);
+float BlockType::s_textureTypes[BlockType::AIR][6][8];
 
 BlockType::BlockType(Type type) : m_type(type) {
     switch(type) {
@@ -27,9 +28,14 @@ void BlockType::setType(BlockType::Type type) {
     };
 }
 
+void BlockType::loadTextures() {
+    for(uint8_t i = 0; i < AIR; i++)
+        s_atlas.map(i, s_textureTypes[i]);
+}
+
 const std::pair<float*, float*> BlockType::getTexCoord(uint8_t index) const {
-    s_atlas.map(m_type);
-    return std::make_pair(s_texCoords[index], (s_texCoords[index] + 8));
+    return std::make_pair(
+    s_textureTypes[m_type][index], (s_textureTypes[m_type][index] + 8));
 }
 
 const BlockType::Type BlockType::getType() const {

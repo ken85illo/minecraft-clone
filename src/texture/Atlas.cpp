@@ -1,7 +1,6 @@
 #include "Atlas.hpp"
 
-Atlas::Atlas(uint16_t textures[][6], float texCoords[6][8])
-: m_textures(*textures), m_texCoords(*texCoords) {
+Atlas::Atlas(uint16_t textures[][6]) : m_textures(*textures) {
 }
 
 std::unordered_map<std::string, uint32_t> Atlas::getMap(uint16_t side) {
@@ -15,14 +14,7 @@ std::unordered_map<std::string, uint32_t> Atlas::getMap(uint16_t side) {
     return map;
 }
 
-void Atlas::map(uint16_t index) {
-    static uint16_t lastIndex = -1;
-
-    if(index == lastIndex)
-        return;
-
-    lastIndex = index;
-
+void Atlas::map(uint16_t index, float texCoords[6][8]) {
     auto mfront = getMap(*(m_textures + 6 * index));
     auto mback = getMap(*(m_textures + 6 * index + 1));
     auto mtop = getMap(*(m_textures + 6 * index + 2));
@@ -68,8 +60,7 @@ void Atlas::map(uint16_t index) {
         mleft["right"], mleft["top"],    // top-left
     };
 
-    for(int i = 0; i < 48; i++) {
-        *(m_texCoords + i) = *(*texMap + i) / static_cast<float>(TOTAL_BITS);
-        *(m_texCoords + i) = *(*texMap + i) / static_cast<float>(TOTAL_BITS);
-    }
+    for(int32_t i = 0; i < 6; i++)
+        for(int32_t j = 0; j < 8; j++)
+            texCoords[i][j] = texMap[i][j] / static_cast<float>(TOTAL_BITS);
 }

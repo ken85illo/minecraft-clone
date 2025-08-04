@@ -2,6 +2,7 @@
 
 #include "texture/Atlas.hpp"
 #include <cstdint>
+#include <vector>
 
 class BlockType {
 public:
@@ -15,6 +16,7 @@ public:
     };
 
     BlockType(Type type);
+    static void loadTextures();
 
     // Getters
     const std::pair<float*, float*> getTexCoord(uint8_t index) const;
@@ -37,7 +39,7 @@ private:
 
     static Atlas s_atlas;
     static uint16_t s_textures[5][6];
-    static float s_texCoords[6][8];
+    static float s_textureTypes[BlockType::AIR][6][8];
 
     Type m_type;
     bool m_transparent;

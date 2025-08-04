@@ -13,17 +13,19 @@ World::World(Player* player)
             m_chunks.back().initChunk(heightMap);
         }
 
-    for(int32_t chunkX = 0; chunkX < m_size; chunkX++) {
+    for(int32_t chunkX = 0; chunkX < m_size; chunkX++)
         for(int32_t chunkZ = 0; chunkZ < m_size; chunkZ++) {
-            Chunk* currentChunk = getChunk(chunkX, chunkZ);
+            m_chunkThreads.emplace_back([chunkX, chunkZ, this]() {
+                Chunk* currentChunk = getChunk(chunkX, chunkZ);
 
-            currentChunk->setNeighbours(getChunk(chunkX, chunkZ + 1),
-            getChunk(chunkX, chunkZ - 1), getChunk(chunkX + 1, chunkZ),
-            getChunk(chunkX - 1, chunkZ));
+                currentChunk->setNeighbours(getChunk(chunkX, chunkZ + 1),
+                getChunk(chunkX, chunkZ - 1), getChunk(chunkX + 1, chunkZ),
+                getChunk(chunkX - 1, chunkZ));
 
-            currentChunk->generateMesh();
+                currentChunk->generateMesh();
+            });
         }
-    }
+
 
     player->setCurrentChunk(getChunk(m_size / 2, m_size / 2));
 
@@ -77,6 +79,14 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
     currentShader->use();
 
     m_texture->bind(0);
+    if(!m_chunkThreads.empty()) {
+        for(int32_t i = 0; i < m_chunkThreads.size(); i++) {
+            m_chunkThreads[i].join();
+            m_chunks[i].bindVertexArray();
+        }
+        m_chunkThreads.clear();
+    }
+
     for(auto& chunk : m_chunks) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, chunk.getPosition());

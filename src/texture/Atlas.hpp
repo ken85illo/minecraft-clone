@@ -12,11 +12,10 @@
 
 class Atlas {
 public:
-    Atlas(uint16_t textures[][6], float texCoords[6][8]);
-    void map(uint16_t index);
+    Atlas(uint16_t textures[][6]);
+    void map(uint16_t index, float texCoords[6][8]);
 
 private:
     uint16_t* m_textures;
-    float* m_texCoords;
     std::unordered_map<std::string, uint32_t> getMap(uint16_t side);
 };

@@ -13,6 +13,9 @@ Engine::Engine() {
     m_interfaceShader = new Shader(
     "../src/shader/glsl/Interface.vert", "../src/shader/glsl/Textured.frag");
 
+    // Load texture atlas
+    BlockType::loadTextures();
+
     m_player = new Player();
     m_world = new World(m_player);
 

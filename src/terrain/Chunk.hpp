@@ -4,13 +4,8 @@
 
 #include "terrain/Treeminator.hpp"
 #include "terrain/block/Block.hpp"
-#include "texture/Atlas.hpp"
 #include <cstdint>
 #include <glm/glm.hpp>
-#include <map>
-#include <print>
-#include <thread>
-#include <utility>
 #include <vector>
 
 #define CHUNK_SIZE 16
@@ -61,8 +56,8 @@ private:
     glm::vec3 m_position;
     Treeminator m_treeminator;
 
-
     // Helper functions
     void fillFaces(int32_t x, int32_t y, int32_t z);
     int32_t getIndex(int32_t x, int32_t y, int32_t z) const;
+    void regenerateMesh();
 };

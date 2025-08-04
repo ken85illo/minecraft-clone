@@ -15,7 +15,7 @@ public:
     // Getters
     const Rect& getLocalRect() const;
     const Rect& getGlobalRect() const;
-    const std::pair<float*, float*> getFace(uint8_t index) const;
+    const std::array<float, 12> getFace(uint8_t index) const;
 
 private:
     Rect m_localRect;

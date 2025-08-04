@@ -30,6 +30,9 @@ private:
     uint16_t m_size;
     PerlinNoise m_perlinNoise;
 
+    std::vector<std::thread> m_chunkThreads;
+    std::mutex m_chunkMutex;
+
     void generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap,
     int32_t chunkX,
     int32_t chunkZ);

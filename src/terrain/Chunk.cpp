@@ -1,4 +1,5 @@
 #include "Chunk.hpp"
+#include <print>
 
 Chunk::Chunk(glm::vec3 position)
 : m_position(glm::vec3(position.x - CHUNK_SIZE / 2.0f, 0.0f, position.z - CHUNK_SIZE / 2.0f)),
@@ -79,9 +80,6 @@ void Chunk::generateMesh() {
 
                 fillFaces(x, y, z);
             }
-
-
-    bindVertexArray();
 }
 
 void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
@@ -93,7 +91,6 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
 
     auto currentBlock = getBlock(x, y, z);
 
-
     for(uint8_t face = 0; face < 6; face++) {
         auto offsetBlock = getBlock(x + dx[face], y + dy[face], z + dz[face]);
         if(offsetBlock &&
@@ -101,10 +98,9 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
                                         offsetBlock->getType() != BlockType::AIR))
             continue;
 
-
         auto vertices = m_blocks[index].getFace(face);
         auto texCoords = m_blocks[index].getTexCoord(face);
-        m_vertexData.insert(m_vertexData.end(), vertices.first, vertices.second);
+        m_vertexData.insert(m_vertexData.end(), vertices.begin(), vertices.end());
         m_textureData.insert(m_textureData.end(), texCoords.first, texCoords.second);
         m_indexData.insert(m_indexData.end(), std::begin(m_indices), std::end(m_indices));
 
@@ -113,22 +109,27 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
     }
 }
 
+void Chunk::regenerateMesh() {
+    generateMesh();
+    bindVertexArray();
+}
+
 void Chunk::updateMesh(Block::Type type, int32_t x, int32_t y, int32_t z) {
     m_blocks[getIndex(x, y, z)].setType(type);
     if((y + 1) > m_highestBlock)
         m_highestBlock = y + 1;
 
-    generateMesh();
+    regenerateMesh();
 
-    if(m_leftChunk && x == 0)
-        m_leftChunk->generateMesh();
-    else if(m_rightChunk && x == CHUNK_SIZE - 1)
-        m_rightChunk->generateMesh();
+    if(m_leftChunk && x == 0 && !m_leftChunk->isAirBlock(CHUNK_SIZE - 1, y, z))
+        m_leftChunk->regenerateMesh();
+    else if(m_rightChunk && x == CHUNK_SIZE - 1 && !m_rightChunk->isAirBlock(0, y, z))
+        m_rightChunk->regenerateMesh();
 
-    if(m_backChunk && z == 0)
-        m_backChunk->generateMesh();
-    else if(m_frontChunk && z == CHUNK_SIZE - 1)
-        m_frontChunk->generateMesh();
+    if(m_backChunk && z == 0 && !m_backChunk->isAirBlock(x, y, CHUNK_SIZE - 1))
+        m_backChunk->regenerateMesh();
+    else if(m_frontChunk && z == CHUNK_SIZE - 1 && !m_frontChunk->isAirBlock(x, y, 0))
+        m_frontChunk->regenerateMesh();
 }
 
 
