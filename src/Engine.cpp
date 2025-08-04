@@ -4,10 +4,15 @@ Engine::Engine() {
     srand(static_cast<unsigned>(time(0)));
 
     m_window = Window::get();
+
+    // Shaders
     m_worldShader =
-    new Shader("../src/shader/glsl/world.vert", "../src/shader/glsl/world.frag");
+    new Shader("../src/shader/glsl/Textured.vert", "../src/shader/glsl/Textured.frag");
     m_lineShader =
-    new Shader("../src/shader/glsl/line.vert", "../src/shader/glsl/line.frag");
+    new Shader("../src/shader/glsl/Colored.vert", "../src/shader/glsl/Colored.frag");
+    m_interfaceShader = new Shader(
+    "../src/shader/glsl/Interface.vert", "../src/shader/glsl/Textured.frag");
+
     m_player = new Player();
     m_world = new World(m_player);
 
@@ -76,8 +81,11 @@ void Engine::render() {
     m_lineShader->setMat4("view", view);
     m_lineShader->setMat4("projection", projection);
 
+    m_interfaceShader->use();
+    m_interfaceShader->setMat4("projection", projection);
+
     // Render stuff here
     //-----------------------------------------------------------
     m_world->render(m_wireFrameMode, m_worldShader, m_lineShader);
-    m_player->drawCursor(m_worldShader);
+    m_player->drawCursor(m_wireFrameMode, m_interfaceShader);
 }

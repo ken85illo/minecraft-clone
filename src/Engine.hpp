@@ -16,6 +16,7 @@ private:
     bool m_wireFrameMode = false;
     Shader* m_worldShader;
     Shader* m_lineShader;
+    Shader* m_interfaceShader;
 
     Window* m_window;
     Player* m_player;
