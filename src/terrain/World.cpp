@@ -26,7 +26,6 @@ World::World(Player* player)
             });
         }
 
-
     player->setCurrentChunk(getChunk(m_size / 2, m_size / 2));
 
     m_texture = new Texture(GL_TEXTURE_2D, 1);
@@ -77,21 +76,18 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
     lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
     currentShader = (wireFrameMode) ? lineShader : worldShader;
     currentShader->use();
-
     m_texture->bind(0);
-    if(!m_chunkThreads.empty()) {
-        for(int32_t i = 0; i < m_chunkThreads.size(); i++) {
+
+    for(int32_t i = 0; i < m_chunks.size(); i++) {
+        if(m_chunkThreads[i].joinable()) {
             m_chunkThreads[i].join();
             m_chunks[i].bindVertexArray();
         }
-        m_chunkThreads.clear();
-    }
 
-    for(auto& chunk : m_chunks) {
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, chunk.getPosition());
+        model = glm::translate(model, m_chunks[i].getPosition());
         currentShader->setMat4("model", model);
 
-        chunk.render();
+        m_chunks[i].render();
     }
 }
