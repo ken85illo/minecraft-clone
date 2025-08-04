@@ -76,9 +76,11 @@ bool removeCenter) {
             if(currentBlock->getType() != BlockType::AIR)
                 return false;
 
-            bool edgeCase =
-            (removeEdge) ? std::abs(nx) == std::abs(nz) && nx != 0 && nz != 0 : removeEdge;
 
+            int8_t ax = std::abs(nx);
+            int8_t az = std::abs(nz);
+
+            bool edgeCase = (removeEdge) ? ax == az && ax == 2 && az == 2 : removeEdge;
             bool centerCase = (removeCenter) ? nx == 0 && nz == 0 : removeCenter;
 
             if(edgeCase || centerCase)
