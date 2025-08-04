@@ -1,5 +1,8 @@
 #pragma once
 
+#include <glad/glad.h>
+
+
 #include "Camera.hpp"
 #include "core/Window.hpp"
 #include "input/InputHandler.hpp"
@@ -27,7 +30,7 @@ public:
     void moveDown(float deltaTime) override;
     void movementInput(Window* window, float deltaTime) override;
 
-    void drawCursor(Shader* shader);
+    void drawCursor(bool wireFrameMode, Shader* shader);
     void placeBlock();
     void destroyBlock();
     void setCurrentChunk(Chunk* chunk);

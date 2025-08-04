@@ -5,13 +5,13 @@ Player::Player()
 
     // Cursor vertices
     float vertices[20] = {
-        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
-        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-right
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top-right
-        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // top-left
+        -0.002f, -0.002f, 0.0f, 0.0f, 0.0f, // bottom-left
+        0.002f, -0.002f, 0.0f, 1.0f, 0.0f,  // bottom-right
+        0.002f, 0.002f, 0.0f, 1.0f, 1.0f,   // top-right
+        -0.002f, 0.002f, 0.0f, 0.0f, 1.0f,  // top-left
     };
 
-    float indices[6] = {
+    uint32_t indices[6] = {
         0, 1, 3, // first triangle
         1, 2, 3, // second triangle
     };
@@ -23,7 +23,6 @@ Player::Player()
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
@@ -50,8 +49,8 @@ void Player::setCurrentChunk(Chunk* chunk) {
 
     static bool spawn = true;
     if(spawn) {
-        m_pos = glm::vec3(chunk->getPosition().x, chunk->getHighestBlock(),
-        chunk->getPosition().z);
+        m_pos = glm::vec3(chunk->getPosition().x + CHUNK_SIZE / 2.0f,
+        chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f);
         spawn = false;
     }
 
@@ -117,19 +116,18 @@ void Player::moveDown(float deltaTime) {
     m_pos -= m_up * speed;
 }
 
-void Player::drawCursor(Shader* shader) {
-    static glm::vec3 rayOrigin = m_pos + (m_front * 0.1f);
-
+void Player::drawCursor(bool wireFrameMode, Shader* shader) {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, rayOrigin);
-    model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.2f));
 
-    shader->use();
+    if(wireFrameMode)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     m_texture->bind(0);
-
+    shader->use();
     shader->setMat4("model", model);
     glBindVertexArray(m_VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void Player::placeBlock() {
