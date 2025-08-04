@@ -71,6 +71,7 @@ int32_t chunkZ) {
 void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) {
     static Shader* currentShader;
 
+    lineShader->use();
     lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
     currentShader = (wireFrameMode) ? lineShader : worldShader;
     currentShader->use();
