@@ -10,13 +10,10 @@ class Chunk;
 class Treeminator {
 public:
     Treeminator(Chunk* chunk);
-    void spawnTrees(int32_t min, int32_t max);
-
+    void createTree(int32_t x, int32_t y, int32_t z);
 
 private:
     Chunk* m_chunk;
-
-    void createTree(int32_t x, int32_t y, int32_t z);
 
     bool addWood(std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
     uint8_t height,

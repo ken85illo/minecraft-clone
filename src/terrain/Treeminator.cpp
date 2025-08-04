@@ -1,14 +1,8 @@
 #include "Treeminator.hpp"
 #include "Chunk.hpp"
+#include <print>
 
 Treeminator::Treeminator(Chunk* chunk) : m_chunk(chunk) {
-}
-
-void Treeminator::spawnTrees(int32_t min, int32_t max) {
-    for(int32_t x = min; x < max; x++)
-        for(int32_t y = 0; y < m_chunk->getHighestBlock(); y++)
-            for(int32_t z = min; z < max; z++)
-                createTree(x, y, z);
 }
 
 void Treeminator::createTree(int32_t x, int32_t y, int32_t z) {
@@ -18,7 +12,6 @@ void Treeminator::createTree(int32_t x, int32_t y, int32_t z) {
         return;
 
     std::stack<std::pair<Block*, BlockType::Type>> treeStack;
-
     if(!addWood(treeStack, 5, x, y, z))
         return;
 

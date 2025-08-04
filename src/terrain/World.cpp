@@ -5,15 +5,16 @@ World::World(Player* player)
   m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES) {
 
     std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
-    for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++)
+    for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++) {
         for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++) {
             generateHeightMap(heightMap, chunkX + WORLD_RADIUS, chunkZ + WORLD_RADIUS);
 
-            m_chunks.emplace_back(glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
-            m_chunks.back().initChunk(heightMap);
+            m_chunks.emplace_back(heightMap,
+            glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
         }
+    }
 
-    for(int32_t chunkX = 0; chunkX < m_size; chunkX++)
+    for(int32_t chunkX = 0; chunkX < m_size; chunkX++) {
         for(int32_t chunkZ = 0; chunkZ < m_size; chunkZ++) {
             m_chunkThreads.emplace_back([chunkX, chunkZ, this]() {
                 Chunk* currentChunk = getChunk(chunkX, chunkZ);
@@ -21,10 +22,11 @@ World::World(Player* player)
                 currentChunk->setNeighbours(getChunk(chunkX, chunkZ + 1),
                 getChunk(chunkX, chunkZ - 1), getChunk(chunkX + 1, chunkZ),
                 getChunk(chunkX - 1, chunkZ));
-
+                currentChunk->spawnTrees();
                 currentChunk->generateMesh();
             });
         }
+    }
 
     player->setCurrentChunk(getChunk(m_size / 2, m_size / 2));
 

@@ -1,10 +1,9 @@
 #include "Chunk.hpp"
 #include <print>
 
-Chunk::Chunk(glm::vec3 position)
+Chunk::Chunk(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap, glm::vec3 position)
 : m_position(glm::vec3(position.x - CHUNK_SIZE / 2.0f, 0.0f, position.z - CHUNK_SIZE / 2.0f)),
-  m_highestBlock(0),
-  m_treeminator(this) {
+  m_highestBlock(0) {
 
     int32_t size = CHUNK_SIZE * MAX_HEIGHT * CHUNK_SIZE;
     m_blocks.reserve(size);
@@ -13,10 +12,7 @@ Chunk::Chunk(glm::vec3 position)
     glGenBuffers(1, &m_vertVBO);
     glGenBuffers(1, &m_texVBO);
     glGenBuffers(1, &m_EBO);
-}
 
-
-void Chunk::initChunk(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap) {
     for(int32_t x = 0; x < CHUNK_SIZE; x++)
         for(int32_t y = 0; y < MAX_HEIGHT; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
@@ -37,8 +33,14 @@ void Chunk::initChunk(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& hei
 
                 m_blocks.emplace_back(type, localPos, localPos + m_position);
             }
+}
 
-    m_treeminator.spawnTrees(2, CHUNK_SIZE - 2);
+void Chunk::spawnTrees() {
+    Treeminator treeminator = Treeminator(this);
+    for(int32_t x = 2; x < CHUNK_SIZE - 2; x++)
+        for(int32_t y = 0; y < m_highestBlock; y++)
+            for(int32_t z = 2; z < CHUNK_SIZE - 2; z++)
+                treeminator.createTree(x, y, z);
 }
 
 
