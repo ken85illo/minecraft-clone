@@ -93,7 +93,8 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
 
 
     for(uint8_t face = 0; face < 6; face++) {
-        if(!isAirBlock(x + dx[face], y + dy[face], z + dz[face]))
+        auto block = getBlock(x + dx[face], y + dy[face], z + dz[face]);
+        if(block && !block->isTransparent())
             continue;
 
         auto vertices = m_blocks[index].getFace(face);

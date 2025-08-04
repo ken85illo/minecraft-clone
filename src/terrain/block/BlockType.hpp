@@ -19,6 +19,7 @@ public:
     // Getters
     const std::pair<float*, float*> getTexCoord(uint8_t index) const;
     const BlockType::Type getType() const;
+    const bool isTransparent() const;
 
     // Setters
     void setType(BlockType::Type type);
@@ -39,4 +40,5 @@ private:
     static float s_texCoords[6][8];
 
     Type m_type;
+    bool m_transparent;
 };

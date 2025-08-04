@@ -12,10 +12,19 @@ float BlockType::s_texCoords[6][8];
 Atlas BlockType::s_atlas = Atlas(s_textures, s_texCoords);
 
 BlockType::BlockType(Type type) : m_type(type) {
+    switch(type) {
+    case OAK_LEAF_BLOCK: m_transparent = true; break;
+    default: m_transparent = false; break;
+    };
 }
 
 void BlockType::setType(BlockType::Type type) {
     m_type = type;
+
+    switch(type) {
+    case OAK_LEAF_BLOCK: m_transparent = true; break;
+    default: m_transparent = false; break;
+    };
 }
 
 const std::pair<float*, float*> BlockType::getTexCoord(uint8_t index) const {
@@ -25,4 +34,8 @@ const std::pair<float*, float*> BlockType::getTexCoord(uint8_t index) const {
 
 const BlockType::Type BlockType::getType() const {
     return m_type;
+}
+
+const bool BlockType::isTransparent() const {
+    return m_transparent || m_type == AIR;
 }
