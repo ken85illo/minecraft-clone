@@ -37,5 +37,5 @@ const BlockType::Type BlockType::getType() const {
 }
 
 const bool BlockType::isTransparent() const {
-    return m_transparent || m_type == AIR;
+    return m_transparent;
 }

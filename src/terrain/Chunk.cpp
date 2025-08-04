@@ -91,11 +91,16 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z) {
     int8_t dy[6] = { 0, 0, 1, -1, 0, 0 };
     int8_t dz[6] = { 1, -1, 0, 0, 0, 0 };
 
+    auto currentBlock = getBlock(x, y, z);
+
 
     for(uint8_t face = 0; face < 6; face++) {
-        auto block = getBlock(x + dx[face], y + dy[face], z + dz[face]);
-        if(block && !block->isTransparent())
+        auto offsetBlock = getBlock(x + dx[face], y + dy[face], z + dz[face]);
+        if(offsetBlock &&
+        (offsetBlock->isTransparent() ? currentBlock->isTransparent() :
+                                        offsetBlock->getType() != BlockType::AIR))
             continue;
+
 
         auto vertices = m_blocks[index].getFace(face);
         auto texCoords = m_blocks[index].getTexCoord(face);
