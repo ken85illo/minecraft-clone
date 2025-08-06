@@ -75,6 +75,9 @@ void Engine::render() {
     glm::mat4 view = m_player->getViewMat4();
     glm::mat4 projection =
     m_player->getProjectionMat4(m_window->getWidth(), m_window->getHeight());
+    static glm::mat4 interfaceProjection =
+    m_player->getProjectionMat4(m_window->getWidth(), m_window->getHeight());
+
 
     m_worldShader->use();
     m_worldShader->setMat4("view", view);
@@ -85,7 +88,7 @@ void Engine::render() {
     m_lineShader->setMat4("projection", projection);
 
     m_interfaceShader->use();
-    m_interfaceShader->setMat4("projection", projection);
+    m_interfaceShader->setMat4("projection", interfaceProjection);
 
     // Render stuff here
     //-----------------------------------------------------------
