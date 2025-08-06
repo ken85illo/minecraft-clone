@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
-#include "input/InputHandler.hpp"
+#include "Input/InputHandler.hpp"
 #include <print>
 
 class Window {

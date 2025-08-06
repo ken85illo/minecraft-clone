@@ -1,6 +1,6 @@
 #pragma once
 
-#include "texture/Atlas.hpp"
+#include "Texture/Atlas.hpp"
 #include <cstdint>
 #include <vector>
 

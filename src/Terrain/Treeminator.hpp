@@ -1,6 +1,6 @@
 #pragma once
 
-#include "terrain/block/Block.hpp"
+#include "Terrain/Block/Block.hpp"
 #include <cstdint>
 #include <stack>
 

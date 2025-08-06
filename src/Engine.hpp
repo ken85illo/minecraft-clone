@@ -1,9 +1,9 @@
 #pragma once
 
-#include "core/Window.hpp"
-#include "core/player/Player.hpp"
-#include "shader/Shader.hpp"
-#include "terrain/World.hpp"
+#include "Core/Player/Player.hpp"
+#include "Core/Window.hpp"
+#include "Shader/Shader.hpp"
+#include "Terrain/World.hpp"
 #include <GLFW/glfw3.h>
 
 class Engine {

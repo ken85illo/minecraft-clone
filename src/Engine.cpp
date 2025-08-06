@@ -7,11 +7,11 @@ Engine::Engine() {
 
     // Shaders
     m_worldShader =
-    new Shader("../src/shader/glsl/Textured.vert", "../src/shader/glsl/Textured.frag");
+    new Shader("../src/Shader/GLSL/Textured.vert", "../src/Shader/GLSL/Textured.frag");
     m_lineShader =
-    new Shader("../src/shader/glsl/Colored.vert", "../src/shader/glsl/Colored.frag");
+    new Shader("../src/Shader/GLSL/Colored.vert", "../src/Shader/GLSL/Colored.frag");
     m_interfaceShader = new Shader(
-    "../src/shader/glsl/Interface.vert", "../src/shader/glsl/Textured.frag");
+    "../src/Shader/GLSL/Interface.vert", "../src/Shader/GLSL/Textured.frag");
 
     // Load texture atlas
     BlockType::loadTextures();

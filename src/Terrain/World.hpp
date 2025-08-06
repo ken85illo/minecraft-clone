@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Chunk.hpp"
-#include "core/player/Player.hpp"
-#include "math/PerlinNoise.hpp"
-#include "shader/Shader.hpp"
-#include "texture/Texture.hpp"
+#include "Core/Player/Player.hpp"
+#include "Math/PerlinNoise.hpp"
+#include "Shader/Shader.hpp"
+#include "Texture/Texture.hpp"
 #include <cstdint>
 #include <future>
 #include <map>

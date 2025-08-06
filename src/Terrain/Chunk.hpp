@@ -2,8 +2,8 @@
 
 #include <glad/glad.h>
 
-#include "terrain/Treeminator.hpp"
-#include "terrain/block/Block.hpp"
+#include "Terrain/Block/Block.hpp"
+#include "Terrain/Treeminator.hpp"
 #include <cstdint>
 #include <glm/glm.hpp>
 #include <thread>

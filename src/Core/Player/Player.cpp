@@ -1,5 +1,5 @@
 #include "Player.hpp"
-#include "terrain/World.hpp"
+#include "Terrain/World.hpp"
 
 Player::Player()
 : Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f),

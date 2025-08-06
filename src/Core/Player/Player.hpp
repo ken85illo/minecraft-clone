@@ -4,11 +4,11 @@
 
 
 #include "Camera.hpp"
-#include "core/Window.hpp"
-#include "input/InputHandler.hpp"
-#include "shader/Shader.hpp"
-#include "terrain/Chunk.hpp"
-#include "texture/Texture.hpp"
+#include "Core/Window.hpp"
+#include "Input/InputHandler.hpp"
+#include "Shader/Shader.hpp"
+#include "Terrain/Chunk.hpp"
+#include "Texture/Texture.hpp"
 #include <stack>
 
 #define RANGE_RADIUS 8

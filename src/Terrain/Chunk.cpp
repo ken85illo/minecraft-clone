@@ -1,5 +1,5 @@
 #include "Chunk.hpp"
-#include "core/player/Player.hpp"
+#include "Core/Player/Player.hpp"
 
 Player* Chunk::s_player = nullptr;
 
