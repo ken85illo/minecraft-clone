@@ -73,7 +73,8 @@ bool removeCenter) {
             int8_t ax = std::abs(nx);
             int8_t az = std::abs(nz);
 
-            bool edgeCase = (removeEdge) ? ax == az && ax == 2 && az == 2 : removeEdge;
+            bool edgeCase =
+            (removeEdge) ? ax == az && ax == radius && az == radius : removeEdge;
             bool centerCase = (removeCenter) ? nx == 0 && nz == 0 : removeCenter;
 
             if(edgeCase || centerCase)
