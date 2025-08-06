@@ -54,7 +54,11 @@ void Camera::speedDown() {
     m_currentSpeed = m_cameraSpeed;
 }
 
-glm::mat4 Camera::getViewMat4() {
+glm::vec3 Camera::getPosition() const {
+    return m_pos;
+}
+
+glm::mat4 Camera::getViewMat4() const {
     glm::vec3 dir = glm::normalize(-m_front);
     glm::vec3 right = glm::normalize(glm::cross(m_up, dir));
     glm::vec3 up = glm::cross(dir, right);
@@ -72,7 +76,7 @@ glm::mat4 Camera::getViewMat4() {
     return first * second;
 }
 
-glm::mat4 Camera::getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight) {
+glm::mat4 Camera::getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight) const {
     return glm::perspective(glm::radians(m_currentFov),
     windowWidth / (float)windowHeight, m_near, m_far);
 }
@@ -120,10 +124,10 @@ void Camera::onCursorMove(double xpos, double ypos, uint16_t windowWidth, uint16
 
 
 void Camera::onScroll(double xoffset, double yoffset) {
-    m_currentFov -= (float)yoffset;
+    m_currentFov -= yoffset;
 
-    if(m_currentFov < 1.0f)
-        m_currentFov = 1.0f;
+    if(m_currentFov < 20.0f)
+        m_currentFov = 20.0f;
     if(m_currentFov > m_fov)
         m_currentFov = m_fov;
 }

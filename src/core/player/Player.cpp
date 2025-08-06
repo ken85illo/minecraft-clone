@@ -1,8 +1,11 @@
 #include "Player.hpp"
+#include "terrain/World.hpp"
 
 Player::Player()
-: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f) {
+: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f),
+  m_chunkCoord(0, 0) {
 
+    Chunk::loadPlayer(this);
     // Cursor vertices
     float vertices[20] = {
         -0.002f, -0.002f, 0.0f, 0.0f, 0.0f, // bottom-left
@@ -43,43 +46,52 @@ Player::Player()
     m_texture->loadImage("../res/cursor.png");
 }
 
-void Player::setCurrentChunk(Chunk* chunk) {
+void Player::setSpawn(World* world) {
+    auto diameter = world->getDiameter();
+    auto chunk = world->getChunk(diameter / 2, diameter / 2);
+
+    m_pos = glm::vec3(chunk->getPosition().x + CHUNK_SIZE / 2.0f,
+    chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f);
+    m_chunkCoord = ChunkCoord(diameter / 2, diameter / 2);
+
+    setCurrentChunk(chunk);
+}
+
+bool Player::setCurrentChunk(Chunk* chunk) {
     if(!chunk)
-        return;
+        return false;
 
-    static bool spawn = true;
-    if(spawn) {
-        m_pos = glm::vec3(chunk->getPosition().x + CHUNK_SIZE / 2.0f,
-        chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f);
-        spawn = false;
-    }
-
-    m_chunkFront = chunk->getPosition().z + CHUNK_SIZE - 1;
-    m_chunkBack = chunk->getPosition().z;
-    m_chunkRight = chunk->getPosition().x + CHUNK_SIZE - 1;
-    m_chunkLeft = chunk->getPosition().x;
     m_currentChunk = chunk;
+    return true;
 }
 
 void Player::updateCurrentChunk() {
     if(!m_currentChunk)
         return;
 
-    if(m_pos.z > m_chunkFront) {
-        setCurrentChunk(m_currentChunk->getFrontChunk());
-        std::println("You moved to front chunk!");
-    } else if(m_pos.z < m_chunkBack) {
-        setCurrentChunk(m_currentChunk->getBackChunk());
-        std::println("You moved to back chunk!");
-    }
+    m_currentChunk->generateTransparent();
 
-    if(m_pos.x > m_chunkRight) {
-        setCurrentChunk(m_currentChunk->getRightChunk());
+    const ChunkBounds& bounds = m_currentChunk->getBounds();
+    if(m_pos.z > bounds.max.z && setCurrentChunk(m_currentChunk->getFrontChunk())) {
+        std::println("You moved to front chunk!");
+        std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
+        ++m_chunkCoord.chunkZ;
+    } else if(m_pos.z < bounds.min.z && setCurrentChunk(m_currentChunk->getBackChunk())) {
+        std::println("You moved to back chunk!");
+        std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
+        --m_chunkCoord.chunkZ;
+    } else if(m_pos.x > bounds.max.x && setCurrentChunk(m_currentChunk->getRightChunk())) {
         std::println("You moved to right chunk!");
-    } else if(m_pos.x < m_chunkLeft) {
-        setCurrentChunk(m_currentChunk->getLeftChunk());
+        std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
+        ++m_chunkCoord.chunkX;
+    } else if(m_pos.x < bounds.min.x && setCurrentChunk(m_currentChunk->getLeftChunk())) {
         std::println("You moved to left chunk!");
+        std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
+        --m_chunkCoord.chunkX;
     }
+}
+const ChunkCoord& Player::getChunkCoord() const {
+    return m_chunkCoord;
 }
 
 void Player::moveFront(float deltaTime) {
@@ -175,7 +187,7 @@ void Player::placeBlock() {
         if(!bchunk->isAirBlock(bx, by, bz))
             break;
 
-        bchunk->updateMesh(Block::OAK_WOOD_BLOCK, bx, by, bz);
+        bchunk->updateMesh(Block::STONE_BLOCK, bx, by, bz);
         break;
     }
 }
@@ -196,9 +208,9 @@ void Player::destroyBlock() {
     }
 }
 
-ChunkCoords Player::getCoords(glm::vec3 point) {
+RayCoords Player::getCoords(glm::vec3 point) {
     if(!m_currentChunk || point.y < 0.0f || point.y >= MAX_HEIGHT)
-        return ChunkCoords{ nullptr, 0, 0, 0 };
+        return RayCoords{ nullptr, 0, 0, 0 };
 
     Chunk* blockChunk = m_currentChunk;
     uint8_t halfChunk = CHUNK_SIZE / 2;
@@ -225,7 +237,7 @@ ChunkCoords Player::getCoords(glm::vec3 point) {
     uint16_t ny = floor(point.y);
     uint16_t nz = floor(dz);
 
-    return ChunkCoords(blockChunk, nx, ny, nz);
+    return RayCoords(blockChunk, nx, ny, nz);
 }
 
 void Player::movementInput(Window* window, float deltaTime) {

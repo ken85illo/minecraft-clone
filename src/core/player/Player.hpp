@@ -13,10 +13,12 @@
 
 #define RANGE_RADIUS 8
 
-struct ChunkCoords {
+struct RayCoords {
     Chunk* chunk;
     uint32_t x, y, z;
 };
+
+class World;
 
 class Player : public Camera {
 public:
@@ -33,18 +35,18 @@ public:
     void drawCursor(bool wireFrameMode, Shader* shader);
     void placeBlock();
     void destroyBlock();
-    void setCurrentChunk(Chunk* chunk);
+    void setSpawn(World* world);
+    bool setCurrentChunk(Chunk* chunk);
+
+    const ChunkCoord& getChunkCoord() const;
 
 private:
     Chunk* m_currentChunk;
+    ChunkCoord m_chunkCoord;
     Texture* m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;
 
-    float m_chunkFront;
-    float m_chunkBack;
-    float m_chunkRight;
-    float m_chunkLeft;
 
-    ChunkCoords getCoords(glm::vec3 point);
+    RayCoords getCoords(glm::vec3 point);
     void updateCurrentChunk();
 };

@@ -27,8 +27,9 @@ public:
     void speedUp();
     void speedDown();
 
-    glm::mat4 getViewMat4();
-    glm::mat4 getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight);
+    glm::vec3 getPosition() const;
+    glm::mat4 getViewMat4() const;
+    glm::mat4 getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight) const;
 
 protected:
     glm::vec3 m_pos, m_front, m_up;

@@ -7,6 +7,7 @@
 #include "texture/Texture.hpp"
 #include <cstdint>
 #include <future>
+#include <map>
 #include <queue>
 
 #define WORLD_RADIUS 12
@@ -22,18 +23,22 @@ public:
     ~World();
     void render(bool wireFrameMode, Shader* worldShader, Shader* lineShader);
 
-    Chunk* getChunk(uint16_t x, uint16_t z);
+    const int32_t getDiameter() const;
+    const int32_t getIndex(int32_t x, int32_t z) const;
+    Chunk* getChunk(int32_t x, int32_t z);
 
 private:
-    std::vector<Chunk> m_chunks;
     Texture* m_texture;
-    uint16_t m_size;
+    int32_t m_diameter;
     PerlinNoise m_perlinNoise;
 
-    std::vector<std::thread> m_chunkThreads;
-    std::mutex m_chunkMutex;
+    std::vector<Chunk> m_chunks;
+    std::vector<std::future<void>> m_chunkThreads;
+    Player* m_player;
 
     void generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap,
     int32_t chunkX,
     int32_t chunkZ);
+
+    void drawChunk(int32_t index, uint8_t renderIndex, Shader* shader);
 };

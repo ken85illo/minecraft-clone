@@ -1,8 +1,9 @@
 #include "World.hpp"
 
 World::World(Player* player)
-: m_size(WORLD_RADIUS * 2 + 1),
-  m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES) {
+: m_diameter(WORLD_RADIUS * 2 + 1),
+  m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES),
+  m_player(player) {
 
     std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
     for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++) {
@@ -14,21 +15,23 @@ World::World(Player* player)
         }
     }
 
-    for(int32_t chunkX = 0; chunkX < m_size; chunkX++) {
-        for(int32_t chunkZ = 0; chunkZ < m_size; chunkZ++) {
-            m_chunkThreads.emplace_back([chunkX, chunkZ, this]() {
+    for(int32_t chunkX = 0; chunkX < m_diameter; chunkX++) {
+        for(int32_t chunkZ = 0; chunkZ < m_diameter; chunkZ++) {
+            m_chunkThreads.push_back(
+            std::async(std::launch::async, [chunkX, chunkZ, this]() {
                 Chunk* currentChunk = getChunk(chunkX, chunkZ);
 
                 currentChunk->setNeighbours(getChunk(chunkX, chunkZ + 1),
                 getChunk(chunkX, chunkZ - 1), getChunk(chunkX + 1, chunkZ),
                 getChunk(chunkX - 1, chunkZ));
+
                 currentChunk->spawnTrees();
                 currentChunk->generateMesh();
-            });
+            }));
         }
     }
 
-    player->setCurrentChunk(getChunk(m_size / 2, m_size / 2));
+    player->setSpawn(this);
 
     m_texture = new Texture(GL_TEXTURE_2D, 1);
     m_texture->bind(0);
@@ -45,11 +48,19 @@ World::~World() {
     delete m_texture;
 }
 
-Chunk* World::getChunk(uint16_t x, uint16_t z) {
-    if(x < 0 || x >= m_size || z < 0 || z >= m_size)
+const int32_t World::getDiameter() const {
+    return m_diameter;
+}
+
+const int32_t World::getIndex(int32_t x, int32_t z) const {
+    return x * m_diameter + z;
+}
+
+Chunk* World::getChunk(int32_t x, int32_t z) {
+    if(x < 0 || x >= m_diameter || z < 0 || z >= m_diameter)
         return nullptr;
 
-    uint16_t index = x * m_size + z;
+    int32_t index = getIndex(x, z);
     return &m_chunks[index];
 }
 
@@ -70,26 +81,44 @@ int32_t chunkZ) {
     }
 }
 
+void World::drawChunk(int32_t index, uint8_t renderIndex, Shader* shader) {
+    if(m_chunkThreads[index].valid()) {
+        m_chunkThreads[index].get();
+        m_chunks[index].bindVertexArray(0);
+        m_chunks[index].bindVertexArray(1);
+    }
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, m_chunks[index].getPosition());
+    shader->setMat4("model", model);
+
+    m_chunks[index].render(renderIndex);
+}
+
 
 void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) {
-    static Shader* currentShader;
-
     lineShader->use();
     lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
-    currentShader = (wireFrameMode) ? lineShader : worldShader;
+
+    Shader* currentShader = (wireFrameMode) ? lineShader : worldShader;
     currentShader->use();
     m_texture->bind(0);
 
-    for(int32_t i = 0; i < m_chunks.size(); i++) {
-        if(m_chunkThreads[i].joinable()) {
-            m_chunkThreads[i].join();
-            m_chunks[i].bindVertexArray();
+    const ChunkCoord& chunkCoord = m_player->getChunkCoord();
+    int32_t mid = getIndex(chunkCoord.chunkX, chunkCoord.chunkZ);
+
+    for(uint8_t renderIndex = 0; renderIndex < 2; ++renderIndex) {
+        int32_t i = 0;
+        int32_t j = m_chunks.size() - 1;
+
+        while(i >= 0 && i < mid || j > mid && j < m_chunks.size()) {
+            if(i < mid)
+                drawChunk(i++, renderIndex, currentShader);
+            if(j > mid)
+                drawChunk(j--, renderIndex, currentShader);
         }
 
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_chunks[i].getPosition());
-        currentShader->setMat4("model", model);
-
-        m_chunks[i].render();
+        if(mid >= 0 && mid < m_chunks.size())
+            drawChunk(mid, renderIndex, currentShader);
     }
 }

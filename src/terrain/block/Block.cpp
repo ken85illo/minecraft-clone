@@ -39,6 +39,9 @@ float Block::s_vertices[6][12] = {
 };
 
 
+Block::Block() : BlockType(AIR) {
+}
+
 Block::Block(BlockType::Type type, glm::vec3 localPos, glm::vec3 globalPos)
 : BlockType(type),
   m_localRect{ localPos, localPos + 1.0f },

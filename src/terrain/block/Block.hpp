@@ -10,6 +10,7 @@ public:
         glm::vec3 max;
     };
 
+    Block();
     Block(BlockType::Type type, glm::vec3 localPos, glm::vec3 globalPos);
 
     // Getters

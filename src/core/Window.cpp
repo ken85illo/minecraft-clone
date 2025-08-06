@@ -36,7 +36,7 @@ Window::~Window() {
 
 Window* Window::get() {
     if(m_instance == nullptr)
-        m_instance = new Window(1920, 1080, "ain't no way bruh", true);
+        m_instance = new Window(1366, 768, "ain't no way bruh", false);
 
     return m_instance;
 }
@@ -53,6 +53,8 @@ void Window::initWindow() {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Window::setupCallbacks() {
