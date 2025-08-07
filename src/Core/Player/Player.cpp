@@ -69,26 +69,34 @@ void Player::updateCurrentChunk() {
     if(!m_currentChunk)
         return;
 
-    m_currentChunk->generateTransparent();
 
     const ChunkBounds& bounds = m_currentChunk->getBounds();
     if(m_pos.z > bounds.max.z && setCurrentChunk(m_currentChunk->getFrontChunk())) {
         std::println("You moved to front chunk!");
         std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
         ++m_chunkCoord.chunkZ;
-    } else if(m_pos.z < bounds.min.z && setCurrentChunk(m_currentChunk->getBackChunk())) {
+    }
+
+    if(m_pos.z < bounds.min.z && setCurrentChunk(m_currentChunk->getBackChunk())) {
         std::println("You moved to back chunk!");
         std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
         --m_chunkCoord.chunkZ;
-    } else if(m_pos.x > bounds.max.x && setCurrentChunk(m_currentChunk->getRightChunk())) {
+    }
+
+    if(m_pos.x > bounds.max.x && setCurrentChunk(m_currentChunk->getRightChunk())) {
         std::println("You moved to right chunk!");
         std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
         ++m_chunkCoord.chunkX;
-    } else if(m_pos.x < bounds.min.x && setCurrentChunk(m_currentChunk->getLeftChunk())) {
+    }
+
+    if(m_pos.x < bounds.min.x && setCurrentChunk(m_currentChunk->getLeftChunk())) {
         std::println("You moved to left chunk!");
         std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
         --m_chunkCoord.chunkX;
     }
+
+
+    m_currentChunk->generateTransparent();
 }
 const ChunkCoord& Player::getChunkCoord() const {
     return m_chunkCoord;
