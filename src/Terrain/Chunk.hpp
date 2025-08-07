@@ -33,7 +33,7 @@ public:
     void generateMesh();
     void sortTransparent();
 
-    void updateMesh(Block::Type type, int32_t x, int32_t y, int32_t z);
+    void updateBlock(Block::Type type, int32_t x, int32_t y, int32_t z);
     void bindVertexArray(uint8_t index);
     void generateTransparent();
     void deleteVertexArray();

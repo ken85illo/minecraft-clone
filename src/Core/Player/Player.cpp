@@ -195,7 +195,7 @@ void Player::placeBlock() {
         if(!bchunk->isAirBlock(bx, by, bz))
             break;
 
-        bchunk->updateMesh(Block::STONE_BLOCK, bx, by, bz);
+        bchunk->updateBlock(Block::STONE_BLOCK, bx, by, bz);
         break;
     }
 }
@@ -211,7 +211,7 @@ void Player::destroyBlock() {
         if(chunk->isAirBlock(x, y, z))
             continue;
 
-        chunk->updateMesh(Block::AIR, x, y, z);
+        chunk->updateBlock(Block::AIR, x, y, z);
         break;
     }
 }

@@ -15,18 +15,26 @@ Chunk::Chunk(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap, g
     for(int32_t x = 0; x < CHUNK_SIZE; x++)
         for(int32_t y = 0; y < MAX_HEIGHT; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
-                uint8_t height = 8 + floor(heightMap[x][z] * TERRAIN_HEIGHT);
+                int32_t height = floor(heightMap[x][z] * (TERRAIN_HEIGHT - 8));
+                int32_t waterHeight = 72;
 
-                if(height > m_highestBlock)
-                    m_highestBlock = height + 1;
+                height += 8;
+                waterHeight -= 8;
+
+                if(height > m_highestBlock || waterHeight > m_highestBlock)
+                    m_highestBlock = std::max(height + 1, waterHeight + 1);
 
                 glm::vec3 localPos = glm::vec3(x, y, z);
                 Block::Type type = Block::AIR;
 
-                if(y == height - 1)
-                    type = Block::GRASS_BLOCK;
-                else if(y < height * 0.75)
+                if(y < height * 0.75)
                     type = Block::STONE_BLOCK;
+                else if(y > height - 1 && y < waterHeight)
+                    type = Block::WATER_BLOCK;
+                else if(y >= height - 5 && y <= height - 1 && y < waterHeight)
+                    type = Block::SAND_BLOCK;
+                else if(y == height - 1)
+                    type = Block::GRASS_BLOCK;
                 else if(y < height)
                     type = Block::DIRT_BLOCK;
 
@@ -143,23 +151,14 @@ void Chunk::regenerateMesh() {
 }
 
 void Chunk::generateTransparent() {
-    Chunk* chunks[] = {
-        this,
-        m_leftChunk,
-        m_rightChunk,
-        m_backChunk,
-        m_frontChunk,
-    };
-
-    for(uint8_t i = 0; i < std::size(chunks); i++) {
-        if(chunks[i]) {
-            chunks[i]->sortTransparent();
-            chunks[i]->bindVertexArray(1);
-        }
-    }
+    sortTransparent();
+    bindVertexArray(1);
 }
 
-void Chunk::updateMesh(Block::Type type, int32_t x, int32_t y, int32_t z) {
+void Chunk::updateBlock(Block::Type type, int32_t x, int32_t y, int32_t z) {
+    if(!m_blocks[x][y][z].isBreakable())
+        return;
+
     m_blocks[x][y][z].setType(type);
     if((y + 1) > m_highestBlock)
         m_highestBlock = y + 1;

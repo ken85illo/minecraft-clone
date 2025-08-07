@@ -36,7 +36,7 @@ Window::~Window() {
 
 Window* Window::get() {
     if(m_instance == nullptr)
-        m_instance = new Window(1366, 768, "ain't no way bruh", false);
+        m_instance = new Window(1920, 1080, "ain't no way bruh", true);
 
     return m_instance;
 }

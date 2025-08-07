@@ -12,7 +12,9 @@ public:
         STONE_BLOCK,
         OAK_WOOD_BLOCK,
         OAK_LEAF_BLOCK,
-        AIR
+        SAND_BLOCK,
+        WATER_BLOCK,
+        AIR // Must be the last block
     };
 
     BlockType(Type type);
@@ -22,6 +24,7 @@ public:
     const std::pair<float*, float*> getTexCoord(uint8_t index) const;
     const BlockType::Type getType() const;
     const bool isTransparent() const;
+    const bool isBreakable() const;
 
     // Setters
     void setType(BlockType::Type type);
@@ -34,13 +37,16 @@ private:
         STONE,
         OAK_SIDE,
         OAK_TOP_BOTTOM,
-        OAK_LEAF
+        OAK_LEAF,
+        SAND,
+        WATER,
     };
 
     static Atlas s_atlas;
-    static uint16_t s_textures[5][6];
+    static uint16_t s_textures[][6];
     static float s_textureTypes[BlockType::AIR][6][8];
 
     Type m_type;
     bool m_transparent;
+    bool m_breakable;
 };

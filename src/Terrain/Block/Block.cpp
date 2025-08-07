@@ -51,9 +51,10 @@ Block::Block(BlockType::Type type, glm::vec3 localPos, glm::vec3 globalPos)
 const std::array<float, 12> Block::getFace(uint8_t index) const {
     std::array<float, 12> posVertices;
 
+    float decrement = (index == 2 && getType() == WATER_BLOCK) ? 0.125f : 0.0f;
     for(uint8_t i = 0; i < 12; i += 3) {
         posVertices[i] = s_vertices[index][i] + m_localRect.min.x;
-        posVertices[i + 1] = s_vertices[index][i + 1] + m_localRect.min.y;
+        posVertices[i + 1] = s_vertices[index][i + 1] + m_localRect.min.y - decrement;
         posVertices[i + 2] = s_vertices[index][i + 2] + m_localRect.min.z;
     }
 

@@ -5,10 +5,10 @@
 
 #include "Camera.hpp"
 #include "Core/Window.hpp"
-#include "Input/InputHandler.hpp"
 #include "Shader/Shader.hpp"
 #include "Terrain/Chunk.hpp"
 #include "Texture/Texture.hpp"
+#include "Utils/Input/InputHandler.hpp"
 #include <stack>
 
 #define RANGE_RADIUS 8

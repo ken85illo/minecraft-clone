@@ -2,9 +2,9 @@
 
 #include "Chunk.hpp"
 #include "Core/Player/Player.hpp"
-#include "Math/PerlinNoise.hpp"
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
+#include "Utils/Math/PerlinNoise.hpp"
 #include <cstdint>
 #include <future>
 #include <map>
@@ -15,7 +15,7 @@
     512 // Must be a power of 2 (e.g. 128, 256, 512, 1024...)
 #define AMPLITUDE 0.5f
 #define FREQUENCY 0.005f
-#define NUMBER_OF_OCTAVES 4
+#define NUMBER_OF_OCTAVES 5
 
 class World {
 public:
