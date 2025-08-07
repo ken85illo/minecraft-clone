@@ -116,7 +116,7 @@ void Chunk::fillFaces(int32_t x, int32_t y, int32_t z, uint8_t index) {
 
     for(uint8_t face = 0; face < 6; face++) {
         auto offsetBlock = getBlock(x + dx[face], y + dy[face], z + dz[face]);
-        if(offsetBlock &&
+        if(!offsetBlock ||
         (offsetBlock->isTransparent() ? currentBlock.isTransparent() :
                                         offsetBlock->getType() != BlockType::AIR))
             continue;
@@ -143,8 +143,15 @@ void Chunk::regenerateMesh() {
 }
 
 void Chunk::generateTransparent() {
-    Chunk* chunks[5] = { this, m_leftChunk, m_rightChunk, m_backChunk, m_frontChunk };
-    for(uint8_t i = 0; i < 5; i++) {
+    Chunk* chunks[] = {
+        this,
+        m_leftChunk,
+        m_rightChunk,
+        m_backChunk,
+        m_frontChunk,
+    };
+
+    for(uint8_t i = 0; i < std::size(chunks); i++) {
         if(chunks[i]) {
             chunks[i]->sortTransparent();
             chunks[i]->bindVertexArray(1);
