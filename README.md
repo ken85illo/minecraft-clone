@@ -4,9 +4,9 @@ I'm still in the process of learning, so please excuse the poor structure of my 
 
 For now, I have implemented chunk mesh culling and octave perlin noise for random terrain generation.
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d977bf44-4c2f-4b04-835b-b9ddc1af8743" />
+<img width="1920" height="1080" alt="Screenshot_20250807_140353" src="https://github.com/user-attachments/assets/863a6d7f-95a3-44e8-9f65-d27a72f1a41b" />
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/653c585b-26cd-49f0-88f3-e1577b25e7c5" />
+<img width="1920" height="1080" alt="Screenshot_20250807_141211" src="https://github.com/user-attachments/assets/2c69eef1-ebce-4283-b84a-ea53d4672f34" />
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/685a18d2-e427-423d-b51a-ebc4a84836e9" />
 
