@@ -4,6 +4,24 @@ I'm still in the process of learning, so please excuse the poor structure of my 
 
 For now, I have implemented chunk mesh culling and octave perlin noise for random terrain generation.
 
+## Build
+### Linux
+Build using CMake
+```
+scripts/build.sh release # Release Mode
+scripts/build.sh debug # Debug Mode
+```
+Or run directly
+```
+scripts/run.sh release 
+scripts/run.sh debug 
+```
+You can also debug with gdb
+```
+scripts/debug.sh
+```
+
+## Images
 <img width="1920" height="1080" alt="Screenshot_20250807_140353" src="https://github.com/user-attachments/assets/863a6d7f-95a3-44e8-9f65-d27a72f1a41b" />
 
 <img width="1920" height="1080" alt="Screenshot_20250807_141211" src="https://github.com/user-attachments/assets/2c69eef1-ebce-4283-b84a-ea53d4672f34" />
