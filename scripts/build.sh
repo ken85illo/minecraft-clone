@@ -21,7 +21,7 @@ fi
     # Set directory to root folder
     cd "$(dirname "$0")/.."
 
-    # Chooses generator between Ninja and Makefiles
+    # Prioritize Ninja over Makefile
     if command -v ninja >/dev/null 2>&1; then
         generator="-G Ninja"
     elif command -v make >/dev/null 2>&1; then
