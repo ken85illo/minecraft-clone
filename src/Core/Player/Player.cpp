@@ -43,7 +43,7 @@ Player::Player()
     m_texture->bind(0);
     m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_texture->loadImage("../res/cursor.png");
+    m_texture->loadImage("res/cursor.png");
 }
 
 void Player::setSpawn(World* world) {
