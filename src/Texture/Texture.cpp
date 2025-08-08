@@ -1,15 +1,14 @@
 #include "Texture.hpp"
 
-Texture::Texture(int target, int size)
-: m_ID(new uint[size]), m_target(target), m_size(size) {
-    glGenTextures(size, m_ID);
+Texture::Texture(int target, int size) : m_target(target), m_size(size) {
+    m_ID = std::make_unique<uint32_t[]>(5);
+    glGenTextures(size, m_ID.get());
 
     stbi_set_flip_vertically_on_load(true);
 }
 
 Texture::~Texture() {
-    glDeleteTextures(m_size, m_ID);
-    delete[] m_ID;
+    glDeleteTextures(m_size, m_ID.get());
 }
 
 void Texture::loadImage(const char* filepath) {

@@ -6,18 +6,18 @@ Engine::Engine() {
     m_window = Window::get();
 
     // Shaders
-    m_worldShader =
-    new Shader("src/Shader/GLSL/Textured.vert", "src/Shader/GLSL/Textured.frag");
-    m_lineShader =
-    new Shader("src/Shader/GLSL/Colored.vert", "src/Shader/GLSL/Colored.frag");
-    m_interfaceShader =
-    new Shader("src/Shader/GLSL/Interface.vert", "src/Shader/GLSL/Textured.frag");
+    m_worldShader = std::make_unique<Shader>(
+    "src/Shader/GLSL/Textured.vert", "src/Shader/GLSL/Textured.frag");
+    m_lineShader = std::make_unique<Shader>(
+    "src/Shader/GLSL/Colored.vert", "src/Shader/GLSL/Colored.frag");
+    m_interfaceShader = std::make_unique<Shader>(
+    "src/Shader/GLSL/Interface.vert", "src/Shader/GLSL/Textured.frag");
 
     // Load texture atlas
     BlockType::loadTextures();
 
-    m_player = new Player();
-    m_world = new World(m_player);
+    m_player = std::make_unique<Player>();
+    m_world = std::make_unique<World>(m_player.get());
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
@@ -27,13 +27,6 @@ Engine::Engine() {
     m_worldShader->setInt("texture0", 0);
 }
 
-Engine::~Engine() {
-    delete m_player;
-    delete m_world;
-    delete m_worldShader;
-    delete m_lineShader;
-    delete m_window;
-}
 
 void Engine::mainLoop() {
     float lastFrame = 0.0f;
@@ -92,6 +85,6 @@ void Engine::render() {
 
     // Render stuff here
     //-----------------------------------------------------------
-    m_world->render(m_wireFrameMode, m_worldShader, m_lineShader);
-    m_player->drawCursor(m_wireFrameMode, m_interfaceShader);
+    m_world->render(m_wireFrameMode, m_worldShader.get(), m_lineShader.get());
+    m_player->drawCursor(m_wireFrameMode, m_interfaceShader.get());
 }

@@ -43,7 +43,7 @@ public:
 private:
     Chunk* m_currentChunk;
     ChunkCoord m_chunkCoord;
-    Texture* m_texture;
+    std::unique_ptr<Texture> m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;
 
 

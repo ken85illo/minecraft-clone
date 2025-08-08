@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <memory>
 #include <print>
 #include <stb_image.h>
 
@@ -15,7 +16,7 @@ public:
     void setParameter(int name, int value);
 
 private:
-    uint32_t* m_ID;
+    std::unique_ptr<uint32_t[]> m_ID;
     const int m_target;
     const int m_size;
 };

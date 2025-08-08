@@ -33,7 +33,7 @@ World::World(Player* player)
 
     player->setSpawn(this);
 
-    m_texture = new Texture(GL_TEXTURE_2D, 1);
+    m_texture = std::make_unique<Texture>(GL_TEXTURE_2D, 1);
     m_texture->bind(0);
     m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -44,8 +44,6 @@ World::World(Player* player)
 World::~World() {
     for(auto& chunk : m_chunks)
         chunk.deleteVertexArray();
-
-    delete m_texture;
 }
 
 const int32_t World::getDiameter() const {
@@ -97,6 +95,7 @@ void World::drawChunk(int32_t index, uint8_t renderIndex, Shader* shader) {
 
 
 void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) {
+
     lineShader->use();
     lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
 

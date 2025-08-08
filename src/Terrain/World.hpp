@@ -20,6 +20,7 @@
 class World {
 public:
     World(Player* player);
+
     ~World();
     void render(bool wireFrameMode, Shader* worldShader, Shader* lineShader);
 
@@ -28,7 +29,7 @@ public:
     Chunk* getChunk(int32_t x, int32_t z);
 
 private:
-    Texture* m_texture;
+    std::unique_ptr<Texture> m_texture;
     int32_t m_diameter;
     PerlinNoise m_perlinNoise;
 

@@ -24,6 +24,7 @@ public:
     virtual void moveUp(float deltaTime);
     virtual void moveDown(float deltaTime);
     virtual void movementInput(Window* window, float deltaTime);
+
     void speedUp();
     void speedDown();
 

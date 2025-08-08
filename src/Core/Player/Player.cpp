@@ -39,7 +39,7 @@ Player::Player()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    m_texture = new Texture(GL_TEXTURE_2D, 1);
+    m_texture = std::make_unique<Texture>(GL_TEXTURE_2D, 1);
     m_texture->bind(0);
     m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -68,7 +68,6 @@ bool Player::setCurrentChunk(Chunk* chunk) {
 void Player::updateCurrentChunk() {
     if(!m_currentChunk)
         return;
-
 
     const ChunkBounds& bounds = m_currentChunk->getBounds();
     if(m_pos.z > bounds.max.z && setCurrentChunk(m_currentChunk->getFrontChunk())) {

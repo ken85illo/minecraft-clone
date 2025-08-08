@@ -6,6 +6,7 @@
 // clang-format on
 
 #include "Utils/Input/InputHandler.hpp"
+#include <memory>
 #include <print>
 
 class Window {
@@ -26,7 +27,7 @@ public:
     uint16_t getHeight() const;
 
 private:
-    static Window* m_instance;
+    static std::unique_ptr<Window> s_instance;
     const char* m_title;
     uint16_t m_windowWidth, m_windowHeight;
     GLFWwindow* m_window;

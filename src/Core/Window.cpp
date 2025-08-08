@@ -1,6 +1,6 @@
 #include "Window.hpp"
 
-Window* Window::m_instance = nullptr;
+std::unique_ptr<Window> Window::s_instance;
 
 Window::Window(uint16_t windowWidth, uint16_t windowHeight, const char* title, bool fullscreen)
 : m_windowWidth(windowWidth), m_windowHeight(windowHeight), m_title(title) {
@@ -35,10 +35,10 @@ Window::~Window() {
 }
 
 Window* Window::get() {
-    if(m_instance == nullptr)
-        m_instance = new Window(1920, 1080, "ain't no way bruh", true);
+    if(!s_instance)
+        s_instance = std::make_unique<Window>(1920, 1080, "ain't no way bruh", true);
 
-    return m_instance;
+    return s_instance.get();
 }
 
 void Window::initWindow() {
