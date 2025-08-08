@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: ./build.sh <release|debug>"
+    exit 1
+fi
+
+# Case insensitive argument
+build_type=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+
+if [[ "$build_type" != "release" && "$build_type" != "debug" ]]; then
+    echo "Usage: ./build.sh <release|debug>"
+    exit 1
+fi
+
+
+(
+    # Set directory to root folder
+    cd "$(dirname "$0")/.."
+
+    # Chooses generator between Ninja and Makefiles
+    if command -v ninja >/dev/null 2>&1; then
+        generator="-G Ninja"
+    elif command -v make >/dev/null 2>&1; then
+        generator='-G "Unix Makefiles"'
+    else
+        echo "No 'ninja' or 'make' defined in PATH"
+        exit 1
+    fi
+
+    if [[ ! -d "./build" ]]; then
+        mkdir -p build
+        cmake "$generator" -B build -DCMAKE_BUILD_TYPE="$build_type"
+    fi
+
+    cmake --build build
+    mkdir -p bin/"$build_type"
+    cp -rf build/bin/* bin/"$build_type"
+)
