@@ -13,6 +13,12 @@ struct MeshData {
     std::vector<uint32_t> indices;
 };
 
+enum MeshType {
+    OPAQUE = 0,
+    TRANSPARENT = 1,
+    TOTAL_MESHES = 2,
+};
+
 class ChunkMesh {
 public:
     static MeshData buildOpaque(Chunk& chunk);
