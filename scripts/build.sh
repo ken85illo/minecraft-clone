@@ -45,4 +45,5 @@ fi
     cmake --build "$build_dir"
     mkdir -p bin/"$build_type"
     cp -rf "$build_dir"/bin/* bin/"$build_type"
+    cp -f "$build_dir"/compile_commands.json "$build_dir"/..
 )
