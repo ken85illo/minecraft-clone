@@ -5,6 +5,9 @@ std::unique_ptr<Window> Window::s_instance;
 Window::Window(uint16_t windowWidth, uint16_t windowHeight, const char* title, bool fullscreen)
 : m_windowWidth(windowWidth), m_windowHeight(windowHeight), m_title(title) {
 
+    if(!glfwInit())
+        std::println("Failed to initialize GLFW!");
+
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
@@ -20,10 +23,8 @@ Window::Window(uint16_t windowWidth, uint16_t windowHeight, const char* title, b
     m_window = glfwCreateWindow(
     windowWidth, windowHeight, m_title, fullscreen ? monitor : nullptr, nullptr);
 
-    if(!m_window) {
+    if(!m_window)
         std::println("Failed to initialize window!");
-        return;
-    }
 
     initWindow();
     setupCallbacks();

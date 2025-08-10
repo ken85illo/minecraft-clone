@@ -1,22 +1,15 @@
 #pragma once
 
 #include "Chunk/Chunk.hpp"
-#include "Chunk/ChunkRenderer.hpp"
-#include "Math/PerlinNoise.hpp"
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
+#include "World/TerrainGenerator.hpp"
 #include <cstdint>
 #include <future>
 #include <map>
 #include <queue>
 
 #define WORLD_RADIUS 12
-#define PERMUTATION_SIZE \
-    512 // Must be a power of 2 (e.g. 128, 256, 512, 1024...)
-#define AMPLITUDE 0.5f
-#define FREQUENCY 0.005f
-#define NUMBER_OF_OCTAVES 5
-
 
 class World {
 public:
@@ -32,15 +25,13 @@ public:
 private:
     std::unique_ptr<Texture> m_texture;
     int32_t m_diameter;
-    PerlinNoise m_perlinNoise;
 
     std::vector<Chunk> m_chunks;
     std::vector<std::future<void>> m_chunkThreads;
     Player* m_player;
 
-    void generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap,
-    int32_t chunkX,
-    int32_t chunkZ);
-
-    void drawChunk(int32_t index, uint8_t renderIndex, Shader* shader);
+    void initChunks();
+    void generateChunkMeshAsync(Player* player);
+    void initTexture();
+    void drawChunk(int32_t index, MeshType type, Shader* shader);
 };

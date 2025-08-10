@@ -4,21 +4,28 @@
 #include "World/Treeminator.hpp"
 
 World::World(Player* player)
-: m_diameter(WORLD_RADIUS * 2 + 1),
-  m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES),
-  m_player(player) {
+: m_diameter(WORLD_RADIUS * 2 + 1), m_player(player) {
+    initTexture();
+    initChunks();
+    generateChunkMeshAsync(player);
+    player->setSpawn(this);
+}
 
-
-    std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
+void World::initChunks() {
+    static std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
     for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++) {
+        std::vector<Chunk> zChunks;
         for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++) {
-            generateHeightMap(heightMap, chunkX + WORLD_RADIUS, chunkZ + WORLD_RADIUS);
+            TerrainGenerator::generateHeightMap(
+            heightMap, chunkX + WORLD_RADIUS, chunkZ + WORLD_RADIUS);
 
             m_chunks.emplace_back(heightMap,
             glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
         }
     }
+}
 
+void World::generateChunkMeshAsync(Player* player) {
     for(int32_t chunkX = 0; chunkX < m_diameter; chunkX++) {
         for(int32_t chunkZ = 0; chunkZ < m_diameter; chunkZ++) {
             m_chunkThreads.push_back(
@@ -33,14 +40,14 @@ World::World(Player* player)
                 MeshData opaqueMesh = ChunkMesh::buildOpaque(*currentChunk);
                 MeshData transparentMesh = ChunkMesh::buildTransparent(*currentChunk);
 
-                ChunkManager::updateMesh(*currentChunk, opaqueMesh, 0);
-                ChunkManager::updateMesh(*currentChunk, transparentMesh, 1);
+                ChunkManager::updateMesh(*currentChunk, opaqueMesh, OPAQUE);
+                ChunkManager::updateMesh(*currentChunk, transparentMesh, TRANSPARENT);
             }));
         }
     }
+}
 
-    player->setSpawn(this);
-
+void World::initTexture() {
     m_texture = std::make_unique<Texture>(GL_TEXTURE_2D, 1);
     m_texture->bind(0);
     m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
@@ -71,34 +78,18 @@ Chunk* World::getChunk(int32_t x, int32_t z) {
 }
 
 
-void World::generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap,
-int32_t chunkX,
-int32_t chunkZ) {
-    for(int32_t x = 0; x < CHUNK_SIZE; x++) {
-        for(int32_t z = 0; z < CHUNK_SIZE; z++) {
-            float n = m_perlinNoise.fractalBrownianMotion(
-            (chunkX * CHUNK_SIZE + x), (chunkZ * CHUNK_SIZE + z));
-
-            n += 1.0f;
-            n /= 2.0f;
-
-            heightMap[x][z] = n;
-        }
-    }
-}
-
-void World::drawChunk(int32_t index, uint8_t renderIndex, Shader* shader) {
+void World::drawChunk(int32_t index, MeshType type, Shader* shader) {
     if(m_chunkThreads[index].valid()) {
         m_chunkThreads[index].get();
-        ChunkManager::uploadMesh(m_chunks[index], 0);
-        ChunkManager::uploadMesh(m_chunks[index], 1);
+        ChunkManager::uploadMesh(m_chunks[index], OPAQUE);
+        ChunkManager::uploadMesh(m_chunks[index], TRANSPARENT);
     }
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, m_chunks[index].getPosition());
     shader->setMat4("model", model);
 
-    ChunkManager::render(m_chunks[index], renderIndex);
+    ChunkManager::render(m_chunks[index], type);
 }
 
 
@@ -113,18 +104,18 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
     const ChunkCoord& chunkCoord = m_player->getChunkCoord();
     int32_t mid = getIndex(chunkCoord.chunkX, chunkCoord.chunkZ);
 
-    for(uint8_t renderIndex = 0; renderIndex < 2; ++renderIndex) {
+    for(uint8_t type = OPAQUE; type < TOTAL_MESHES; ++type) {
         int32_t i = 0;
         int32_t j = m_chunks.size() - 1;
 
         while(i >= 0 && i < mid || j > mid && j < m_chunks.size()) {
             if(i < mid)
-                drawChunk(i++, renderIndex, currentShader);
+                drawChunk(i++, static_cast<MeshType>(type), currentShader);
             if(j > mid)
-                drawChunk(j--, renderIndex, currentShader);
+                drawChunk(j--, static_cast<MeshType>(type), currentShader);
         }
 
         if(mid >= 0 && mid < m_chunks.size())
-            drawChunk(mid, renderIndex, currentShader);
+            drawChunk(mid, static_cast<MeshType>(type), currentShader);
     }
 }
