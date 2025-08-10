@@ -2,13 +2,12 @@
 
 #include <glad/glad.h>
 
-
 #include "Camera.hpp"
 #include "Core/Window.hpp"
+#include "Input/InputHandler.hpp"
 #include "Shader/Shader.hpp"
-#include "Terrain/Chunk.hpp"
 #include "Texture/Texture.hpp"
-#include "Utils/Input/InputHandler.hpp"
+#include "World/World.hpp"
 #include <stack>
 
 #define RANGE_RADIUS 8
@@ -17,8 +16,6 @@ struct RayCoords {
     Chunk* chunk;
     uint32_t x, y, z;
 };
-
-class World;
 
 class Player : public Camera {
 public:
@@ -42,10 +39,9 @@ public:
 
 private:
     Chunk* m_currentChunk;
-    ChunkCoord m_chunkCoord;
+    ChunkCoord m_chunkCoord = { 0, 0 };
     std::unique_ptr<Texture> m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;
-
 
     RayCoords getCoords(glm::vec3 point);
     void updateCurrentChunk();

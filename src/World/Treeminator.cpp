@@ -1,5 +1,5 @@
 #include "Treeminator.hpp"
-#include "Chunk.hpp"
+#include "Chunk/Chunk.hpp"
 #include <print>
 
 Treeminator::Treeminator(Chunk* chunk) : m_chunk(chunk) {
@@ -32,8 +32,7 @@ void Treeminator::createTree(int32_t x, int32_t y, int32_t z) {
         treeStack.pop();
     }
 
-    if(y + 7 > m_chunk->getHighestBlock())
-        m_chunk->setHighestBlock(y + 7);
+    m_chunk->setHighestBlock(y + 7);
 }
 
 bool Treeminator::addWood(std::stack<std::pair<Block*, BlockType::Type>>& treeStack,

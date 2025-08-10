@@ -1,6 +1,6 @@
-#include "Engine.hpp"
+#include "Application.hpp"
 
-Engine::Engine() {
+Application::Application() {
     srand(static_cast<unsigned>(time(0)));
 
     m_window = Window::get();
@@ -28,7 +28,7 @@ Engine::Engine() {
 }
 
 
-void Engine::mainLoop() {
+void Application::mainLoop() {
     float lastFrame = 0.0f;
     float deltaTime = 0.0f;
     while(!m_window->shouldClose()) {
@@ -44,7 +44,7 @@ void Engine::mainLoop() {
     }
 }
 
-void Engine::update(float deltaTime) {
+void Application::update(float deltaTime) {
     if(InputHandler::isKeyPressed(GLFW_KEY_ESCAPE))
         m_window->setShouldClose(true);
 
@@ -54,7 +54,7 @@ void Engine::update(float deltaTime) {
     m_player->movementInput(m_window, deltaTime);
 }
 
-void Engine::render() {
+void Application::render() {
     if(!m_wireFrameMode) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glClearColor(135 / 255.f, 206 / 255.f, 235 / 255.f, 1.f);
@@ -68,8 +68,7 @@ void Engine::render() {
     glm::mat4 view = m_player->getViewMat4();
     glm::mat4 projection =
     m_player->getProjectionMat4(m_window->getWidth(), m_window->getHeight());
-    static glm::mat4 interfaceProjection =
-    m_player->getProjectionMat4(m_window->getWidth(), m_window->getHeight());
+    static glm::mat4 interfaceProjection = projection;
 
 
     m_worldShader->use();

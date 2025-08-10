@@ -1,9 +1,12 @@
 #include "World.hpp"
+#include "Chunk/ChunkMesh.hpp"
+#include "Player/Player.hpp"
 
 World::World(Player* player)
 : m_diameter(WORLD_RADIUS * 2 + 1),
   m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES),
   m_player(player) {
+
 
     std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
     for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++) {
@@ -18,15 +21,19 @@ World::World(Player* player)
     for(int32_t chunkX = 0; chunkX < m_diameter; chunkX++) {
         for(int32_t chunkZ = 0; chunkZ < m_diameter; chunkZ++) {
             m_chunkThreads.push_back(
-            std::async(std::launch::async, [chunkX, chunkZ, this]() {
+            std::async(std::launch::async, [chunkX, chunkZ, player, this]() {
                 Chunk* currentChunk = getChunk(chunkX, chunkZ);
 
                 currentChunk->setNeighbours(getChunk(chunkX, chunkZ + 1),
                 getChunk(chunkX, chunkZ - 1), getChunk(chunkX + 1, chunkZ),
                 getChunk(chunkX - 1, chunkZ));
-
                 currentChunk->spawnTrees();
-                currentChunk->generateMesh();
+
+                MeshData opaqueMesh = ChunkMesh::buildOpaque(*currentChunk);
+                MeshData transparentMesh = ChunkMesh::buildTransparent(*currentChunk);
+
+                ChunkManager::updateMesh(*currentChunk, opaqueMesh, 0);
+                ChunkManager::updateMesh(*currentChunk, transparentMesh, 1);
             }));
         }
     }
@@ -43,7 +50,7 @@ World::World(Player* player)
 
 World::~World() {
     for(auto& chunk : m_chunks)
-        chunk.deleteVertexArray();
+        ChunkManager::deleteMesh(chunk);
 }
 
 const int32_t World::getDiameter() const {
@@ -82,20 +89,19 @@ int32_t chunkZ) {
 void World::drawChunk(int32_t index, uint8_t renderIndex, Shader* shader) {
     if(m_chunkThreads[index].valid()) {
         m_chunkThreads[index].get();
-        m_chunks[index].bindVertexArray(0);
-        m_chunks[index].bindVertexArray(1);
+        ChunkManager::uploadMesh(m_chunks[index], 0);
+        ChunkManager::uploadMesh(m_chunks[index], 1);
     }
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, m_chunks[index].getPosition());
     shader->setMat4("model", model);
 
-    m_chunks[index].render(renderIndex);
+    ChunkManager::render(m_chunks[index], renderIndex);
 }
 
 
 void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) {
-
     lineShader->use();
     lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
 

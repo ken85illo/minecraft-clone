@@ -36,7 +36,7 @@ Window::~Window() {
 
 Window* Window::get() {
     if(!s_instance)
-        s_instance = std::make_unique<Window>(1920, 1080, "ain't no way bruh", true);
+        s_instance = std::make_unique<Window>(1366, 768, "ain't no way bruh", false);
 
     return s_instance.get();
 }

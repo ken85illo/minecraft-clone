@@ -49,4 +49,6 @@ private:
     Type m_type;
     bool m_transparent;
     bool m_breakable;
+
+    void initType(BlockType::Type type);
 };

@@ -1,11 +1,10 @@
 #include "Player.hpp"
-#include "Terrain/World.hpp"
 
 Player::Player()
-: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f),
-  m_chunkCoord(0, 0) {
+: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f) {
 
     Chunk::loadPlayer(this);
+
     // Cursor vertices
     float vertices[20] = {
         -0.002f, -0.002f, 0.0f, 0.0f, 0.0f, // bottom-left
@@ -70,6 +69,7 @@ void Player::updateCurrentChunk() {
         return;
 
     const ChunkBounds& bounds = m_currentChunk->getBounds();
+
     if(m_pos.z > bounds.max.z && setCurrentChunk(m_currentChunk->getFrontChunk())) {
         std::println("You moved to front chunk!");
         std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
@@ -94,9 +94,10 @@ void Player::updateCurrentChunk() {
         --m_chunkCoord.chunkX;
     }
 
-
-    m_currentChunk->generateTransparent();
+    // MeshData transparentMesh = ChunkMesh::buildTransparent(*m_currentChunk);
+    // ChunkManager::buildMesh(*m_currentChunk, transparentMesh, 1);
 }
+
 const ChunkCoord& Player::getChunkCoord() const {
     return m_chunkCoord;
 }
@@ -194,7 +195,7 @@ void Player::placeBlock() {
         if(!bchunk->isAirBlock(bx, by, bz))
             break;
 
-        bchunk->updateBlock(Block::STONE_BLOCK, bx, by, bz);
+        ChunkManager::updateBlock(*bchunk, bx, by, bz, Block::STONE_BLOCK);
         break;
     }
 }
@@ -210,7 +211,7 @@ void Player::destroyBlock() {
         if(chunk->isAirBlock(x, y, z))
             continue;
 
-        chunk->updateBlock(Block::AIR, x, y, z);
+        ChunkManager::updateBlock(*chunk, x, y, z, Block::AIR);
         break;
     }
 }

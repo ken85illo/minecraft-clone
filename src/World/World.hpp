@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Chunk.hpp"
-#include "Core/Player/Player.hpp"
+#include "Chunk/Chunk.hpp"
+#include "Chunk/ChunkRenderer.hpp"
+#include "Math/PerlinNoise.hpp"
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
-#include "Utils/Math/PerlinNoise.hpp"
 #include <cstdint>
 #include <future>
 #include <map>
@@ -17,11 +17,12 @@
 #define FREQUENCY 0.005f
 #define NUMBER_OF_OCTAVES 5
 
+
 class World {
 public:
     World(Player* player);
-
     ~World();
+
     void render(bool wireFrameMode, Shader* worldShader, Shader* lineShader);
 
     const int32_t getDiameter() const;

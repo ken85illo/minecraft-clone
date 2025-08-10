@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Core/Player/Player.hpp"
 #include "Core/Window.hpp"
+#include "Player/Player.hpp"
 #include "Shader/Shader.hpp"
-#include "Terrain/World.hpp"
+#include "World/World.hpp"
 #include <GLFW/glfw3.h>
 
-class Engine {
+class Application {
 public:
-    Engine();
+    Application();
     void mainLoop();
 
 private:

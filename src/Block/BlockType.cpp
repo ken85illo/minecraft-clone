@@ -15,6 +15,10 @@ Atlas BlockType::s_atlas = Atlas(s_textures);
 float BlockType::s_textureTypes[BlockType::AIR][6][8];
 
 BlockType::BlockType(Type type) : m_type(type) {
+    initType(type);
+}
+
+void BlockType::initType(BlockType::Type type) {
     switch(type) {
     case WATER_BLOCK: m_breakable = false;
     case OAK_LEAF_BLOCK: m_transparent = true; break;
@@ -27,21 +31,14 @@ BlockType::BlockType(Type type) : m_type(type) {
 
 void BlockType::setType(BlockType::Type type) {
     m_type = type;
-
-    switch(type) {
-    case WATER_BLOCK: m_breakable = false;
-    case OAK_LEAF_BLOCK: m_transparent = true; break;
-    default:
-        m_transparent = false;
-        m_breakable = true;
-        break;
-    };
+    initType(type);
 }
 
 void BlockType::loadTextures() {
     for(uint8_t i = 0; i < AIR; i++)
         s_atlas.map(i, s_textureTypes[i]);
 }
+
 
 const std::pair<float*, float*> BlockType::getTexCoord(uint8_t index) const {
     return std::make_pair(

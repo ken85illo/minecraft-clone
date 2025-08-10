@@ -1,4 +1,4 @@
-#include "Engine.hpp"
+#include "Core/Application.hpp"
 
 int main() {
     if(!glfwInit()) {
@@ -6,6 +6,6 @@ int main() {
         return -1;
     }
 
-    Engine engine;
-    engine.mainLoop();
+    Application app;
+    app.mainLoop();
 }
