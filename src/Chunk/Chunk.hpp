@@ -23,7 +23,6 @@ public:
     Block* getBlock(int32_t x, int32_t y, int32_t z);
     bool isAirBlock(int32_t x, int32_t y, int32_t z);
 
-    void spawnTrees();
     void setHighestBlock(uint8_t height);
     uint8_t getHighestBlock() const;
 
@@ -55,6 +54,7 @@ private:
 
     friend class ChunkMesh;
     friend class ChunkManager;
+    friend class Treeminator;
 
     void regenerateMesh();
 };

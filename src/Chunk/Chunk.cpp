@@ -85,13 +85,6 @@ bool Chunk::isAirBlock(int32_t x, int32_t y, int32_t z) {
     return !block || block->getType() == Block::AIR;
 }
 
-void Chunk::spawnTrees() {
-    Treeminator treeminator(this);
-    for(int32_t x = 2; x < CHUNK_SIZE - 2; x++)
-        for(int32_t y = 0; y < m_highestBlock; y++)
-            for(int32_t z = 2; z < CHUNK_SIZE - 2; z++)
-                treeminator.createTree(x, y, z);
-}
 
 void Chunk::setHighestBlock(uint8_t height) {
     if(height > m_highestBlock)

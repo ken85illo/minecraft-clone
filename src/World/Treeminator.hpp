@@ -9,19 +9,20 @@ class Chunk;
 // epic name
 class Treeminator {
 public:
-    Treeminator(Chunk* chunk);
-    void createTree(int32_t x, int32_t y, int32_t z);
+    static void spawnTrees(Chunk& chunk);
 
 private:
-    Chunk* m_chunk;
+    static void createTree(Chunk& chunk, int32_t x, int32_t y, int32_t z);
 
-    bool addWood(std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
+    static bool addWood(Chunk& chunk,
+    std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
     uint8_t height,
     uint16_t x,
     uint16_t y,
     uint16_t z);
 
-    bool addLeafLayer(std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
+    static bool addLeafLayer(Chunk& chunk,
+    std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
     uint8_t radius,
     uint8_t height,
     uint16_t x,

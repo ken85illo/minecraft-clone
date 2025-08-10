@@ -1,18 +1,21 @@
 #include "Treeminator.hpp"
 #include "Chunk/Chunk.hpp"
-#include <print>
 
-Treeminator::Treeminator(Chunk* chunk) : m_chunk(chunk) {
+void Treeminator::spawnTrees(Chunk& chunk) {
+    for(int32_t x = 2; x < CHUNK_SIZE - 2; x++)
+        for(int32_t y = 0; y < chunk.m_highestBlock; y++)
+            for(int32_t z = 2; z < CHUNK_SIZE - 2; z++)
+                createTree(chunk, x, y, z);
 }
 
-void Treeminator::createTree(int32_t x, int32_t y, int32_t z) {
+void Treeminator::createTree(Chunk& chunk, int32_t x, int32_t y, int32_t z) {
     uint8_t chance = rand() % 100;
 
-    if(m_chunk->getBlock(x, y, z)->getType() != BlockType::GRASS_BLOCK || chance > 1)
+    if(chunk.getBlock(x, y, z)->getType() != BlockType::GRASS_BLOCK || chance > 1)
         return;
 
     std::stack<std::pair<Block*, BlockType::Type>> treeStack;
-    if(!addWood(treeStack, 5, x, y, z))
+    if(!addWood(chunk, treeStack, 5, x, y, z))
         return;
 
     uint8_t radius[4] = { 2, 2, 1, 1 };
@@ -21,8 +24,8 @@ void Treeminator::createTree(int32_t x, int32_t y, int32_t z) {
 
     for(uint8_t i = 0; i < 4; i++) {
         uint8_t height = i + 3;
-        if(!addLeafLayer(treeStack, radius[i], height, x, y, z, removeEdge[i],
-           removeCenter[i]))
+        if(!addLeafLayer(chunk, treeStack, radius[i], height, x, y, z,
+           removeEdge[i], removeCenter[i]))
             return;
     }
 
@@ -32,16 +35,17 @@ void Treeminator::createTree(int32_t x, int32_t y, int32_t z) {
         treeStack.pop();
     }
 
-    m_chunk->setHighestBlock(y + 7);
+    chunk.setHighestBlock(y + 7);
 }
 
-bool Treeminator::addWood(std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
+bool Treeminator::addWood(Chunk& chunk,
+std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
 uint8_t height,
 uint16_t x,
 uint16_t y,
 uint16_t z) {
     for(int8_t ny = 1; ny <= height; ny++) {
-        auto currentBlock = m_chunk->getBlock(x, y + ny, z);
+        auto currentBlock = chunk.getBlock(x, y + ny, z);
 
         if(currentBlock->getType() != BlockType::AIR)
             return false;
@@ -52,7 +56,8 @@ uint16_t z) {
     return true;
 }
 
-bool Treeminator::addLeafLayer(std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
+bool Treeminator::addLeafLayer(Chunk& chunk,
+std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
 uint8_t radius,
 uint8_t height,
 uint16_t x,
@@ -63,7 +68,7 @@ bool removeCenter) {
 
     for(int8_t nx = -radius; nx <= radius; nx++)
         for(int8_t nz = -radius; nz <= radius; nz++) {
-            auto currentBlock = m_chunk->getBlock(x + nx, y + height, z + nz);
+            auto currentBlock = chunk.getBlock(x + nx, y + height, z + nz);
 
             if(currentBlock->getType() != BlockType::AIR)
                 return false;

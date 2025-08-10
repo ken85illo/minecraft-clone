@@ -1,6 +1,7 @@
 #include "World.hpp"
 #include "Chunk/ChunkMesh.hpp"
 #include "Player/Player.hpp"
+#include "World/Treeminator.hpp"
 
 World::World(Player* player)
 : m_diameter(WORLD_RADIUS * 2 + 1),
@@ -27,7 +28,7 @@ World::World(Player* player)
                 currentChunk->setNeighbours(getChunk(chunkX, chunkZ + 1),
                 getChunk(chunkX, chunkZ - 1), getChunk(chunkX + 1, chunkZ),
                 getChunk(chunkX - 1, chunkZ));
-                currentChunk->spawnTrees();
+                Treeminator::spawnTrees(*currentChunk);
 
                 MeshData opaqueMesh = ChunkMesh::buildOpaque(*currentChunk);
                 MeshData transparentMesh = ChunkMesh::buildTransparent(*currentChunk);
