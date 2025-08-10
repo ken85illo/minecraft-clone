@@ -42,8 +42,11 @@ fi
         cmake -G "$generator" -B "$build_dir" -DCMAKE_BUILD_TYPE="$build_type"
     fi
 
+    echo "Building in $build_type mode..."
     cmake --build "$build_dir"
     mkdir -p bin/"$build_type"
     cp -rf "$build_dir"/bin/* bin/"$build_type"
     cp -f "$build_dir"/compile_commands.json "$build_dir"/..
+    echo "CMake has completed building the project..."
+    echo "Output can be found in bin/$build_type"
 )
