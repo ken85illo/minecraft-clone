@@ -11,7 +11,11 @@ fi
 # Case insensitive argument
 build_type=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 
-if [[ "$build_type" != "release" && "$build_type" != "debug" ]]; then
+if [[ "$build_type" == "release" ]]; then
+    build_type="Release"
+elif [[ "$build_type" == "debug" ]]; then
+    build_type="Debug"
+else
     echo "Usage: ./build.sh <release|debug>"
     exit 1
 fi
