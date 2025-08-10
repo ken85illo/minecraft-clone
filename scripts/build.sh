@@ -23,9 +23,9 @@ fi
 
     # Prioritize Ninja over Makefile
     if command -v ninja >/dev/null 2>&1; then
-        generator="-G Ninja"
+        generator="Ninja"
     elif command -v make >/dev/null 2>&1; then
-        generator='-G "Unix Makefiles"'
+        generator='"Unix Makefiles"'
     else
         echo "No 'ninja' or 'make' defined in PATH"
         exit 1
@@ -33,7 +33,7 @@ fi
 
     if [[ ! -d "./build" ]]; then
         mkdir -p build
-        cmake "$generator" -B build -DCMAKE_BUILD_TYPE="$build_type"
+        cmake -G "$generator" -B build -DCMAKE_BUILD_TYPE="$build_type"
     fi
 
     cmake --build build
