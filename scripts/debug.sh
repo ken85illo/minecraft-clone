@@ -8,5 +8,5 @@ program_name=Minecraft
     # Set directory to root folder
     cd "$(dirname "$0")/.."
     ./scripts/build.sh "debug"
-    gdb ./bin/debug/"$program_name"
+    gdb ./bin/Debug/"$program_name"
 )

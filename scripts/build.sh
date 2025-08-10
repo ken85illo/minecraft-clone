@@ -35,12 +35,14 @@ fi
         exit 1
     fi
 
-    if [[ ! -d "./build" ]]; then
-        mkdir -p build
-        cmake -G "$generator" -B build -DCMAKE_BUILD_TYPE="$build_type"
+    build_dir=build/"$build_type"
+
+    if [[ ! -d "$build_dir" ]]; then
+        mkdir -p "$build_dir"
+        cmake -G "$generator" -B "$build_dir" -DCMAKE_BUILD_TYPE="$build_type"
     fi
 
-    cmake --build build
+    cmake --build "$build_dir"
     mkdir -p bin/"$build_type"
-    cp -rf build/bin/* bin/"$build_type"
+    cp -rf "$build_dir"/bin/* bin/"$build_type"
 )
