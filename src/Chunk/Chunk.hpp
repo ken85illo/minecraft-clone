@@ -55,6 +55,4 @@ private:
     friend class ChunkMesh;
     friend class ChunkManager;
     friend class Treeminator;
-
-    void regenerateMesh();
 };
