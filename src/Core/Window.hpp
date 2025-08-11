@@ -32,6 +32,7 @@ private:
     uint16_t m_windowWidth, m_windowHeight;
     GLFWwindow* m_window;
 
+    GLFWmonitor* initWindowHints();
     void initWindow();
     void setupCallbacks();
 

@@ -8,6 +8,32 @@ Window::Window(uint16_t windowWidth, uint16_t windowHeight, const char* title, b
     if(!glfwInit())
         std::println("Failed to initialize GLFW!");
 
+    GLFWmonitor* monitor = initWindowHints();
+
+    m_window = glfwCreateWindow(
+    windowWidth, windowHeight, m_title, fullscreen ? monitor : nullptr, nullptr);
+
+    if(!m_window)
+        std::println("Failed to initialize window!");
+
+    initWindow();
+    setupCallbacks();
+}
+
+
+Window::~Window() {
+    glfwDestroyWindow(m_window);
+    glfwTerminate();
+}
+
+Window* Window::get() {
+    if(!s_instance)
+        s_instance = std::make_unique<Window>(1366, 768, "ain't no way bruh", false);
+
+    return s_instance.get();
+}
+
+GLFWmonitor* Window::initWindowHints() {
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
@@ -20,26 +46,7 @@ Window::Window(uint16_t windowWidth, uint16_t windowHeight, const char* title, b
     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
-    m_window = glfwCreateWindow(
-    windowWidth, windowHeight, m_title, fullscreen ? monitor : nullptr, nullptr);
-
-    if(!m_window)
-        std::println("Failed to initialize window!");
-
-    initWindow();
-    setupCallbacks();
-}
-
-Window::~Window() {
-    glfwDestroyWindow(m_window);
-    glfwTerminate();
-}
-
-Window* Window::get() {
-    if(!s_instance)
-        s_instance = std::make_unique<Window>(1366, 768, "ain't no way bruh", false);
-
-    return s_instance.get();
+    return monitor;
 }
 
 void Window::initWindow() {
