@@ -2,8 +2,8 @@
 
 bool InputHandler::keyButton[GLFW_KEY_LAST + 1];
 bool InputHandler::mouseButton[GLFW_MOUSE_BUTTON_LAST + 1];
-MousePosition InputHandler::mousePosition = { 0, 0 };
-MouseScroll InputHandler::mouseScroll = { 0, 0 };
+glm::dvec2 InputHandler::mousePosition = { 0, 0 };
+glm::dvec2 InputHandler::mouseScroll = { 0, 0 };
 
 bool InputHandler::isKeyPressed(uint16_t key) {
     static std::unordered_map<uint16_t, bool> previouslyPressed;
@@ -33,11 +33,11 @@ bool InputHandler::isMouseHeld(uint16_t key) {
     return mouseButton[key];
 }
 
-const MousePosition& InputHandler::getMousePosition() {
+const glm::dvec2& InputHandler::getMousePosition() {
     return mousePosition;
 }
 
-const MouseScroll& InputHandler::getMouseScroll() {
+const glm::dvec2& InputHandler::getMouseScroll() {
     return mouseScroll;
 }
 
