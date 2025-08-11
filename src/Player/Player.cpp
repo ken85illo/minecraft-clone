@@ -1,7 +1,8 @@
 #include "Player.hpp"
 
 Player::Player()
-: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f) {
+: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f),
+  m_rayCast(RANGE_RADIUS, this) {
 
     Chunk::loadPlayer(this);
 
@@ -151,101 +152,63 @@ void Player::drawCursor(bool wireFrameMode, Shader* shader) {
 }
 
 void Player::placeBlock() {
-    glm::vec3 rayOrigin = m_pos + (m_front * 0.1f);
-    glm::vec3 rayDirection = m_front;
+    glm::vec3 rayOrigin = m_rayCast.getRayOrigin();
+    glm::vec3 rayDirection = m_rayCast.getRayDirection();
+    auto [chunk, x, y, z] = m_rayCast.sendRay();
 
-    for(float length = 0.0f; length <= floor(RANGE_RADIUS / 2.0f); length += 0.1f) {
-        glm::vec3 point = rayOrigin + length * rayDirection;
-        auto [chunk, x, y, z] = getCoords(point);
+    if(!chunk)
+        return;
 
-        if(chunk->isAirBlock(x, y, z))
+    static const glm::vec3 normals[6] = {
+        { 1.5f, 0.0f, 0.0f }, { -0.5f, 0.0f, 0.0f }, // X axis
+        { 0.0f, 1.5f, 0.0f }, { 0.0f, -0.5f, 0.0f }, // Y axis
+        { 0.0f, 0.0f, 1.5f }, { 0.0f, 0.0f, -0.5f }, // Z axis
+    };
+
+    Block::Rect blockRect = chunk->getBlock(x, y, z)->getGlobalRect();
+    float minDist = 0.0f;
+    glm::vec3 normal = glm::vec3(0.0f);
+
+    for(uint8_t i = 0; i < 3; i++) {
+        if(rayDirection[i] == 0.0f)
             continue;
 
-        glm::vec3 normals[6] = {
-            { 1.5f, 0.0f, 0.0f }, { -0.5f, 0.0f, 0.0f }, // X axis
-            { 0.0f, 1.5f, 0.0f }, { 0.0f, -0.5f, 0.0f }, // Y axis
-            { 0.0f, 0.0f, 1.5f }, { 0.0f, 0.0f, -0.5f }, // Z axis
-        };
+        // Transpose version of blockRect.side = rayOrigin + length * rayDirection;
+        float dist1 = (blockRect.min[i] - rayOrigin[i]) / rayDirection[i];
+        float dist2 = (blockRect.max[i] - rayOrigin[i]) / rayDirection[i];
 
-        Block::Rect blockRect = chunk->getBlock(x, y, z)->getGlobalRect();
-        float minDist = 0.0f;
-        glm::vec3 normal = glm::vec3(0.0f);
+        // If dist2 is greater than dist1 then its on the opposite side
+        int8_t face = i * 2 + (dist1 < dist2);
 
-        for(uint8_t i = 0; i < 3; i++) {
-            if(rayDirection[i] == 0.0f)
-                continue;
+        if(dist1 > dist2)
+            std::swap(dist1, dist2);
 
-            // Transpose version of blockRect.side = rayOrigin + length * rayDirection;
-            float dist1 = (blockRect.min[i] - rayOrigin[i]) / rayDirection[i];
-            float dist2 = (blockRect.max[i] - rayOrigin[i]) / rayDirection[i];
-
-            // If dist2 is greater than dist1 then its on the opposite side
-            int8_t face = i * 2 + (dist1 < dist2);
-
-            if(dist1 > dist2)
-                std::swap(dist1, dist2);
-
-            if(minDist < dist1) {
-                minDist = dist1;
-                normal = normals[face];
-            }
+        if(minDist < dist1) {
+            minDist = dist1;
+            normal = normals[face];
         }
-
-        auto [bchunk, bx, by, bz] = getCoords(blockRect.min + normal);
-        if(!bchunk->isAirBlock(bx, by, bz))
-            break;
-
-        ChunkManager::updateBlock(*bchunk, bx, by, bz, Block::STONE_BLOCK);
-        break;
     }
+
+    auto [bchunk, bx, by, bz] = m_rayCast.getCoordsAtPoint(blockRect.min + normal);
+    Block* placeBlock = bchunk->getBlock(bx, by, bz);
+
+    if(placeBlock && placeBlock->getType() != BlockType::AIR)
+        return;
+
+    ChunkManager::updateBlock(*bchunk, bx, by, bz, Block::STONE_BLOCK);
 }
 
 void Player::destroyBlock() {
-    glm::vec3 rayOrigin = m_pos + (m_front * 0.1f);
-    glm::vec3 rayDirection = m_front;
+    auto [chunk, x, y, z] = m_rayCast.sendRay();
 
-    for(float length = 0.0f; length <= floor(RANGE_RADIUS / 2.0f); length += 0.1f) {
-        glm::vec3 point = rayOrigin + length * rayDirection;
-        auto [chunk, x, y, z] = getCoords(point);
+    if(!chunk)
+        return;
 
-        if(chunk->isAirBlock(x, y, z))
-            continue;
-
-        ChunkManager::updateBlock(*chunk, x, y, z, Block::AIR);
-        break;
-    }
+    ChunkManager::updateBlock(*chunk, x, y, z, Block::AIR);
 }
 
-RayCoords Player::getCoords(glm::vec3 point) {
-    if(!m_currentChunk || point.y < 0.0f || point.y >= MAX_HEIGHT)
-        return RayCoords{ nullptr, 0, 0, 0 };
-
-    Chunk* blockChunk = m_currentChunk;
-    uint8_t halfChunk = CHUNK_SIZE / 2;
-    float dx = point.x - blockChunk->getPosition().x; // leftmost
-    float dz = point.z - blockChunk->getPosition().z; // backmost
-
-    if(dx < 0) {
-        blockChunk = (blockChunk->getLeftChunk()) ? blockChunk->getLeftChunk() : blockChunk;
-        dx += CHUNK_SIZE;
-    } else if(dx >= CHUNK_SIZE) {
-        blockChunk = (blockChunk->getRightChunk()) ? blockChunk->getRightChunk() : blockChunk;
-        dx -= CHUNK_SIZE;
-    }
-
-    if(dz < 0) {
-        blockChunk = (blockChunk->getBackChunk()) ? blockChunk->getBackChunk() : blockChunk;
-        dz += CHUNK_SIZE;
-    } else if(dz >= CHUNK_SIZE) {
-        blockChunk = (blockChunk->getFrontChunk()) ? blockChunk->getFrontChunk() : blockChunk;
-        dz -= CHUNK_SIZE;
-    }
-
-    uint16_t nx = floor(dx);
-    uint16_t ny = floor(point.y);
-    uint16_t nz = floor(dz);
-
-    return RayCoords(blockChunk, nx, ny, nz);
+Chunk* Player::getCurrentChunk() const {
+    return m_currentChunk;
 }
 
 void Player::movementInput(Window* window, float deltaTime) {

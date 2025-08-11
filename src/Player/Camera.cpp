@@ -58,6 +58,10 @@ glm::vec3 Camera::getPosition() const {
     return m_pos;
 }
 
+glm::vec3 Camera::getFront() const {
+    return m_front;
+}
+
 glm::mat4 Camera::getViewMat4() const {
     glm::vec3 dir = glm::normalize(-m_front);
     glm::vec3 right = glm::normalize(glm::cross(m_up, dir));
