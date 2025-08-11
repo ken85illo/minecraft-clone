@@ -1,10 +1,7 @@
 #include "PerlinNoise.hpp"
 
 PerlinNoise::PerlinNoise(float frequency, float amplitude, uint16_t permutationSize, uint8_t numberOfOctaves)
-: m_frequency(frequency),
-  m_amplitude(amplitude),
-  m_permutationSize(permutationSize),
-  m_numberOfOctaves(numberOfOctaves) {
+: m_frequency(frequency), m_amplitude(amplitude), m_permutationSize(permutationSize), m_numberOfOctaves(numberOfOctaves) {
 }
 
 float PerlinNoise::fractalBrownianMotion(float x, float y) {

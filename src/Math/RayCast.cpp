@@ -2,8 +2,7 @@
 #include "Chunk/Chunk.hpp"
 #include "Player/Player.hpp"
 
-RayCast::RayCast(float rangeRadius, Player* player)
-: m_rangeRadius(rangeRadius), m_player(player) {
+RayCast::RayCast(float rangeRadius, Player* player) : m_rangeRadius(rangeRadius), m_player(player) {
 }
 
 const glm::vec3 RayCast::getRayOrigin() const {
@@ -51,22 +50,18 @@ RayCoords RayCast::getCoordsAtPoint(glm::vec3 point) {
     float dz = point.z - currentChunk->getPosition().z; // backmost
 
     if(dx < 0) {
-        currentChunk =
-        (currentChunk->getLeftChunk()) ? currentChunk->getLeftChunk() : currentChunk;
+        currentChunk = (currentChunk->getLeftChunk()) ? currentChunk->getLeftChunk() : currentChunk;
         dx += CHUNK_SIZE;
     } else if(dx >= CHUNK_SIZE) {
-        currentChunk =
-        (currentChunk->getRightChunk()) ? currentChunk->getRightChunk() : currentChunk;
+        currentChunk = (currentChunk->getRightChunk()) ? currentChunk->getRightChunk() : currentChunk;
         dx -= CHUNK_SIZE;
     }
 
     if(dz < 0) {
-        currentChunk =
-        (currentChunk->getBackChunk()) ? currentChunk->getBackChunk() : currentChunk;
+        currentChunk = (currentChunk->getBackChunk()) ? currentChunk->getBackChunk() : currentChunk;
         dz += CHUNK_SIZE;
     } else if(dz >= CHUNK_SIZE) {
-        currentChunk =
-        (currentChunk->getFrontChunk()) ? currentChunk->getFrontChunk() : currentChunk;
+        currentChunk = (currentChunk->getFrontChunk()) ? currentChunk->getFrontChunk() : currentChunk;
         dz -= CHUNK_SIZE;
     }
 

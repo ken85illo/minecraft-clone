@@ -24,8 +24,7 @@ void Treeminator::createTree(Chunk& chunk, int32_t x, int32_t y, int32_t z) {
 
     for(uint8_t i = 0; i < 4; i++) {
         uint8_t height = i + 3;
-        if(!addLeafLayer(chunk, treeStack, radius[i], height, x, y, z,
-           removeEdge[i], removeCenter[i]))
+        if(!addLeafLayer(chunk, treeStack, radius[i], height, x, y, z, removeEdge[i], removeCenter[i]))
             return;
     }
 
@@ -38,12 +37,7 @@ void Treeminator::createTree(Chunk& chunk, int32_t x, int32_t y, int32_t z) {
     chunk.setHighestBlock(y + 7);
 }
 
-bool Treeminator::addWood(Chunk& chunk,
-std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
-uint8_t height,
-uint16_t x,
-uint16_t y,
-uint16_t z) {
+bool Treeminator::addWood(Chunk& chunk, std::stack<std::pair<Block*, BlockType::Type>>& treeStack, uint8_t height, uint16_t x, uint16_t y, uint16_t z) {
     for(int8_t ny = 1; ny <= height; ny++) {
         auto currentBlock = chunk.getBlock(x, y + ny, z);
 
@@ -77,8 +71,7 @@ bool removeCenter) {
             int8_t ax = std::abs(nx);
             int8_t az = std::abs(nz);
 
-            bool edgeCase =
-            (removeEdge) ? ax == az && ax == radius && az == radius : removeEdge;
+            bool edgeCase = (removeEdge) ? ax == az && ax == radius && az == radius : removeEdge;
             bool centerCase = (removeCenter) ? nx == 0 && nz == 0 : removeCenter;
 
             if(edgeCase || centerCase)

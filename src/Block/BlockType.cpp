@@ -2,13 +2,13 @@
 #include <print>
 
 uint16_t BlockType::s_textures[][6] = {
-    { DIRT, DIRT, DIRT, DIRT, DIRT, DIRT }, // DIRT_BLOCK
-    { GRASS_SIDE, GRASS_SIDE, GRASS_TOP, DIRT, GRASS_SIDE, GRASS_SIDE }, // GRASS_BLOCK
-    { STONE, STONE, STONE, STONE, STONE, STONE }, // STONE BLOCK
+    { DIRT, DIRT, DIRT, DIRT, DIRT, DIRT },                                     // DIRT_BLOCK
+    { GRASS_SIDE, GRASS_SIDE, GRASS_TOP, DIRT, GRASS_SIDE, GRASS_SIDE },        // GRASS_BLOCK
+    { STONE, STONE, STONE, STONE, STONE, STONE },                               // STONE BLOCK
     { OAK_SIDE, OAK_SIDE, OAK_TOP_BOTTOM, OAK_TOP_BOTTOM, OAK_SIDE, OAK_SIDE }, // OAK WOOD BLOCK
-    { OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF }, // OAK LEAF BLOCK
-    { SAND, SAND, SAND, SAND, SAND, SAND },       // SAND BLOCK
-    { WATER, WATER, WATER, WATER, WATER, WATER }, // WATER BLOCK
+    { OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF, OAK_LEAF },             // OAK LEAF BLOCK
+    { SAND, SAND, SAND, SAND, SAND, SAND },                                     // SAND BLOCK
+    { WATER, WATER, WATER, WATER, WATER, WATER },                               // WATER BLOCK
 };
 
 Atlas BlockType::s_atlas = Atlas(s_textures);
@@ -41,8 +41,7 @@ void BlockType::loadTextures() {
 
 
 const std::pair<float*, float*> BlockType::getTexCoord(uint8_t index) const {
-    return std::make_pair(
-    s_textureTypes[m_type][index], (s_textureTypes[m_type][index] + 8));
+    return std::make_pair(s_textureTypes[m_type][index], (s_textureTypes[m_type][index] + 8));
 }
 
 const BlockType::Type BlockType::getType() const {

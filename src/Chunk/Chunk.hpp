@@ -15,8 +15,7 @@ class Treeminator;
 
 class Chunk {
 public:
-    Chunk(const std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap,
-    glm::vec3 position);
+    Chunk(const std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap, glm::vec3 position);
 
     void setNeighbours(Chunk* front, Chunk* back, Chunk* right, Chunk* left);
 

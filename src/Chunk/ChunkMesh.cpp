@@ -31,15 +31,13 @@ MeshData ChunkMesh::buildTransparent(Chunk& chunk) {
                 if(!block.isTransparent())
                     continue;
 
-                float distance = glm::length(
-                Chunk::s_player->getPosition() - block.getGlobalRect().min);
+                float distance = glm::length(Chunk::s_player->getPosition() - block.getGlobalRect().min);
                 transparentBlocks.emplace(distance, std::make_tuple(x, y, z));
             }
 
 
     for(auto i = transparentBlocks.rbegin(); i != transparentBlocks.rend(); ++i)
-        fillFaces(chunk, std::get<0>(i->second), std::get<1>(i->second),
-        std::get<2>(i->second), mesh);
+        fillFaces(chunk, std::get<0>(i->second), std::get<1>(i->second), std::get<2>(i->second), mesh);
 
     return mesh;
 }
@@ -56,9 +54,7 @@ void ChunkMesh::fillFaces(Chunk& chunk, int32_t x, int32_t y, int32_t z, MeshDat
 
     for(uint8_t face = 0; face < 6; face++) {
         auto offsetBlock = chunk.getBlock(x + dx[face], y + dy[face], z + dz[face]);
-        if(!offsetBlock ||
-        (offsetBlock->isTransparent() ? currentBlock.isTransparent() :
-                                        offsetBlock->getType() != Block::AIR))
+        if(!offsetBlock || (offsetBlock->isTransparent() ? currentBlock.isTransparent() : offsetBlock->getType() != Block::AIR))
             continue;
 
         auto vertices = currentBlock.getFace(face);

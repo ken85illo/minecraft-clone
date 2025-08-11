@@ -10,8 +10,7 @@ Window::Window(uint16_t windowWidth, uint16_t windowHeight, const char* title, b
 
     GLFWmonitor* monitor = initWindowHints();
 
-    m_window = glfwCreateWindow(
-    windowWidth, windowHeight, m_title, fullscreen ? monitor : nullptr, nullptr);
+    m_window = glfwCreateWindow(windowWidth, windowHeight, m_title, fullscreen ? monitor : nullptr, nullptr);
 
     if(!m_window)
         std::println("Failed to initialize window!");

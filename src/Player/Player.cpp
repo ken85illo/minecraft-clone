@@ -1,8 +1,6 @@
 #include "Player.hpp"
 
-Player::Player()
-: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f),
-  m_rayCast(RANGE_RADIUS, this) {
+Player::Player() : Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f), m_rayCast(RANGE_RADIUS, this) {
 
     Chunk::loadPlayer(this);
     uploadCursor();
@@ -37,8 +35,7 @@ void Player::uploadCursor() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(
-    1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -57,8 +54,8 @@ void Player::setSpawn(World* world) {
     auto diameter = world->getDiameter();
     auto chunk = world->getChunk(diameter / 2, diameter / 2);
 
-    m_pos = glm::vec3(chunk->getPosition().x + CHUNK_SIZE / 2.0f,
-    chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f);
+    m_pos = glm::vec3(
+    chunk->getPosition().x + CHUNK_SIZE / 2.0f, chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f);
     m_chunkCoord = ChunkCoord(diameter / 2, diameter / 2);
 
     setCurrentChunk(chunk);
@@ -191,8 +188,7 @@ const ChunkCoord& Player::getChunkCoord() const {
 
 
 void Player::movementInput(Window* window, float deltaTime) {
-    onCursorMove(InputHandler::getMousePosition().x,
-    InputHandler::getMousePosition().y, window->getWidth(), window->getHeight());
+    onCursorMove(InputHandler::getMousePosition().x, InputHandler::getMousePosition().y, window->getWidth(), window->getHeight());
     onScroll(InputHandler::getMouseScroll().x, InputHandler::getMouseScroll().y);
 
     if(InputHandler::isKeyHeld(GLFW_KEY_W)) {

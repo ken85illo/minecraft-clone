@@ -3,8 +3,7 @@
 #include "Player/Player.hpp"
 #include "World/Treeminator.hpp"
 
-World::World(Player* player)
-: m_diameter(WORLD_RADIUS * 2 + 1), m_player(player) {
+World::World(Player* player) : m_diameter(WORLD_RADIUS * 2 + 1), m_player(player) {
     initTexture();
     initChunks();
     generateChunkMeshAsync(player);
@@ -16,11 +15,9 @@ void World::initChunks() {
     for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++) {
         std::vector<Chunk> zChunks;
         for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++) {
-            TerrainGenerator::generateHeightMap(
-            heightMap, chunkX + WORLD_RADIUS, chunkZ + WORLD_RADIUS);
+            TerrainGenerator::generateHeightMap(heightMap, chunkX + WORLD_RADIUS, chunkZ + WORLD_RADIUS);
 
-            m_chunks.emplace_back(heightMap,
-            glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
+            m_chunks.emplace_back(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
         }
     }
 }
@@ -28,13 +25,11 @@ void World::initChunks() {
 void World::generateChunkMeshAsync(Player* player) {
     for(int32_t chunkX = 0; chunkX < m_diameter; chunkX++) {
         for(int32_t chunkZ = 0; chunkZ < m_diameter; chunkZ++) {
-            m_chunkThreads.push_back(
-            std::async(std::launch::async, [chunkX, chunkZ, player, this]() {
+            m_chunkThreads.push_back(std::async(std::launch::async, [chunkX, chunkZ, player, this]() {
                 Chunk* currentChunk = getChunk(chunkX, chunkZ);
 
-                currentChunk->setNeighbours(getChunk(chunkX, chunkZ + 1),
-                getChunk(chunkX, chunkZ - 1), getChunk(chunkX + 1, chunkZ),
-                getChunk(chunkX - 1, chunkZ));
+                currentChunk->setNeighbours(getChunk(chunkX, chunkZ + 1), getChunk(chunkX, chunkZ - 1),
+                getChunk(chunkX + 1, chunkZ), getChunk(chunkX - 1, chunkZ));
                 Treeminator::spawnTrees(*currentChunk);
 
                 MeshData opaqueMesh = ChunkMesh::buildOpaque(*currentChunk);

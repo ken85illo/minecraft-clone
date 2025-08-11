@@ -6,12 +6,9 @@ Application::Application() {
     m_window = Window::get();
 
     // Shaders
-    m_worldShader = std::make_unique<Shader>(
-    "src/Shader/GLSL/Textured.vert", "src/Shader/GLSL/Textured.frag");
-    m_lineShader = std::make_unique<Shader>(
-    "src/Shader/GLSL/Colored.vert", "src/Shader/GLSL/Colored.frag");
-    m_interfaceShader = std::make_unique<Shader>(
-    "src/Shader/GLSL/Interface.vert", "src/Shader/GLSL/Textured.frag");
+    m_worldShader = std::make_unique<Shader>("src/Shader/GLSL/Textured.vert", "src/Shader/GLSL/Textured.frag");
+    m_lineShader = std::make_unique<Shader>("src/Shader/GLSL/Colored.vert", "src/Shader/GLSL/Colored.frag");
+    m_interfaceShader = std::make_unique<Shader>("src/Shader/GLSL/Interface.vert", "src/Shader/GLSL/Textured.frag");
 
     // Load texture atlas
     BlockType::loadTextures();
@@ -66,8 +63,7 @@ void Application::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 view = m_player->getViewMat4();
-    glm::mat4 projection =
-    m_player->getProjectionMat4(m_window->getWidth(), m_window->getHeight());
+    glm::mat4 projection = m_player->getProjectionMat4(m_window->getWidth(), m_window->getHeight());
     static glm::mat4 interfaceProjection = projection;
 
 

@@ -81,8 +81,7 @@ glm::mat4 Camera::getViewMat4() const {
 }
 
 glm::mat4 Camera::getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight) const {
-    return glm::perspective(glm::radians(m_currentFov),
-    windowWidth / (float)windowHeight, m_near, m_far);
+    return glm::perspective(glm::radians(m_currentFov), windowWidth / (float)windowHeight, m_near, m_far);
 }
 
 

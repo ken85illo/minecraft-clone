@@ -3,16 +3,14 @@
 
 Player* Chunk::s_player = nullptr;
 
-Chunk::Chunk(const std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap,
-glm::vec3 position)
+Chunk::Chunk(const std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap, glm::vec3 position)
 : m_position(position.x - CHUNK_SIZE / 2.0f, 0.0f, position.z - CHUNK_SIZE / 2.0f),
   m_chunkBounds(m_position, m_position + glm::vec3(CHUNK_SIZE, MAX_HEIGHT, CHUNK_SIZE)) {
 
     for(int32_t x = 0; x < CHUNK_SIZE; x++)
         for(int32_t y = 0; y < MAX_HEIGHT; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
-                int32_t height =
-                floor(heightMap[x][z] * (TERRAIN_HEIGHT - TERRAIN_OFFSET)) + TERRAIN_OFFSET;
+                int32_t height = floor(heightMap[x][z] * (TERRAIN_HEIGHT - TERRAIN_OFFSET)) + TERRAIN_OFFSET;
                 int32_t waterHeight = WATER_LEVEL - TERRAIN_OFFSET;
 
                 if(height > m_highestBlock || waterHeight > m_highestBlock)

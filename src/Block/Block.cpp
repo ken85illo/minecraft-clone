@@ -43,9 +43,7 @@ Block::Block() : BlockType(AIR) {
 }
 
 Block::Block(BlockType::Type type, glm::vec3 localPos, glm::vec3 globalPos)
-: BlockType(type),
-  m_localRect{ localPos, localPos + 1.0f },
-  m_globalRect{ globalPos, globalPos + 1.0f } {
+: BlockType(type), m_localRect{ localPos, localPos + 1.0f }, m_globalRect{ globalPos, globalPos + 1.0f } {
 }
 
 const std::array<float, 12> Block::getFace(uint8_t index) const {
