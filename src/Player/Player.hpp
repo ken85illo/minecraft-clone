@@ -4,10 +4,10 @@
 
 #include "Camera.hpp"
 #include "Core/Window.hpp"
-#include "Input/InputHandler.hpp"
 #include "Math/RayCast.hpp"
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
+#include "Utils/InputHandler.hpp"
 #include "World/World.hpp"
 #include <stack>
 
