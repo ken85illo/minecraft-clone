@@ -44,5 +44,6 @@ void ChunkRenderer::render(uint8_t index) {
     glBindVertexArray(m_VAO[index]);
     glDrawElements(GL_TRIANGLES, m_indexCount[index], GL_UNSIGNED_INT, 0);
 
-    glEnable(GL_CULL_FACE);
+    if(index == 1)
+        glEnable(GL_CULL_FACE);
 }
