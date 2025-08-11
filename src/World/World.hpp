@@ -3,13 +3,14 @@
 #include "Chunk/Chunk.hpp"
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
+#include "Utils/ThreadPool.hpp"
 #include "World/TerrainGenerator.hpp"
 #include <cstdint>
 #include <future>
 #include <map>
 #include <queue>
 
-#define WORLD_RADIUS 12
+#define WORLD_RADIUS 20
 
 class World {
 public:
@@ -27,11 +28,11 @@ private:
     int32_t m_diameter;
 
     std::vector<Chunk> m_chunks;
-    std::vector<std::future<void>> m_chunkThreads;
+    ThreadPool m_chunkThreads;
     Player* m_player;
 
     void initChunks();
-    void generateChunkMeshAsync(Player* player);
+    void generateChunkMeshAsync();
     void initTexture();
     void drawChunk(int32_t index, MeshType type, Shader* shader);
 };
