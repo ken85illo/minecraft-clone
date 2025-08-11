@@ -17,5 +17,5 @@ public:
 
 private:
     uint16_t* m_textures;
-    std::unordered_map<std::string, uint32_t> getMap(uint16_t side);
+    std::unordered_map<std::string, float> getMap(uint16_t side);
 };
