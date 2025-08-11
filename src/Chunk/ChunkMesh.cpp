@@ -5,7 +5,7 @@ MeshData ChunkMesh::buildOpaque(Chunk& chunk) {
     MeshData mesh;
 
     for(int32_t x = 0; x < CHUNK_SIZE; x++)
-        for(int32_t y = 0; y < chunk.m_highestBlock; y++)
+        for(int32_t y = 0; y <= chunk.m_highestBlock; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
                 auto block = chunk.getBlock(x, y, z);
                 if(!block || block->getType() == Block::AIR)
@@ -25,7 +25,7 @@ MeshData ChunkMesh::buildTransparent(Chunk& chunk) {
     std::multimap<float, std::tuple<uint8_t, uint8_t, uint8_t>> transparentBlocks;
 
     for(int32_t x = 0; x < CHUNK_SIZE; x++)
-        for(int32_t y = 0; y < chunk.m_highestBlock; y++)
+        for(int32_t y = 0; y <= chunk.m_highestBlock; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
                 auto& block = chunk.m_blocks[x][y][z];
                 if(!block.isTransparent())

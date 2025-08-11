@@ -22,9 +22,9 @@ void ChunkManager::updateBlock(Chunk& chunk, int32_t x, int32_t y, int32_t z, Bl
         return;
 
     chunk.m_blocks[x][y][z].setType(blockType);
+    chunk.setHighestBlock(y);
     buildMesh(chunk);
 
-    chunk.setHighestBlock(y + 2);
     updateNeighbour(chunk.m_leftChunk, x == 0, CHUNK_SIZE - 1, y, z);
     updateNeighbour(chunk.m_rightChunk, x == CHUNK_SIZE - 1, 0, y, z);
     updateNeighbour(chunk.m_backChunk, z == 0, x, y, CHUNK_SIZE - 1);
@@ -35,6 +35,7 @@ void ChunkManager::updateNeighbour(Chunk* neighbourChunk, bool condition, int32_
     if(!neighbourChunk || !condition || neighbourChunk->isAirBlock(x, y, z))
         return;
 
+    neighbourChunk->setHighestBlock(y);
     buildMesh(*neighbourChunk);
 }
 

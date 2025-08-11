@@ -34,7 +34,7 @@ void Treeminator::createTree(Chunk& chunk, int32_t x, int32_t y, int32_t z) {
         treeStack.pop();
     }
 
-    chunk.setHighestBlock(y + 7);
+    chunk.setHighestBlock(y + 6);
 }
 
 bool Treeminator::addWood(Chunk& chunk, std::stack<std::pair<Block*, BlockType::Type>>& treeStack, uint8_t height, uint16_t x, uint16_t y, uint16_t z) {
