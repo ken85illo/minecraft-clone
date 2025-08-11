@@ -6,8 +6,6 @@
 #include <print>
 #include <string>
 
-typedef unsigned int uint;
-
 class Shader {
 public:
     Shader(const char* vertexPath, const char* fragmentPath);
@@ -22,5 +20,5 @@ public:
     void setVec3(const std::string& name, glm::vec3 vec) const;
 
 private:
-    uint m_ID;
+    uint32_t m_ID;
 };
