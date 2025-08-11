@@ -17,31 +17,26 @@ class Player : public Camera {
 public:
     Player();
 
-    void moveFront(float deltaTime) override;
-    void moveBack(float deltaTime) override;
-    void moveRight(float deltaTime) override;
-    void moveLeft(float deltaTime) override;
-    void moveUp(float deltaTime) override;
-    void moveDown(float deltaTime) override;
-    void movementInput(Window* window, float deltaTime) override;
+    void uploadCursor();
+    void initTexture();
+
+    void setSpawn(World* world);
+    bool setCurrentChunk(Chunk* chunk);
 
     void drawCursor(bool wireFrameMode, Shader* shader);
     void placeBlock();
     void destroyBlock();
 
     Chunk* getCurrentChunk() const;
-
-    void setSpawn(World* world);
-    bool setCurrentChunk(Chunk* chunk);
-
     const ChunkCoord& getChunkCoord() const;
+
+    void movementInput(Window* window, float deltaTime);
 
 private:
     Chunk* m_currentChunk;
     ChunkCoord m_chunkCoord = { 0, 0 };
     std::unique_ptr<Texture> m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;
-
 
     RayCast m_rayCast;
 

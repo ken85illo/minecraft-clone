@@ -135,26 +135,3 @@ void Camera::onScroll(double xoffset, double yoffset) {
     if(m_currentFov > m_fov)
         m_currentFov = m_fov;
 }
-
-void Camera::movementInput(Window* window, float deltaTime) {
-    onCursorMove(InputHandler::getMousePosition().x,
-    InputHandler::getMousePosition().y, window->getWidth(), window->getHeight());
-    onScroll(InputHandler::getMouseScroll().x, InputHandler::getMouseScroll().y);
-
-    if(InputHandler::isKeyHeld(GLFW_KEY_W))
-        moveFront(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_S))
-        moveBack(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_D))
-        moveRight(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_A))
-        moveLeft(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_SPACE))
-        moveUp(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_LEFT_CONTROL))
-        moveDown(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_LEFT_SHIFT))
-        speedUp();
-    else
-        speedDown();
-}

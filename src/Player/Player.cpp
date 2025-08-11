@@ -5,7 +5,12 @@ Player::Player()
   m_rayCast(RANGE_RADIUS, this) {
 
     Chunk::loadPlayer(this);
+    uploadCursor();
+    initTexture();
+}
 
+
+void Player::uploadCursor() {
     // Cursor vertices
     float vertices[20] = {
         -0.002f, -0.002f, 0.0f, 0.0f, 0.0f, // bottom-left
@@ -38,7 +43,9 @@ Player::Player()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+}
 
+void Player::initTexture() {
     m_texture = std::make_unique<Texture>(GL_TEXTURE_2D, 1);
     m_texture->bind(0);
     m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -99,43 +106,6 @@ void Player::updateCurrentChunk() {
     // ChunkManager::buildMesh(*m_currentChunk, transparentMesh, 1);
 }
 
-const ChunkCoord& Player::getChunkCoord() const {
-    return m_chunkCoord;
-}
-
-void Player::moveFront(float deltaTime) {
-    float speed = deltaTime * m_currentSpeed;
-    m_pos += m_frontXZ * speed;
-    updateCurrentChunk();
-}
-
-void Player::moveBack(float deltaTime) {
-    float speed = deltaTime * m_currentSpeed;
-    m_pos -= m_frontXZ * speed;
-    updateCurrentChunk();
-}
-
-void Player::moveRight(float deltaTime) {
-    float speed = deltaTime * m_currentSpeed;
-    m_pos += glm::normalize(glm::cross(m_up, -m_frontXZ)) * speed;
-    updateCurrentChunk();
-}
-
-void Player::moveLeft(float deltaTime) {
-    float speed = deltaTime * m_currentSpeed;
-    m_pos -= glm::normalize(glm::cross(m_up, -m_frontXZ)) * speed;
-    updateCurrentChunk();
-}
-
-void Player::moveUp(float deltaTime) {
-    float speed = deltaTime * m_currentSpeed;
-    m_pos += m_up * speed;
-}
-
-void Player::moveDown(float deltaTime) {
-    float speed = deltaTime * m_currentSpeed;
-    m_pos -= m_up * speed;
-}
 
 void Player::drawCursor(bool wireFrameMode, Shader* shader) {
     glm::mat4 model = glm::mat4(1.0f);
@@ -149,15 +119,19 @@ void Player::drawCursor(bool wireFrameMode, Shader* shader) {
     shader->setMat4("model", model);
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    if(wireFrameMode)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Player::placeBlock() {
-    glm::vec3 rayOrigin = m_rayCast.getRayOrigin();
-    glm::vec3 rayDirection = m_rayCast.getRayDirection();
     auto [chunk, x, y, z] = m_rayCast.sendRay();
 
     if(!chunk)
         return;
+
+    glm::vec3 rayOrigin = m_rayCast.getRayOrigin();
+    glm::vec3 rayDirection = m_rayCast.getRayDirection();
 
     static const glm::vec3 normals[6] = {
         { 1.5f, 0.0f, 0.0f }, { -0.5f, 0.0f, 0.0f }, // X axis
@@ -211,27 +185,45 @@ Chunk* Player::getCurrentChunk() const {
     return m_currentChunk;
 }
 
+const ChunkCoord& Player::getChunkCoord() const {
+    return m_chunkCoord;
+}
+
+
 void Player::movementInput(Window* window, float deltaTime) {
     onCursorMove(InputHandler::getMousePosition().x,
     InputHandler::getMousePosition().y, window->getWidth(), window->getHeight());
     onScroll(InputHandler::getMouseScroll().x, InputHandler::getMouseScroll().y);
 
-    if(InputHandler::isKeyHeld(GLFW_KEY_W))
+    if(InputHandler::isKeyHeld(GLFW_KEY_W)) {
         moveFront(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_S))
+        updateCurrentChunk();
+    }
+    if(InputHandler::isKeyHeld(GLFW_KEY_S)) {
         moveBack(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_D))
+        updateCurrentChunk();
+    }
+    if(InputHandler::isKeyHeld(GLFW_KEY_D)) {
         moveRight(deltaTime);
-    if(InputHandler::isKeyHeld(GLFW_KEY_A))
+        updateCurrentChunk();
+    }
+    if(InputHandler::isKeyHeld(GLFW_KEY_A)) {
         moveLeft(deltaTime);
+        updateCurrentChunk();
+    }
+
     if(InputHandler::isKeyHeld(GLFW_KEY_SPACE))
         moveUp(deltaTime);
+
     if(InputHandler::isKeyHeld(GLFW_KEY_LEFT_CONTROL))
         moveDown(deltaTime);
+
     if(InputHandler::isMousePressed(GLFW_MOUSE_BUTTON_LEFT))
         destroyBlock();
+
     if(InputHandler::isMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
         placeBlock();
+
     if(InputHandler::isKeyHeld(GLFW_KEY_LEFT_SHIFT))
         speedUp();
     else

@@ -17,13 +17,12 @@ public:
     void onCursorMove(double xpos, double ypos, uint16_t windowWidth, uint16_t windowHeight);
     void onScroll(double xoffset, double yoffset);
 
-    virtual void moveFront(float deltaTime);
-    virtual void moveBack(float deltaTime);
-    virtual void moveRight(float deltaTime);
-    virtual void moveLeft(float deltaTime);
-    virtual void moveUp(float deltaTime);
-    virtual void moveDown(float deltaTime);
-    virtual void movementInput(Window* window, float deltaTime);
+    void moveFront(float deltaTime);
+    void moveBack(float deltaTime);
+    void moveRight(float deltaTime);
+    void moveLeft(float deltaTime);
+    void moveUp(float deltaTime);
+    void moveDown(float deltaTime);
 
     void speedUp();
     void speedDown();
