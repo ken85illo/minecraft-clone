@@ -1,5 +1,8 @@
 #include "PerlinNoise.hpp"
 
+// NOTE: This code is ported from a javascript source code I found on the internet
+// See: https://rtouti.github.io/graphics/perlin-noise-algorithm
+
 PerlinNoise::PerlinNoise(float frequency, float amplitude, uint16_t permutationSize, uint8_t numberOfOctaves)
 : m_frequency(frequency), m_amplitude(amplitude), m_permutationSize(permutationSize), m_numberOfOctaves(numberOfOctaves) {
 }
@@ -20,6 +23,10 @@ float PerlinNoise::fractalBrownianMotion(float x, float y) {
 }
 
 float PerlinNoise::perlin2D(float x, float y) {
+    // Wrap around when negative
+    x += (x < 0) ? m_permutationSize : 0;
+    y += (y < 0) ? m_permutationSize : 0;
+
     // same as modulo but much faster cause of bitwise
     const int32_t X = static_cast<int32_t>(x) & (m_permutationSize - 1);
     const int32_t Y = static_cast<int32_t>(y) & (m_permutationSize - 1);
