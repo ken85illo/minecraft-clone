@@ -7,8 +7,6 @@
 #include "ChunkMesh.hpp"
 #include <array>
 #include <glm/glm.hpp>
-#include <tuple>
-#include <vector>
 
 class Player;
 class Treeminator;
@@ -19,8 +17,9 @@ public:
 
     void setNeighbours(Chunk* front, Chunk* back, Chunk* right, Chunk* left);
 
-    Block* getBlock(int32_t x, int32_t y, int32_t z);
-    bool isAirBlock(int32_t x, int32_t y, int32_t z);
+    BlockType* getBlockType(int32_t x, int32_t y, int32_t z);
+    const glm::vec3 getBlockLocalPos(int32_t x, int32_t y, int32_t z) const;
+    const glm::vec3 getBlockGlobalPos(int32_t x, int32_t y, int32_t z) const;
 
     void setHighestBlock(uint8_t height);
     uint8_t getHighestBlock() const;
@@ -39,7 +38,7 @@ private:
     glm::vec3 m_position;
     ChunkBounds m_chunkBounds;
 
-    Block m_blocks[CHUNK_SIZE][MAX_HEIGHT][CHUNK_SIZE]{};
+    BlockType m_blocks[CHUNK_SIZE][MAX_HEIGHT][CHUNK_SIZE];
     uint8_t m_highestBlock = 0;
 
     Chunk* m_frontChunk = nullptr;

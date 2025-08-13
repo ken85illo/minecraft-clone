@@ -17,20 +17,20 @@ Chunk::Chunk(const std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& height
                     m_highestBlock = std::max(height + 1, waterHeight + 1);
 
                 glm::vec3 localPos = glm::vec3(x, y, z);
-                Block::Type type = Block::AIR;
+                BlockType type = BlockType::AIR;
 
                 if(y < height * 0.75)
-                    type = Block::STONE_BLOCK;
+                    type = BlockType::STONE;
                 else if(y > height - 1 && y < waterHeight)
-                    type = Block::WATER_BLOCK;
+                    type = BlockType::WATER;
                 else if(y >= height - SAND_DEPTH && y <= height - 1 && y < waterHeight)
-                    type = Block::SAND_BLOCK;
+                    type = BlockType::SAND;
                 else if(y == height - 1) {
-                    type = Block::GRASS_BLOCK;
+                    type = BlockType::GRASS;
                 } else if(y < height)
-                    type = Block::DIRT_BLOCK;
+                    type = BlockType::DIRT;
 
-                m_blocks[x][y][z] = Block(type, localPos, localPos + m_position);
+                m_blocks[x][y][z] = type;
             }
 }
 
@@ -41,7 +41,7 @@ void Chunk::setNeighbours(Chunk* front, Chunk* back, Chunk* right, Chunk* left) 
     m_leftChunk = left;
 }
 
-Block* Chunk::getBlock(int32_t x, int32_t y, int32_t z) {
+BlockType* Chunk::getBlockType(int32_t x, int32_t y, int32_t z) {
     Chunk* currentChunk = this;
 
     if(y < 0 || y >= MAX_HEIGHT)
@@ -78,11 +78,13 @@ Block* Chunk::getBlock(int32_t x, int32_t y, int32_t z) {
     return &currentChunk->m_blocks[x][y][z];
 }
 
-bool Chunk::isAirBlock(int32_t x, int32_t y, int32_t z) {
-    auto block = getBlock(x, y, z);
-    return !block || block->getType() == Block::AIR;
+const glm::vec3 Chunk::getBlockLocalPos(int32_t x, int32_t y, int32_t z) const {
+    return glm::vec3(x, y, z);
 }
 
+const glm::vec3 Chunk::getBlockGlobalPos(int32_t x, int32_t y, int32_t z) const {
+    return m_position + glm::vec3(x, y, z);
+}
 
 void Chunk::setHighestBlock(uint8_t height) {
     if(height > m_highestBlock)

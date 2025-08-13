@@ -1,5 +1,4 @@
 #include "ChunkManager.hpp"
-#include "Block/BlockType.hpp"
 #include "Chunk.hpp"
 
 void ChunkManager::updateMesh(Chunk& chunk, const MeshData& data, MeshType meshType) {
@@ -17,11 +16,11 @@ void ChunkManager::buildMesh(Chunk& chunk) {
     uploadMesh(chunk, TRANSPARENT);
 }
 
-void ChunkManager::updateBlock(Chunk& chunk, int32_t x, int32_t y, int32_t z, BlockType::Type blockType) {
-    if(!chunk.m_blocks[x][y][z].isBreakable())
+void ChunkManager::updateBlock(Chunk& chunk, int32_t x, int32_t y, int32_t z, BlockType blockType) {
+    if(!Block::isBreakable(chunk.m_blocks[x][y][z]))
         return;
 
-    chunk.m_blocks[x][y][z].setType(blockType);
+    chunk.m_blocks[x][y][z] = blockType;
     chunk.setHighestBlock(y);
     buildMesh(chunk);
 
@@ -32,7 +31,7 @@ void ChunkManager::updateBlock(Chunk& chunk, int32_t x, int32_t y, int32_t z, Bl
 }
 
 void ChunkManager::updateNeighbour(Chunk* neighbourChunk, bool condition, int32_t x, int32_t y, int32_t z) {
-    if(!neighbourChunk || !condition || neighbourChunk->isAirBlock(x, y, z))
+    if(!neighbourChunk || !condition || *neighbourChunk->getBlockType(x, y, z) == BlockType::AIR)
         return;
 
     neighbourChunk->setHighestBlock(y);

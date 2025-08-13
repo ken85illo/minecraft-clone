@@ -1,27 +1,26 @@
 #pragma once
 
-#include "BlockType.hpp"
+#include "BlockData.hpp"
+#include "Texture/Atlas.hpp"
 #include <glm/glm.hpp>
 
-class Block : public BlockType {
+class Chunk;
+enum BlockTexture : uint16_t;
+
+class Block {
 public:
-    struct Rect {
-        glm::vec3 min;
-        glm::vec3 max;
-    };
+    static void loadTextures();
 
-    Block();
-    Block(BlockType::Type type, glm::vec3 localPos, glm::vec3 globalPos);
-
-    // Getters
-    const Rect& getLocalRect() const;
-    const Rect& getGlobalRect() const;
-    const std::array<float, 12> getFace(uint8_t index) const;
+    static const bool isTransparent(BlockType& type);
+    static const bool isBreakable(BlockType& type);
+    static const BlockRect getLocalRect(int32_t x, int32_t y, int32_t z);
+    static const BlockRect getGlobalRect(Chunk& chunk, int32_t x, int32_t y, int32_t z);
+    static const std::array<float, 12> getFace(BlockType& type, uint8_t face, int32_t x, int32_t y, int32_t z);
+    static const std::pair<float*, float*> getTexCoord(BlockType& type, uint8_t face);
 
 private:
-    Rect m_localRect;
-    Rect m_globalRect;
-
     static float s_vertices[6][12];
-    static BlockType s_blockType;
+    static Atlas s_atlas;
+    static uint16_t s_textures[][6];
+    static float s_textureTypes[static_cast<size_t>(BlockType::AIR)][6][8];
 };

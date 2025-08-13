@@ -1,6 +1,6 @@
 #include "World.hpp"
-#include "Chunk/ChunkMesh.hpp"
 #include "Player/Player.hpp"
+#include "TerrainGenerator.hpp"
 #include "World/Treeminator.hpp"
 
 World::World(Player* player) : m_diameter(WORLD_RADIUS * 2 + 1), m_player(player) {

@@ -1,7 +1,6 @@
 #include "Player.hpp"
 
 Player::Player() : Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f), m_rayCast(RANGE_RADIUS, this) {
-
     Chunk::loadPlayer(this);
     uploadCursor();
     initTexture();
@@ -136,7 +135,7 @@ void Player::placeBlock() {
         { 0.0f, 0.0f, 1.5f }, { 0.0f, 0.0f, -0.5f }, // Z axis
     };
 
-    Block::Rect blockRect = chunk->getBlock(x, y, z)->getGlobalRect();
+    BlockRect blockRect = Block::getGlobalRect(*chunk, x, y, z);
     float minDist = 0.0f;
     glm::vec3 normal = glm::vec3(0.0f);
 
@@ -161,12 +160,12 @@ void Player::placeBlock() {
     }
 
     auto [bchunk, bx, by, bz] = m_rayCast.getCoordsAtPoint(blockRect.min + normal);
-    Block* placeBlock = bchunk->getBlock(bx, by, bz);
+    BlockType* placeBlock = bchunk->getBlockType(bx, by, bz);
 
-    if(placeBlock && placeBlock->getType() != BlockType::AIR)
+    if(placeBlock && *placeBlock != BlockType::AIR)
         return;
 
-    ChunkManager::updateBlock(*bchunk, bx, by, bz, Block::STONE_BLOCK);
+    ChunkManager::updateBlock(*bchunk, bx, by, bz, BlockType::STONE);
 }
 
 void Player::destroyBlock() {
@@ -175,7 +174,7 @@ void Player::destroyBlock() {
     if(!chunk)
         return;
 
-    ChunkManager::updateBlock(*chunk, x, y, z, Block::AIR);
+    ChunkManager::updateBlock(*chunk, x, y, z, BlockType::AIR);
 }
 
 Chunk* Player::getCurrentChunk() const {

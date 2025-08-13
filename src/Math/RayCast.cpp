@@ -27,8 +27,8 @@ RayCoords RayCast::sendRay() {
         if(!coords.chunk)
             break;
 
-        Block* block = coords.chunk->getBlock(coords.x, coords.y, coords.z);
-        if(!block || block->getType() == BlockType::AIR) {
+        BlockType* block = coords.chunk->getBlockType(coords.x, coords.y, coords.z);
+        if(!block || *block == BlockType::AIR) {
             length += 0.1f;
             continue;
         }

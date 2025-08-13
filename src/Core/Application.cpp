@@ -11,7 +11,7 @@ Application::Application() {
     m_interfaceShader = std::make_unique<Shader>("src/Shader/GLSL/Interface.vert", "src/Shader/GLSL/Textured.frag");
 
     // Load texture atlas
-    BlockType::loadTextures();
+    Block::loadTextures();
 
     m_player = std::make_unique<Player>();
     m_world = std::make_unique<World>(m_player.get());

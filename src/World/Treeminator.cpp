@@ -11,10 +11,10 @@ void Treeminator::spawnTrees(Chunk& chunk) {
 void Treeminator::createTree(Chunk& chunk, int32_t x, int32_t y, int32_t z) {
     uint8_t chance = rand() % 100;
 
-    if(chunk.getBlock(x, y, z)->getType() != BlockType::GRASS_BLOCK || chance > 1)
+    if(*chunk.getBlockType(x, y, z) != BlockType::GRASS || chance > 1)
         return;
 
-    std::stack<std::pair<Block*, BlockType::Type>> treeStack;
+    std::stack<std::pair<BlockType*, BlockType>> treeStack;
     if(!addWood(chunk, treeStack, 5, x, y, z))
         return;
 
@@ -30,28 +30,28 @@ void Treeminator::createTree(Chunk& chunk, int32_t x, int32_t y, int32_t z) {
 
     while(!treeStack.empty()) {
         auto& [block, type] = treeStack.top();
-        block->setType(type);
+        *block = type;
         treeStack.pop();
     }
 
     chunk.setHighestBlock(y + 6);
 }
 
-bool Treeminator::addWood(Chunk& chunk, std::stack<std::pair<Block*, BlockType::Type>>& treeStack, uint8_t height, uint16_t x, uint16_t y, uint16_t z) {
+bool Treeminator::addWood(Chunk& chunk, std::stack<std::pair<BlockType*, BlockType>>& treeStack, uint8_t height, uint16_t x, uint16_t y, uint16_t z) {
     for(int8_t ny = 1; ny <= height; ny++) {
-        auto currentBlock = chunk.getBlock(x, y + ny, z);
+        auto currentBlock = chunk.getBlockType(x, y + ny, z);
 
-        if(currentBlock->getType() != BlockType::AIR)
+        if(*currentBlock != BlockType::AIR)
             return false;
 
 
-        treeStack.push(std::make_pair(currentBlock, BlockType::OAK_WOOD_BLOCK));
+        treeStack.push(std::make_pair(currentBlock, BlockType::OAK_WOOD));
     }
     return true;
 }
 
 bool Treeminator::addLeafLayer(Chunk& chunk,
-std::stack<std::pair<Block*, BlockType::Type>>& treeStack,
+std::stack<std::pair<BlockType*, BlockType>>& treeStack,
 uint8_t radius,
 uint8_t height,
 uint16_t x,
@@ -62,9 +62,9 @@ bool removeCenter) {
 
     for(int8_t nx = -radius; nx <= radius; nx++)
         for(int8_t nz = -radius; nz <= radius; nz++) {
-            auto currentBlock = chunk.getBlock(x + nx, y + height, z + nz);
+            auto currentBlock = chunk.getBlockType(x + nx, y + height, z + nz);
 
-            if(currentBlock->getType() != BlockType::AIR)
+            if(*currentBlock != BlockType::AIR)
                 return false;
 
 
@@ -77,7 +77,7 @@ bool removeCenter) {
             if(edgeCase || centerCase)
                 continue;
 
-            treeStack.push(std::make_pair(currentBlock, BlockType::OAK_LEAF_BLOCK));
+            treeStack.push(std::make_pair(currentBlock, BlockType::OAK_LEAF));
         }
 
     return true;

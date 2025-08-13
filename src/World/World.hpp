@@ -4,13 +4,9 @@
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
 #include "Utils/ThreadPool.hpp"
-#include "World/TerrainGenerator.hpp"
 #include <cstdint>
-#include <future>
-#include <map>
-#include <queue>
 
-#define WORLD_RADIUS 20
+#define WORLD_RADIUS 12
 
 class World {
 public:
