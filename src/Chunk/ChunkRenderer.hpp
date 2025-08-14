@@ -4,13 +4,14 @@
 #include <glad/glad.h>
 
 struct MeshData;
+enum class MeshType : uint8_t;
 
 class ChunkRenderer {
 public:
     ChunkRenderer();
 
-    void uploadMesh(const MeshData& mesh, uint8_t index);
-    void render(uint8_t index);
+    void uploadMesh(const MeshData& mesh, MeshType type);
+    void render(MeshType type);
 
 private:
     uint32_t m_VAO[2];

@@ -9,7 +9,8 @@ ChunkRenderer::ChunkRenderer() {
 }
 
 
-void ChunkRenderer::uploadMesh(const MeshData& mesh, uint8_t index) {
+void ChunkRenderer::uploadMesh(const MeshData& mesh, MeshType type) {
+    size_t index = static_cast<size_t>(type);
     m_indexCount[index] = static_cast<size_t>(mesh.indices.size());
 
     glBindVertexArray(m_VAO[index]);
@@ -34,7 +35,8 @@ void ChunkRenderer::uploadMesh(const MeshData& mesh, uint8_t index) {
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::render(uint8_t index) {
+void ChunkRenderer::render(MeshType type) {
+    size_t index = static_cast<size_t>(type);
     if(index == 1)
         glDisable(GL_CULL_FACE);
 

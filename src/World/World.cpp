@@ -35,8 +35,8 @@ void World::generateChunkMeshAsync() {
                 MeshData opaqueMesh = ChunkMesh::buildOpaque(*currentChunk);
                 MeshData transparentMesh = ChunkMesh::buildTransparent(*currentChunk);
 
-                ChunkManager::updateMesh(*currentChunk, opaqueMesh, OPAQUE);
-                ChunkManager::updateMesh(*currentChunk, transparentMesh, TRANSPARENT);
+                ChunkManager::updateMesh(*currentChunk, opaqueMesh, MeshType::OPAQUE);
+                ChunkManager::updateMesh(*currentChunk, transparentMesh, MeshType::TRANSPARENT);
             });
         }
     }
@@ -96,8 +96,8 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
         m_player->setSpawn(this);
 
         for(auto& chunk : m_chunks) {
-            ChunkManager::uploadMesh(chunk, OPAQUE);
-            ChunkManager::uploadMesh(chunk, TRANSPARENT);
+            ChunkManager::uploadMesh(chunk, MeshType::OPAQUE);
+            ChunkManager::uploadMesh(chunk, MeshType::TRANSPARENT);
         }
 
         std::println("The chunks has finished generating...");
@@ -108,7 +108,7 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
     const ChunkCoord& chunkCoord = m_player->getChunkCoord();
     int32_t mid = getIndex(chunkCoord.chunkX, chunkCoord.chunkZ);
 
-    for(uint8_t type = OPAQUE; type < TOTAL_MESHES; ++type) {
+    for(uint8_t type = 0; type < static_cast<uint8_t>(MeshType::TOTAL_MESHES); ++type) {
         int32_t i = 0;
         int32_t j = m_chunks.size() - 1;
 

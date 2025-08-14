@@ -98,8 +98,9 @@ void Player::updateCurrentChunk() {
         --m_chunkCoord.chunkX;
     }
 
-    // MeshData transparentMesh = ChunkMesh::buildTransparent(*m_currentChunk);
-    // ChunkManager::buildMesh(*m_currentChunk, transparentMesh, 1);
+    MeshData transparentMesh = ChunkMesh::buildTransparent(*m_currentChunk);
+    ChunkManager::updateMesh(*m_currentChunk, transparentMesh, MeshType::TRANSPARENT);
+    ChunkManager::uploadMesh(*m_currentChunk, MeshType::TRANSPARENT);
 }
 
 

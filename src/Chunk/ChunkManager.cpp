@@ -2,18 +2,20 @@
 #include "Chunk.hpp"
 
 void ChunkManager::updateMesh(Chunk& chunk, const MeshData& data, MeshType meshType) {
-    chunk.m_meshData[meshType] = data;
+    size_t index = static_cast<size_t>(meshType);
+    chunk.m_meshData[index] = data;
 }
 
 void ChunkManager::uploadMesh(Chunk& chunk, MeshType meshType) {
-    chunk.m_renderer.uploadMesh(chunk.m_meshData[meshType], meshType);
+    size_t index = static_cast<size_t>(meshType);
+    chunk.m_renderer.uploadMesh(chunk.m_meshData[index], meshType);
 }
 
 void ChunkManager::buildMesh(Chunk& chunk) {
-    updateMesh(chunk, ChunkMesh::buildOpaque(chunk), OPAQUE);
-    updateMesh(chunk, ChunkMesh::buildTransparent(chunk), TRANSPARENT);
-    uploadMesh(chunk, OPAQUE);
-    uploadMesh(chunk, TRANSPARENT);
+    updateMesh(chunk, ChunkMesh::buildOpaque(chunk), MeshType::OPAQUE);
+    updateMesh(chunk, ChunkMesh::buildTransparent(chunk), MeshType::TRANSPARENT);
+    uploadMesh(chunk, MeshType::OPAQUE);
+    uploadMesh(chunk, MeshType::TRANSPARENT);
 }
 
 void ChunkManager::updateBlock(Chunk& chunk, int32_t x, int32_t y, int32_t z, BlockType blockType) {
