@@ -1,9 +1,12 @@
 #include "World.hpp"
 #include "Player/Player.hpp"
 #include "TerrainGenerator.hpp"
+#include "Utils/Timer.hpp"
 #include "World/Treeminator.hpp"
 
 World::World(Player* player) : m_diameter(WORLD_RADIUS * 2 + 1), m_player(player) {
+    std::println("Generating {} x {} chunks...", m_diameter, m_diameter);
+    Timer::startTimer();
     initTexture();
     initChunks();
     generateChunkMeshAsync();
@@ -97,6 +100,8 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
             ChunkManager::uploadMesh(chunk, TRANSPARENT);
         }
 
+        std::println("The chunks has finished generating...");
+        std::println("Time spent: {} ms", Timer::stopTimer());
         isInitialized = true;
     }
 

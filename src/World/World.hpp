@@ -6,7 +6,7 @@
 #include "Utils/ThreadPool.hpp"
 #include <cstdint>
 
-#define WORLD_RADIUS 24
+#define WORLD_RADIUS 12
 
 class World {
 public:
