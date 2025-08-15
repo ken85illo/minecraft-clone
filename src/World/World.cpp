@@ -21,6 +21,7 @@ void World::initChunks() {
             m_chunks.emplace_back(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
         }
     }
+    m_player->setSpawn(this);
 }
 
 void World::generateChunkMeshAsync() {
@@ -127,7 +128,6 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
     static bool isInitialized = false;
     if(!isInitialized) {
         m_chunkThreads.wait();
-        m_player->setSpawn(this);
 
         for(auto& chunk : m_chunks) {
             ChunkManager::uploadMesh(chunk, MeshType::OPAQUE);
