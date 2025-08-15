@@ -9,7 +9,7 @@
 #define FREQUENCY 0.005f
 #define NUMBER_OF_OCTAVES 5
 
-class TerrainGenerator {
+class Terrain {
 public:
     static void generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap, int32_t chunkX, int32_t chunkZ);
 };

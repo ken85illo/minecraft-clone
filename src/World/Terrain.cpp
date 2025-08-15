@@ -1,6 +1,6 @@
-#include "TerrainGenerator.hpp"
+#include "Terrain.hpp"
 
-void TerrainGenerator::generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap, int32_t chunkX, int32_t chunkZ) {
+void Terrain::generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE>& heightMap, int32_t chunkX, int32_t chunkZ) {
     static PerlinNoise m_perlinNoise(FREQUENCY, AMPLITUDE, PERMUTATION_SIZE, NUMBER_OF_OCTAVES);
 
     for(int32_t x = 0; x < CHUNK_SIZE; x++) {
