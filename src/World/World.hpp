@@ -5,6 +5,7 @@
 #include "Texture/Texture.hpp"
 #include "Utils/ThreadPool.hpp"
 #include <cstdint>
+#include <map>
 
 #define WORLD_RADIUS 12
 
@@ -14,6 +15,8 @@ public:
     ~World();
 
     void render(bool wireFrameMode, Shader* worldShader, Shader* lineShader);
+    void sortChunks();
+    void sortChunkFaces(int32_t chunkX, int32_t chunkZ, uint8_t radius);
 
     const int32_t getDiameter() const;
     const int32_t getIndex(int32_t x, int32_t z) const;
@@ -24,11 +27,12 @@ private:
     int32_t m_diameter;
 
     std::vector<Chunk> m_chunks;
+    std::multimap<float, Chunk*> m_sortedChunks;
     ThreadPool m_chunkThreads;
     Player* m_player;
 
     void initChunks();
     void generateChunkMeshAsync();
     void initTexture();
-    void drawChunk(int32_t index, MeshType type, Shader* shader);
+    void drawChunk(Chunk& chunk, MeshType type, Shader* shader);
 };

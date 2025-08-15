@@ -56,6 +56,7 @@ void Player::setSpawn(World* world) {
     m_pos = glm::vec3(
     chunk->getPosition().x + CHUNK_SIZE / 2.0f, chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f);
     m_chunkCoord = ChunkCoord(diameter / 2, diameter / 2);
+    m_world = world;
 
     setCurrentChunk(chunk);
 }
@@ -64,6 +65,7 @@ bool Player::setCurrentChunk(Chunk* chunk) {
     if(!chunk)
         return false;
 
+    m_world->sortChunks();
     m_currentChunk = chunk;
     return true;
 }
@@ -75,32 +77,41 @@ void Player::updateCurrentChunk() {
     const ChunkBounds& bounds = m_currentChunk->getBounds();
 
     if(m_pos.z > bounds.max.z && setCurrentChunk(m_currentChunk->getFrontChunk())) {
-        std::println("You moved to front chunk!");
-        std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
+        // std::println("You moved to front chunk!");
+        // std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
         ++m_chunkCoord.chunkZ;
     }
 
     if(m_pos.z < bounds.min.z && setCurrentChunk(m_currentChunk->getBackChunk())) {
-        std::println("You moved to back chunk!");
-        std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
+        // std::println("You moved to back chunk!");
+        // std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
         --m_chunkCoord.chunkZ;
     }
 
     if(m_pos.x > bounds.max.x && setCurrentChunk(m_currentChunk->getRightChunk())) {
-        std::println("You moved to right chunk!");
-        std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
+        // std::println("You moved to right chunk!");
+        // std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
         ++m_chunkCoord.chunkX;
     }
 
     if(m_pos.x < bounds.min.x && setCurrentChunk(m_currentChunk->getLeftChunk())) {
-        std::println("You moved to left chunk!");
-        std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
+        // std::println("You moved to left chunk!");
+        // std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
         --m_chunkCoord.chunkX;
     }
 
-    MeshData transparentMesh = ChunkMesh::buildTransparent(*m_currentChunk);
-    ChunkManager::updateMesh(*m_currentChunk, transparentMesh, MeshType::TRANSPARENT);
-    ChunkManager::uploadMesh(*m_currentChunk, MeshType::TRANSPARENT);
+    static glm::vec3 playerPos = m_pos;
+    float distance = glm::length(m_pos - playerPos);
+
+    // Only sort transparent faces when the player moved 8 blocks from previous position
+    if(distance > 8.0f) {
+        float x = std::copysign(std::round(std::fabs(m_frontXZ.x)), m_frontXZ.x) * 3;
+        float z = std::copysign(std::round(std::fabs(m_frontXZ.z)), m_frontXZ.z) * 3;
+
+        m_world->sortChunkFaces(m_chunkCoord.chunkX + x, m_chunkCoord.chunkZ + z, 2);
+        m_world->sortChunkFaces(m_chunkCoord.chunkX, m_chunkCoord.chunkZ, 0);
+        playerPos = m_pos;
+    }
 }
 
 
@@ -191,20 +202,18 @@ void Player::movementInput(Window* window, float deltaTime) {
     onCursorMove(InputHandler::getMousePosition().x, InputHandler::getMousePosition().y, window->getWidth(), window->getHeight());
     onScroll(InputHandler::getMouseScroll().x, InputHandler::getMouseScroll().y);
 
-    if(InputHandler::isKeyHeld(GLFW_KEY_W)) {
-        moveFront(deltaTime);
-        updateCurrentChunk();
-    }
-    if(InputHandler::isKeyHeld(GLFW_KEY_S)) {
-        moveBack(deltaTime);
-        updateCurrentChunk();
-    }
-    if(InputHandler::isKeyHeld(GLFW_KEY_D)) {
-        moveRight(deltaTime);
-        updateCurrentChunk();
-    }
-    if(InputHandler::isKeyHeld(GLFW_KEY_A)) {
-        moveLeft(deltaTime);
+    if(InputHandler::isKeyHeld(GLFW_KEY_W) || InputHandler::isKeyHeld(GLFW_KEY_S) ||
+    InputHandler::isKeyHeld(GLFW_KEY_D) || InputHandler::isKeyHeld(GLFW_KEY_A)) {
+
+        if(InputHandler::isKeyHeld(GLFW_KEY_W))
+            moveFront(deltaTime);
+        if(InputHandler::isKeyHeld(GLFW_KEY_S))
+            moveBack(deltaTime);
+        if(InputHandler::isKeyHeld(GLFW_KEY_D))
+            moveRight(deltaTime);
+        if(InputHandler::isKeyHeld(GLFW_KEY_A))
+            moveLeft(deltaTime);
+
         updateCurrentChunk();
     }
 

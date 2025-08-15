@@ -1,6 +1,6 @@
 #include "World.hpp"
 #include "Player/Player.hpp"
-#include "TerrainGenerator.hpp"
+#include "Terrain.hpp"
 #include "Utils/Timer.hpp"
 #include "World/Treeminator.hpp"
 
@@ -10,13 +10,14 @@ World::World(Player* player) : m_diameter(WORLD_RADIUS * 2 + 1), m_player(player
     initTexture();
     initChunks();
     generateChunkMeshAsync();
+    sortChunks();
 }
 
 void World::initChunks() {
     for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++) {
         for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++) {
             std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
-            TerrainGenerator::generateHeightMap(heightMap, chunkX, chunkZ);
+            Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
             m_chunks.emplace_back(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
         }
     }
@@ -41,6 +42,39 @@ void World::generateChunkMeshAsync() {
         }
     }
 }
+
+void World::sortChunks() {
+    m_sortedChunks.clear();
+    for(auto& chunk : m_chunks) {
+        float distance = glm::length(m_player->getPosition() - (chunk.getPosition() + CHUNK_SIZE / 2.0f));
+        m_sortedChunks.emplace(distance, &chunk);
+    }
+}
+
+void World::sortChunkFaces(int32_t chunkX, int32_t chunkZ, uint8_t radius) {
+    std::queue<Chunk*> chunks;
+    for(int32_t x = chunkX - radius; x <= chunkX + radius; ++x)
+        for(int32_t z = chunkZ - radius; z <= chunkZ + radius; ++z) {
+
+            auto chunk = getChunk(x, z);
+
+            if(!chunk)
+                continue;
+
+            chunks.push(chunk);
+            m_chunkThreads.enqueue([chunk, &chunks, this] {
+                MeshData transparentMesh = ChunkMesh::buildTransparent(*chunk);
+                ChunkManager::updateMesh(*chunk, transparentMesh, MeshType::TRANSPARENT);
+            });
+        }
+
+    m_chunkThreads.wait();
+    while(!chunks.empty()) {
+        ChunkManager::uploadMesh(*chunks.front(), MeshType::TRANSPARENT);
+        chunks.pop();
+    }
+}
+
 
 void World::initTexture() {
     m_texture = std::make_unique<Texture>(GL_TEXTURE_2D, 1);
@@ -73,12 +107,12 @@ Chunk* World::getChunk(int32_t x, int32_t z) {
 }
 
 
-void World::drawChunk(int32_t index, MeshType type, Shader* shader) {
+void World::drawChunk(Chunk& chunk, MeshType type, Shader* shader) {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, m_chunks[index].getPosition());
+    model = glm::translate(model, chunk.getPosition());
     shader->setMat4("model", model);
 
-    ChunkManager::render(m_chunks[index], type);
+    ChunkManager::render(chunk, type);
 }
 
 
@@ -105,21 +139,9 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
         isInitialized = true;
     }
 
-    const ChunkCoord& chunkCoord = m_player->getChunkCoord();
-    int32_t mid = getIndex(chunkCoord.chunkX, chunkCoord.chunkZ);
 
     for(uint8_t type = 0; type < static_cast<uint8_t>(MeshType::TOTAL_MESHES); ++type) {
-        int32_t i = 0;
-        int32_t j = m_chunks.size() - 1;
-
-        while(i >= 0 && i < mid || j > mid && j < m_chunks.size()) {
-            if(i < mid)
-                drawChunk(i++, static_cast<MeshType>(type), currentShader);
-            if(j > mid)
-                drawChunk(j--, static_cast<MeshType>(type), currentShader);
-        }
-
-        if(mid >= 0 && mid < m_chunks.size())
-            drawChunk(mid, static_cast<MeshType>(type), currentShader);
+        for(auto i = m_sortedChunks.rbegin(); i != m_sortedChunks.rend(); ++i)
+            drawChunk(*i->second, static_cast<MeshType>(type), currentShader);
     }
 }

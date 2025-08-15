@@ -34,6 +34,7 @@ public:
 
 private:
     Chunk* m_currentChunk;
+    World* m_world;
     ChunkCoord m_chunkCoord = { 0, 0 };
     std::unique_ptr<Texture> m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;

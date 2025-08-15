@@ -2,6 +2,10 @@
 #include "Player/Player.hpp"
 #include <map>
 
+static const int8_t dx[6] = { 0, 0, 0, 0, 1, -1 };
+static const int8_t dy[6] = { 0, 0, 1, -1, 0, 0 };
+static const int8_t dz[6] = { 1, -1, 0, 0, 0, 0 };
+
 MeshData ChunkMesh::buildOpaque(Chunk& chunk) {
     MeshData mesh;
 
@@ -26,7 +30,7 @@ MeshData ChunkMesh::buildTransparent(Chunk& chunk) {
         for(int32_t y = 0; y <= chunk.m_highestBlock; y++)
             for(int32_t z = 0; z < CHUNK_SIZE; z++) {
                 auto& block = chunk.m_blocks[x][y][z];
-                if(!Block::isTransparent(block))
+                if(!Block::isTransparent(block) || !hasFace(chunk, x, y, z))
                     continue;
 
                 float distance = glm::length(Chunk::s_player->getPosition() - Block::getGlobalRect(chunk, x, y, z).min);
@@ -40,11 +44,20 @@ MeshData ChunkMesh::buildTransparent(Chunk& chunk) {
     return mesh;
 }
 
-void ChunkMesh::fillFaces(Chunk& chunk, int32_t x, int32_t y, int32_t z, MeshData& mesh) {
-    static const int8_t dx[6] = { 0, 0, 0, 0, 1, -1 };
-    static const int8_t dy[6] = { 0, 0, 1, -1, 0, 0 };
-    static const int8_t dz[6] = { 1, -1, 0, 0, 0, 0 };
 
+bool ChunkMesh::hasFace(Chunk& chunk, int32_t x, int32_t y, int32_t z) {
+    for(uint8_t face = 0; face < 6; face++) {
+        auto offsetBlock = chunk.getBlockType(x + dx[face], y + dy[face], z + dz[face]);
+
+        if(offsetBlock && *offsetBlock == BlockType::AIR)
+            return true;
+    }
+
+    return false;
+}
+
+
+void ChunkMesh::fillFaces(Chunk& chunk, int32_t x, int32_t y, int32_t z, MeshData& mesh) {
     auto& currentBlock = chunk.m_blocks[x][y][z];
 
     static const std::vector<uint32_t> indicesTemplate = { 0, 1, 3, 1, 2, 3 };
