@@ -202,20 +202,25 @@ void Player::movementInput(Window* window, float deltaTime) {
     onCursorMove(InputHandler::getMousePosition().x, InputHandler::getMousePosition().y, window->getWidth(), window->getHeight());
     onScroll(InputHandler::getMouseScroll().x, InputHandler::getMouseScroll().y);
 
-    if(InputHandler::isKeyHeld(GLFW_KEY_W) || InputHandler::isKeyHeld(GLFW_KEY_S) ||
-    InputHandler::isKeyHeld(GLFW_KEY_D) || InputHandler::isKeyHeld(GLFW_KEY_A)) {
+    static glm::vec3 prevPos = m_pos;
 
-        if(InputHandler::isKeyHeld(GLFW_KEY_W))
-            moveFront(deltaTime);
-        if(InputHandler::isKeyHeld(GLFW_KEY_S))
-            moveBack(deltaTime);
-        if(InputHandler::isKeyHeld(GLFW_KEY_D))
-            moveRight(deltaTime);
-        if(InputHandler::isKeyHeld(GLFW_KEY_A))
-            moveLeft(deltaTime);
+    if(InputHandler::isKeyHeld(GLFW_KEY_W))
+        moveFront(deltaTime);
 
+    if(InputHandler::isKeyHeld(GLFW_KEY_S))
+        moveBack(deltaTime);
+
+    if(InputHandler::isKeyHeld(GLFW_KEY_D))
+        moveRight(deltaTime);
+
+    if(InputHandler::isKeyHeld(GLFW_KEY_A))
+        moveLeft(deltaTime);
+
+    if(prevPos != m_pos) {
         updateCurrentChunk();
+        prevPos = m_pos;
     }
+
 
     if(InputHandler::isKeyHeld(GLFW_KEY_SPACE))
         moveUp(deltaTime);
