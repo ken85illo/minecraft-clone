@@ -103,12 +103,12 @@ void Player::updateCurrentChunk() {
     static glm::vec3 playerPos = m_pos;
     float distance = glm::length(m_pos - playerPos);
 
-    // Only sort transparent faces when the player moved 8 blocks from previous position
-    if(distance > 8.0f) {
-        float x = std::copysign(std::round(std::fabs(m_frontXZ.x)), m_frontXZ.x) * 3;
-        float z = std::copysign(std::round(std::fabs(m_frontXZ.z)), m_frontXZ.z) * 3;
+    // Only sort transparent faces when the player moved 1 block from previous position
+    if(distance >= 1.0f) {
+        float x = std::copysign(std::round(std::fabs(m_frontXZ.x)), m_frontXZ.x) * 2;
+        float z = std::copysign(std::round(std::fabs(m_frontXZ.z)), m_frontXZ.z) * 2;
 
-        m_world->sortChunkFaces(m_chunkCoord.chunkX + x, m_chunkCoord.chunkZ + z, 2);
+        m_world->sortChunkFaces(m_chunkCoord.chunkX + x, m_chunkCoord.chunkZ + z, 1);
         m_world->sortChunkFaces(m_chunkCoord.chunkX, m_chunkCoord.chunkZ, 0);
         playerPos = m_pos;
     }
