@@ -27,7 +27,7 @@ Window::~Window() {
 
 Window* Window::get() {
     if(!s_instance)
-        s_instance = std::make_unique<Window>(1366, 768, "Minecraft", false);
+        s_instance = std::make_unique<Window>(1664, 936, "Minecraft", false);
 
     return s_instance.get();
 }

@@ -2,15 +2,17 @@
 #include "Chunk/Chunk.hpp"
 #include "Player/Player.hpp"
 
-RayCast::RayCast(float rangeRadius, Player* player) : m_rangeRadius(rangeRadius), m_player(player) {
+
+RayCast::RayCast(float rangeRadius) : m_rangeRadius(rangeRadius) {
 }
 
+
 const glm::vec3 RayCast::getRayOrigin() const {
-    return m_player->getPosition() + m_player->getFront() * 0.1f;
+    return Player::get()->getPosition() + Player::get()->getFront() * 0.1f;
 }
 
 const glm::vec3 RayCast::getRayDirection() const {
-    return m_player->getFront();
+    return Player::get()->getFront();
 }
 
 RayCoords RayCast::sendRay() {
@@ -40,7 +42,8 @@ RayCoords RayCast::sendRay() {
 }
 
 RayCoords RayCast::getCoordsAtPoint(glm::vec3 point) {
-    Chunk* currentChunk = m_player->getCurrentChunk();
+    glm::ivec2 chunkCoord = Player::get()->getChunkCoords();
+    Chunk* currentChunk = World::get()->getChunk(chunkCoord.x, chunkCoord.y);
 
     if(!currentChunk || point.y < 0.0f || point.y >= MAX_HEIGHT)
         return RayCoords(nullptr, 0, 0, 0);

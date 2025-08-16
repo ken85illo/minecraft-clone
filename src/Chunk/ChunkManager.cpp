@@ -40,12 +40,6 @@ void ChunkManager::updateNeighbour(Chunk* neighbourChunk, bool condition, int32_
     buildMesh(*neighbourChunk);
 }
 
-void ChunkManager::deleteMesh(Chunk& chunk) {
-    glDeleteBuffers(2, chunk.m_renderer.m_VBO);
-    glDeleteBuffers(2, chunk.m_renderer.m_TBO);
-    glDeleteBuffers(2, chunk.m_renderer.m_EBO);
-    glDeleteVertexArrays(2, chunk.m_renderer.m_VAO);
-}
 
 void ChunkManager::render(Chunk& chunk, MeshType type) {
     chunk.m_renderer.render(type);

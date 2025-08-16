@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <glm/glm.hpp>
+#include <memory>
 
 class Player;
 class Camera;
@@ -15,7 +16,8 @@ struct RayCoords {
 
 class RayCast {
 public:
-    RayCast(float rangeRadius, Player* player);
+    RayCast(float rangeRadius);
+
     RayCoords sendRay();
 
     RayCoords getCoordsAtPoint(glm::vec3 point);
@@ -24,5 +26,4 @@ public:
 
 private:
     float m_rangeRadius;
-    Player* m_player;
 };

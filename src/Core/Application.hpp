@@ -19,8 +19,8 @@ private:
     std::unique_ptr<Shader> m_interfaceShader;
 
     Window* m_window;
-    std::unique_ptr<Player> m_player;
-    std::unique_ptr<World> m_world;
+    World* m_world;
+    Player* m_player;
 
     void render();
     void update(float deltaTime);

@@ -9,6 +9,7 @@ enum class MeshType : uint8_t;
 class ChunkRenderer {
 public:
     ChunkRenderer();
+    ~ChunkRenderer();
 
     void uploadMesh(const MeshData& mesh, MeshType type);
     void render(MeshType type);

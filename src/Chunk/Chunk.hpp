@@ -32,7 +32,6 @@ public:
     Chunk* getRightChunk() const;
     Chunk* getLeftChunk() const;
 
-    static void loadPlayer(Player* player);
 
 private:
     glm::vec3 m_position;
@@ -48,7 +47,6 @@ private:
 
     MeshData m_meshData[2];
     ChunkRenderer m_renderer;
-    static Player* s_player;
 
     friend class ChunkMesh;
     friend class ChunkManager;

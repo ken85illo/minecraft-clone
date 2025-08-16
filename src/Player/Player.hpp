@@ -17,29 +17,29 @@ class Player : public Camera {
 public:
     Player();
 
-    void uploadCursor();
-    void initTexture();
+    void init();
+    static Player* get();
 
-    void setSpawn(World* world);
     bool setCurrentChunk(Chunk* chunk);
 
     void drawCursor(bool wireFrameMode, Shader* shader);
     void placeBlock();
     void destroyBlock();
-
-    Chunk* getCurrentChunk() const;
-    const ChunkCoord& getChunkCoord() const;
-
     void movementInput(Window* window, float deltaTime);
 
+    const glm::ivec2& getChunkCoords() const;
+
 private:
-    Chunk* m_currentChunk;
+    static std::unique_ptr<Player> s_instance;
+    RayCast m_rayCast;
     World* m_world;
-    ChunkCoord m_chunkCoord = { 0, 0 };
+
     std::unique_ptr<Texture> m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;
+    glm::ivec2 m_chunkCoord;
 
-    RayCast m_rayCast;
 
+    void uploadCursor();
+    void initTexture();
     void updateCurrentChunk();
 };

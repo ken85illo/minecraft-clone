@@ -21,8 +21,8 @@ public:
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
-    static bool keyButton[GLFW_KEY_LAST + 1];
-    static bool mouseButton[GLFW_MOUSE_BUTTON_LAST + 1];
-    static glm::dvec2 mousePosition;
-    static glm::dvec2 mouseScroll;
+    static bool s_keyButton[GLFW_KEY_LAST + 1];
+    static bool s_mouseButton[GLFW_MOUSE_BUTTON_LAST + 1];
+    static glm::dvec2 s_mousePosition;
+    static glm::dvec2 s_mouseScroll;
 };

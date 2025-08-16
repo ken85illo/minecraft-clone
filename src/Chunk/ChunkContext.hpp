@@ -2,10 +2,6 @@
 
 #include <glm/glm.hpp>
 
-struct ChunkCoord {
-    int32_t chunkX;
-    int32_t chunkZ;
-};
 
 struct ChunkBounds {
     glm::vec3 min;

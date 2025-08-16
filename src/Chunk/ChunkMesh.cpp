@@ -33,7 +33,7 @@ MeshData ChunkMesh::buildTransparent(Chunk& chunk) {
                 if(!Block::isTransparent(block) || !hasFace(chunk, x, y, z))
                     continue;
 
-                float distance = glm::length(Chunk::s_player->getPosition() - Block::getGlobalRect(chunk, x, y, z).min);
+                float distance = glm::length(Player::get()->getPosition() - Block::getGlobalRect(chunk, x, y, z).min);
                 transparentBlocks.emplace(distance, std::make_tuple(x, y, z));
             }
 
@@ -70,11 +70,11 @@ void ChunkMesh::fillFaces(Chunk& chunk, int32_t x, int32_t y, int32_t z, MeshDat
 
         auto vertices = Block::getFace(currentBlock, face, x, y, z);
         auto texCoords = Block::getTexCoord(currentBlock, face);
+        uint32_t baseIndex = mesh.vertices.size() * reciprocal;
 
         mesh.vertices.insert(mesh.vertices.end(), vertices.begin(), vertices.end());
         mesh.texCoords.insert(mesh.texCoords.end(), texCoords.first, texCoords.second);
 
-        uint32_t baseIndex = mesh.vertices.size() * reciprocal - 4;
         for(auto idx : indicesTemplate)
             mesh.indices.push_back(baseIndex + idx);
     }

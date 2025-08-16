@@ -9,6 +9,14 @@ ChunkRenderer::ChunkRenderer() {
 }
 
 
+ChunkRenderer::~ChunkRenderer() {
+    glDeleteVertexArrays(2, m_VAO);
+    glDeleteBuffers(2, m_VBO);
+    glDeleteBuffers(2, m_TBO);
+    glDeleteBuffers(2, m_EBO);
+}
+
+
 void ChunkRenderer::uploadMesh(const MeshData& mesh, MeshType type) {
     size_t index = static_cast<size_t>(type);
     m_indexCount[index] = static_cast<size_t>(mesh.indices.size());

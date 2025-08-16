@@ -1,11 +1,28 @@
 #include "Player.hpp"
 
-Player::Player() : Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 0.1f, 60.0f), m_rayCast(RANGE_RADIUS, this) {
-    Chunk::loadPlayer(this);
+std::unique_ptr<Player> Player::s_instance = nullptr;
+
+Player::Player() : Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 7.0f, 0.1f, 60.0f), m_rayCast(RANGE_RADIUS) {
     uploadCursor();
     initTexture();
 }
 
+void Player::init() {
+    m_world = World::get();
+    auto diameter = m_world->getDiameter();
+    auto chunk = m_world->getChunk(diameter / 2, diameter / 2);
+
+    m_pos = glm::vec3(
+    chunk->getPosition().x + CHUNK_SIZE / 2.0f, chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f);
+    m_chunkCoord = glm::ivec2(diameter / 2, diameter / 2);
+}
+
+Player* Player::get() {
+    if(!s_instance)
+        s_instance = std::make_unique<Player>();
+
+    return s_instance.get();
+}
 
 void Player::uploadCursor() {
     // Cursor vertices
@@ -49,55 +66,36 @@ void Player::initTexture() {
     m_texture->loadImage("res/cursor.png");
 }
 
-void Player::setSpawn(World* world) {
-    auto diameter = world->getDiameter();
-    auto chunk = world->getChunk(diameter / 2, diameter / 2);
 
-    m_pos = glm::vec3(
-    chunk->getPosition().x + CHUNK_SIZE / 2.0f, chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f);
-    m_chunkCoord = ChunkCoord(diameter / 2, diameter / 2);
-    m_world = world;
-
-    setCurrentChunk(chunk);
-}
-
-bool Player::setCurrentChunk(Chunk* chunk) {
-    if(!chunk)
-        return false;
-
-    m_world->sortChunks();
-    m_currentChunk = chunk;
-    return true;
+const glm::ivec2& Player::getChunkCoords() const {
+    return m_chunkCoord;
 }
 
 void Player::updateCurrentChunk() {
-    if(!m_currentChunk)
-        return;
+    const ChunkBounds& bounds = m_world->getChunk(m_chunkCoord.x, m_chunkCoord.y)->getBounds();
 
-    const ChunkBounds& bounds = m_currentChunk->getBounds();
-
-    if(m_pos.z > bounds.max.z && setCurrentChunk(m_currentChunk->getFrontChunk())) {
-        // std::println("You moved to front chunk!");
-        // std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
-        ++m_chunkCoord.chunkZ;
+    if(m_pos.z > bounds.max.z) {
+        std::println("You moved to front chunk!");
+        m_world->generateChunkFront();
+        m_world->sortChunks();
     }
 
-    if(m_pos.z < bounds.min.z && setCurrentChunk(m_currentChunk->getBackChunk())) {
-        // std::println("You moved to back chunk!");
-        // std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
-        --m_chunkCoord.chunkZ;
+    if(m_pos.z < bounds.min.z) {
+        std::println("You moved to back chunk!");
+        m_world->generateChunkBack();
+        m_world->sortChunks();
     }
 
-    if(m_pos.x > bounds.max.x && setCurrentChunk(m_currentChunk->getRightChunk())) {
-        // std::println("You moved to right chunk!");
-        // std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
-        ++m_chunkCoord.chunkX;
+    if(m_pos.x > bounds.max.x) {
+        std::println("You moved to right chunk!");
+        m_world->generateChunkRight();
+        m_world->sortChunks();
     }
 
-    if(m_pos.x < bounds.min.x && setCurrentChunk(m_currentChunk->getLeftChunk())) {
-        // std::println("You moved to left chunk!");
-        // std::println("chunkX: {}, chunkZ: {}", m_chunkCoord.chunkX, m_chunkCoord.chunkZ);
-        --m_chunkCoord.chunkX;
+    if(m_pos.x < bounds.min.x) {
+        std::println("You moved to left chunk!");
+        m_world->generateChunkLeft();
+        m_world->sortChunks();
     }
 
     static glm::vec3 playerPos = m_pos;
@@ -108,8 +106,8 @@ void Player::updateCurrentChunk() {
         float x = std::copysign(std::round(std::fabs(m_frontXZ.x)), m_frontXZ.x) * 2;
         float z = std::copysign(std::round(std::fabs(m_frontXZ.z)), m_frontXZ.z) * 2;
 
-        m_world->sortChunkFaces(m_chunkCoord.chunkX + x, m_chunkCoord.chunkZ + z, 1);
-        m_world->sortChunkFaces(m_chunkCoord.chunkX, m_chunkCoord.chunkZ, 0);
+        m_world->sortChunkFaces(m_chunkCoord.x + x, m_chunkCoord.y + z, 1);
+        m_world->sortChunkFaces(m_chunkCoord.x, m_chunkCoord.y, 0);
         playerPos = m_pos;
     }
 }
@@ -189,15 +187,6 @@ void Player::destroyBlock() {
     ChunkManager::updateBlock(*chunk, x, y, z, BlockType::AIR);
 }
 
-Chunk* Player::getCurrentChunk() const {
-    return m_currentChunk;
-}
-
-const ChunkCoord& Player::getChunkCoord() const {
-    return m_chunkCoord;
-}
-
-
 void Player::movementInput(Window* window, float deltaTime) {
     onCursorMove(InputHandler::getMousePosition().x, InputHandler::getMousePosition().y, window->getWidth(), window->getHeight());
     onScroll(InputHandler::getMouseScroll().x, InputHandler::getMouseScroll().y);
@@ -220,7 +209,6 @@ void Player::movementInput(Window* window, float deltaTime) {
         updateCurrentChunk();
         prevPos = m_pos;
     }
-
 
     if(InputHandler::isKeyHeld(GLFW_KEY_SPACE))
         moveUp(deltaTime);

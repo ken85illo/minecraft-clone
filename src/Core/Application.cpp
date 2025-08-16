@@ -13,8 +13,11 @@ Application::Application() {
     // Load texture atlas
     Block::loadTextures();
 
-    m_player = std::make_unique<Player>();
-    m_world = std::make_unique<World>(m_player.get());
+    m_player = Player::get();
+    m_world = World::get();
+
+    m_player->init();
+    m_world->sortChunks();
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
@@ -23,7 +26,6 @@ Application::Application() {
     m_worldShader->use();
     m_worldShader->setInt("texture0", 0);
 }
-
 
 void Application::mainLoop() {
     float lastFrame = 0.0f;

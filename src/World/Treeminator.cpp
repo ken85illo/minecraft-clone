@@ -1,17 +1,10 @@
 #include "Treeminator.hpp"
 #include "Chunk/Chunk.hpp"
 
-void Treeminator::spawnTrees(Chunk& chunk) {
-    for(int32_t x = 2; x < CHUNK_SIZE - 2; x++)
-        for(int32_t y = 0; y < chunk.m_highestBlock; y++)
-            for(int32_t z = 2; z < CHUNK_SIZE - 2; z++)
-                createTree(chunk, x, y, z);
-}
-
 void Treeminator::createTree(Chunk& chunk, int32_t x, int32_t y, int32_t z) {
     uint8_t chance = rand() % 100;
 
-    if(*chunk.getBlockType(x, y, z) != BlockType::GRASS || chance > 1)
+    if(chance > 1)
         return;
 
     std::stack<std::pair<BlockType*, BlockType>> treeStack;
