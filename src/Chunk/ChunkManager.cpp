@@ -7,8 +7,11 @@ void ChunkManager::updateMesh(Chunk& chunk, const MeshData& data, MeshType meshT
 }
 
 void ChunkManager::uploadMesh(Chunk& chunk, MeshType meshType) {
+    if(!chunk.m_renderer)
+        chunk.m_renderer = std::make_unique<ChunkRenderer>();
+
     size_t index = static_cast<size_t>(meshType);
-    chunk.m_renderer.uploadMesh(chunk.m_meshData[index], meshType);
+    chunk.m_renderer->uploadMesh(chunk.m_meshData[index], meshType);
 }
 
 void ChunkManager::buildMesh(Chunk& chunk) {
@@ -42,5 +45,5 @@ void ChunkManager::updateNeighbour(Chunk* neighbourChunk, bool condition, int32_
 
 
 void ChunkManager::render(Chunk& chunk, MeshType type) {
-    chunk.m_renderer.render(type);
+    chunk.m_renderer->render(type);
 }

@@ -1,5 +1,6 @@
 #include "ChunkRenderer.hpp"
 #include "ChunkMesh.hpp"
+#include <algorithm>
 
 ChunkRenderer::ChunkRenderer() {
     glGenVertexArrays(2, m_VAO);
@@ -8,14 +9,12 @@ ChunkRenderer::ChunkRenderer() {
     glGenBuffers(2, m_EBO);
 }
 
-
 ChunkRenderer::~ChunkRenderer() {
-    glDeleteVertexArrays(2, m_VAO);
     glDeleteBuffers(2, m_VBO);
     glDeleteBuffers(2, m_TBO);
     glDeleteBuffers(2, m_EBO);
+    glDeleteVertexArrays(2, m_VAO);
 }
-
 
 void ChunkRenderer::uploadMesh(const MeshData& mesh, MeshType type) {
     size_t index = static_cast<size_t>(type);

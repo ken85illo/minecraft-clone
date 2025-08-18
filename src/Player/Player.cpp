@@ -77,25 +77,21 @@ void Player::updateCurrentChunk() {
     if(m_pos.z > bounds.max.z) {
         std::println("You moved to front chunk!");
         m_world->generateChunkFront();
-        m_world->sortChunks();
     }
 
     if(m_pos.z < bounds.min.z) {
         std::println("You moved to back chunk!");
         m_world->generateChunkBack();
-        m_world->sortChunks();
     }
 
     if(m_pos.x > bounds.max.x) {
         std::println("You moved to right chunk!");
         m_world->generateChunkRight();
-        m_world->sortChunks();
     }
 
     if(m_pos.x < bounds.min.x) {
         std::println("You moved to left chunk!");
         m_world->generateChunkLeft();
-        m_world->sortChunks();
     }
 
     static glm::vec3 playerPos = m_pos;

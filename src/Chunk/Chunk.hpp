@@ -7,6 +7,7 @@
 #include "ChunkMesh.hpp"
 #include <array>
 #include <glm/glm.hpp>
+#include <memory>
 
 class Player;
 class Treeminator;
@@ -46,7 +47,7 @@ private:
     Chunk* m_leftChunk = nullptr;
 
     MeshData m_meshData[2];
-    ChunkRenderer m_renderer;
+    std::unique_ptr<ChunkRenderer> m_renderer;
 
     friend class ChunkMesh;
     friend class ChunkManager;
