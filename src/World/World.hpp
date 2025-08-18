@@ -10,7 +10,7 @@
 #define WORLD_RADIUS 12
 
 class World {
-  public:
+public:
     World();
 
     static World *get();
@@ -27,11 +27,11 @@ class World {
     const int32_t getDiameter() const;
     Chunk *getChunk(int32_t x, int32_t z);
 
-  private:
+private:
     static std::unique_ptr<World> s_instance;
     static constexpr int32_t m_diameter = WORLD_RADIUS * 2 + 1;
     std::unique_ptr<Texture> m_texture;
-    glm::ivec3 m_offset = {0, 0, 0};
+    glm::ivec3 m_offset = { 0, 0, 0 };
 
     std::array<std::array<std::unique_ptr<Chunk>, m_diameter>, m_diameter> m_chunks;
     std::multimap<float, Chunk *> m_sortedChunks;

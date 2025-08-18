@@ -8,7 +8,7 @@ class Chunk;
 enum BlockTexture : uint16_t;
 
 class Block {
-  public:
+public:
     static void loadTextures();
 
     static const bool isTransparent(BlockType &type);
@@ -18,7 +18,7 @@ class Block {
     static const std::array<float, 12> getFace(BlockType &type, uint8_t face, int32_t x, int32_t y, int32_t z);
     static const std::pair<float *, float *> getTexCoord(BlockType &type, uint8_t face);
 
-  private:
+private:
     static float s_vertices[6][12];
     static Atlas s_atlas;
     static uint16_t s_textures[][6];

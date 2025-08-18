@@ -10,7 +10,7 @@
 #include <print>
 
 class Window {
-  public:
+public:
     Window(uint16_t windowWidth, uint16_t windowHeight, const char *title, bool fullscreen);
     ~Window();
 
@@ -26,7 +26,7 @@ class Window {
     uint16_t getWidth() const;
     uint16_t getHeight() const;
 
-  private:
+private:
     static std::unique_ptr<Window> s_instance;
     const char *m_title;
     uint16_t m_windowWidth, m_windowHeight;

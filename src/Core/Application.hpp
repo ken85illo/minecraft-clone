@@ -7,11 +7,11 @@
 #include <GLFW/glfw3.h>
 
 class Application {
-  public:
+public:
     Application();
     void mainLoop();
 
-  private:
+private:
     bool m_wireFrameMode = false;
 
     std::unique_ptr<Shader> m_worldShader;

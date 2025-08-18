@@ -18,11 +18,11 @@ enum class MeshType : uint8_t {
 };
 
 class ChunkMesh {
-  public:
+public:
     static MeshData buildOpaque(Chunk &chunk);
     static MeshData buildTransparent(Chunk &chunk);
 
-  private:
+private:
     static void fillFaces(Chunk &chunk, int32_t x, int32_t y, int32_t z, MeshData &mesh);
     static bool hasFace(Chunk &chunk, int32_t x, int32_t y, int32_t z);
 };

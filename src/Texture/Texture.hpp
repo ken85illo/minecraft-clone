@@ -6,7 +6,7 @@
 #include <stb_image.h>
 
 class Texture {
-  public:
+public:
     Texture(int target, int size);
     ~Texture();
 
@@ -15,7 +15,7 @@ class Texture {
     void unbind(int index);
     void setParameter(int name, int value);
 
-  private:
+private:
     std::unique_ptr<uint32_t[]> m_ID;
     const int m_target;
     const int m_size;

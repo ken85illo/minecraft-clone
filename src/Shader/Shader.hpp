@@ -7,7 +7,7 @@
 #include <string>
 
 class Shader {
-  public:
+public:
     Shader(const char *vertexPath, const char *fragmentPath);
     ~Shader();
     void use();
@@ -19,6 +19,6 @@ class Shader {
     void setMat4(const std::string &name, glm::mat4 &matrix) const;
     void setVec3(const std::string &name, glm::vec3 vec) const;
 
-  private:
+private:
     uint32_t m_ID;
 };

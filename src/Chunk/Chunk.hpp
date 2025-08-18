@@ -13,7 +13,7 @@ class Player;
 class Treeminator;
 
 class Chunk {
-  public:
+public:
     Chunk(const std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> &heightMap, glm::vec3 position);
 
     void setNeighbours(Chunk *front, Chunk *back, Chunk *right, Chunk *left);
@@ -33,7 +33,7 @@ class Chunk {
     Chunk *getRightChunk() const;
     Chunk *getLeftChunk() const;
 
-  private:
+private:
     glm::vec3 m_position;
     ChunkBounds m_chunkBounds;
 

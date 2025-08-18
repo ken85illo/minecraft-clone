@@ -15,7 +15,7 @@ struct RayCoords {
 };
 
 class RayCast {
-  public:
+public:
     RayCast(float rangeRadius);
 
     RayCoords sendRay();
@@ -24,6 +24,6 @@ class RayCast {
     const glm::vec3 getRayOrigin() const;
     const glm::vec3 getRayDirection() const;
 
-  private:
+private:
     float m_rangeRadius;
 };

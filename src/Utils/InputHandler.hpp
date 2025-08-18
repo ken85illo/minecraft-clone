@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 class InputHandler {
-  public:
+public:
     static bool isKeyPressed(uint16_t key);
     static bool isMousePressed(uint8_t key);
     static bool isMouseHeld(uint16_t key);
@@ -19,7 +19,7 @@ class InputHandler {
     static void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos);
     static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 
-  private:
+private:
     static bool s_keyButton[GLFW_KEY_LAST + 1];
     static bool s_mouseButton[GLFW_MOUSE_BUTTON_LAST + 1];
     static glm::dvec2 s_mousePosition;

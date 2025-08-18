@@ -14,7 +14,7 @@
 #define RANGE_RADIUS 8
 
 class Player : public Camera {
-  public:
+public:
     Player();
 
     void init();
@@ -29,7 +29,7 @@ class Player : public Camera {
 
     const glm::ivec2 &getChunkCoords() const;
 
-  private:
+private:
     static std::unique_ptr<Player> s_instance;
     RayCast m_rayCast;
     World *m_world;
