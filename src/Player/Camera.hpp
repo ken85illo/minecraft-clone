@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 
 class Camera {
-public:
+  public:
     Camera(float near, float far, glm::vec3 pos, float cameraSpeed, float sensitivity, float fov);
 
     void onCursorMove(double xpos, double ypos, uint16_t windowWidth, uint16_t windowHeight);
@@ -32,13 +32,13 @@ public:
     glm::mat4 getViewMat4() const;
     glm::mat4 getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight) const;
 
-protected:
+  protected:
     glm::vec3 m_pos, m_front, m_up;
     glm::vec3 m_frontXZ;
     float m_pitch, m_yaw;
     float m_currentSpeed;
 
-private:
+  private:
     float m_sensitivity, m_fov, m_currentFov, m_near, m_far;
     float m_lastX, m_lastY;
 

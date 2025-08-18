@@ -7,20 +7,20 @@
 #include <GLFW/glfw3.h>
 
 class Application {
-public:
+  public:
     Application();
     void mainLoop();
 
-private:
+  private:
     bool m_wireFrameMode = false;
 
     std::unique_ptr<Shader> m_worldShader;
     std::unique_ptr<Shader> m_lineShader;
     std::unique_ptr<Shader> m_interfaceShader;
 
-    Window* m_window;
-    World* m_world;
-    Player* m_player;
+    Window *m_window;
+    World *m_world;
+    Player *m_player;
 
     void render();
     void update(float deltaTime);

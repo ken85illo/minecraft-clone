@@ -2,7 +2,6 @@
 
 #include <glm/glm.hpp>
 
-
 struct ChunkBounds {
     glm::vec3 min;
     glm::vec3 max;

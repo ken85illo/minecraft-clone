@@ -13,8 +13,7 @@ Camera::Camera(float near, float far, glm::vec3 pos, float cameraSpeed, float se
   m_up(glm::vec3(0.0f, 1.0f, 0.0f)),
   m_frontXZ(glm::vec3(0.0f, 0.0f, -1.0f)),
   m_pitch(0.0f),
-  m_yaw(-90.0f) {
-}
+  m_yaw(-90.0f) {}
 
 void Camera::moveFront(float deltaTime) {
     float speed = deltaTime * m_currentSpeed;
@@ -84,13 +83,12 @@ glm::mat4 Camera::getProjectionMat4(uint16_t windowWidth, uint16_t windowHeight)
     return glm::perspective(glm::radians(m_currentFov), windowWidth / (float)windowHeight, m_near, m_far);
 }
 
-
 void Camera::onCursorMove(double xpos, double ypos, uint16_t windowWidth, uint16_t windowHeight) {
     static bool firstMouse = true;
     static double lastX = windowWidth / 2.0;
     static double lastY = windowHeight / 2.0;
 
-    if(firstMouse) {
+    if (firstMouse) {
         m_lastX = xpos;
         m_lastY = ypos;
         firstMouse = false;
@@ -108,10 +106,12 @@ void Camera::onCursorMove(double xpos, double ypos, uint16_t windowWidth, uint16
     m_pitch += yoffset;
     m_yaw += xoffset;
 
-    if(m_pitch > 89.0f)
+    if (m_pitch > 89.0f) {
         m_pitch = 89.0f;
-    if(m_pitch < -89.0f)
+    }
+    if (m_pitch < -89.0f) {
         m_pitch = -89.0f;
+    }
 
     glm::vec3 directionXZ;
     directionXZ.x = cos(glm::radians(m_yaw));
@@ -125,12 +125,13 @@ void Camera::onCursorMove(double xpos, double ypos, uint16_t windowWidth, uint16
     m_front = glm::normalize(directionXYZ);
 }
 
-
 void Camera::onScroll(double xoffset, double yoffset) {
     m_currentFov -= yoffset;
 
-    if(m_currentFov < 20.0f)
+    if (m_currentFov < 20.0f) {
         m_currentFov = 20.0f;
-    if(m_currentFov > m_fov)
+    }
+    if (m_currentFov > m_fov) {
         m_currentFov = m_fov;
+    }
 }

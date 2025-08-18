@@ -3,11 +3,11 @@
 #include <chrono>
 
 class Timer {
-public:
+  public:
     static void startTimer();
     [[nodiscard]] static float stopTimer();
 
-private:
+  private:
     static std::chrono::time_point<std::chrono::system_clock> s_start, s_end;
     static std::chrono::duration<float> s_duration;
 };

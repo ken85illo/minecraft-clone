@@ -5,9 +5,9 @@
 
 ThreadPool::ThreadPool(size_t numOfThreads) {
     // Creating worker threads
-    for(size_t i = 0; i < numOfThreads; ++i) {
+    for (size_t i = 0; i < numOfThreads; ++i) {
         m_threads.emplace_back([this] {
-            while(true) {
+            while (true) {
                 std::function<void()> task;
                 {
                     // Locking the queue so that data
@@ -16,12 +16,15 @@ ThreadPool::ThreadPool(size_t numOfThreads) {
 
                     // Waiting until there is a task to
                     // execute or the pool is stopped
-                    m_cv.wait(lock, [this] { return !m_tasks.empty() || m_stop; });
+                    m_cv.wait(lock, [this] {
+                        return !m_tasks.empty() || m_stop;
+                    });
 
                     // exit the thread in case the pool
                     // is stopped and there are no tasks
-                    if(m_stop && m_tasks.empty())
+                    if (m_stop && m_tasks.empty()) {
                         return;
+                    }
 
                     // Get the next task from the queue
                     task = std::move(m_tasks.front());
@@ -53,8 +56,9 @@ ThreadPool::~ThreadPool() {
 
     // Joining all worker threads to ensure they have
     // completed their tasks
-    for(auto& thread : m_threads)
+    for (auto &thread: m_threads) {
         thread.join();
+    }
 }
 
 void ThreadPool::enqueue(std::function<void()> task) {
@@ -67,5 +71,7 @@ void ThreadPool::enqueue(std::function<void()> task) {
 
 void ThreadPool::wait() {
     std::unique_lock<std::mutex> lock(m_queueMutex);
-    m_cv.wait(lock, [this] { return m_tasks.empty() && m_activeTasks == 0; });
+    m_cv.wait(lock, [this] {
+        return m_tasks.empty() && m_activeTasks == 0;
+    });
 }

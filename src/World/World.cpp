@@ -10,35 +10,40 @@ World::World() {
     Timer::startTimer();
     initTexture();
 
-    for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++)
-        for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++)
+    for (int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++) {
+        for (int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++) {
             initChunk(chunkX + WORLD_RADIUS, chunkZ + WORLD_RADIUS, chunkX, chunkZ);
+        }
+    }
 
     m_chunkThreads.wait();
 
-    for(int32_t chunkX = 0; chunkX < m_diameter; chunkX++)
-        for(int32_t chunkZ = 0; chunkZ < m_diameter; chunkZ++)
+    for (int32_t chunkX = 0; chunkX < m_diameter; chunkX++) {
+        for (int32_t chunkZ = 0; chunkZ < m_diameter; chunkZ++) {
             generateChunkMeshAsync(chunkX, chunkZ);
+        }
+    }
 }
 
-World* World::get() {
-    if(!s_instance)
+World *World::get() {
+    if (!s_instance) {
         s_instance = std::make_unique<World>();
+    }
 
     return s_instance.get();
 }
 
 void World::initChunk(int32_t ix, int32_t iz, int32_t chunkX, int32_t chunkZ) {
-
     m_chunkThreads.enqueue([ix, iz, chunkX, chunkZ, this] {
         std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
         Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
-        m_chunks[ix][iz] = std::make_unique<Chunk>(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
+        m_chunks[ix][iz] =
+            std::make_unique<Chunk>(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
     });
 }
 
-Chunk* World::generateChunkMeshAsync(int32_t chunkX, int32_t chunkZ) {
-    Chunk* currentChunk = m_chunks[chunkX][chunkZ].get();
+Chunk *World::generateChunkMeshAsync(int32_t chunkX, int32_t chunkZ) {
+    Chunk *currentChunk = m_chunks[chunkX][chunkZ].get();
     m_chunkThreads.enqueue([currentChunk, chunkX, chunkZ, this]() {
         auto north = getChunk(chunkX, chunkZ + 1);
         auto south = getChunk(chunkX, chunkZ - 1);
@@ -57,25 +62,27 @@ Chunk* World::generateChunkMeshAsync(int32_t chunkX, int32_t chunkZ) {
 }
 
 void World::generateChunkRight() {
-    for(int32_t x = 0; x < m_diameter - 1; ++x)
-        for(int32_t z = 0; z < m_diameter; ++z)
+    for (int32_t x = 0; x < m_diameter - 1; ++x) {
+        for (int32_t z = 0; z < m_diameter; ++z) {
             m_chunks[x][z] = std::move(m_chunks[x + 1][z]);
-
+        }
+    }
 
     int32_t inputX = WORLD_RADIUS + ++m_offset.x;
-    for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; ++chunkZ)
+    for (int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; ++chunkZ) {
         initChunk(m_diameter - 1, chunkZ + WORLD_RADIUS, inputX, chunkZ + m_offset.z);
+    }
 
     m_chunkThreads.wait();
 
-    for(int32_t z = 0; z < m_diameter; ++z) {
+    for (int32_t z = 0; z < m_diameter; ++z) {
         generateChunkMeshAsync(m_diameter - 1, z);
         generateChunkMeshAsync(m_diameter - 2, z);
     }
 
     m_chunkThreads.wait();
 
-    for(int32_t z = 0; z < m_diameter; ++z) {
+    for (int32_t z = 0; z < m_diameter; ++z) {
         ChunkManager::uploadMesh(*m_chunks[m_diameter - 1][z], MeshType::OPAQUE);
         ChunkManager::uploadMesh(*m_chunks[m_diameter - 1][z], MeshType::TRANSPARENT);
         ChunkManager::uploadMesh(*m_chunks[m_diameter - 2][z], MeshType::OPAQUE);
@@ -85,25 +92,27 @@ void World::generateChunkRight() {
 }
 
 void World::generateChunkLeft() {
-    for(int32_t x = m_diameter - 1; x > 0; --x)
-        for(int32_t z = 0; z < m_diameter; ++z)
+    for (int32_t x = m_diameter - 1; x > 0; --x) {
+        for (int32_t z = 0; z < m_diameter; ++z) {
             m_chunks[x][z] = std::move(m_chunks[x - 1][z]);
-
+        }
+    }
 
     int32_t inputX = -WORLD_RADIUS + --m_offset.x;
-    for(int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; ++chunkZ)
+    for (int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; ++chunkZ) {
         initChunk(0, chunkZ + WORLD_RADIUS, inputX, chunkZ + m_offset.z);
+    }
 
     m_chunkThreads.wait();
 
-    for(int32_t z = 0; z < m_diameter; ++z) {
+    for (int32_t z = 0; z < m_diameter; ++z) {
         generateChunkMeshAsync(0, z);
         generateChunkMeshAsync(1, z);
     }
 
     m_chunkThreads.wait();
 
-    for(int32_t z = 0; z < m_diameter; ++z) {
+    for (int32_t z = 0; z < m_diameter; ++z) {
         ChunkManager::uploadMesh(*m_chunks[0][z], MeshType::OPAQUE);
         ChunkManager::uploadMesh(*m_chunks[0][z], MeshType::TRANSPARENT);
         ChunkManager::uploadMesh(*m_chunks[1][z], MeshType::OPAQUE);
@@ -113,25 +122,27 @@ void World::generateChunkLeft() {
 }
 
 void World::generateChunkFront() {
-    for(int32_t z = 0; z < m_diameter - 1; ++z)
-        for(int32_t x = 0; x < m_diameter; ++x)
+    for (int32_t z = 0; z < m_diameter - 1; ++z) {
+        for (int32_t x = 0; x < m_diameter; ++x) {
             m_chunks[x][z] = std::move(m_chunks[x][z + 1]);
-
+        }
+    }
 
     int32_t inputZ = WORLD_RADIUS + ++m_offset.z;
-    for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; ++chunkX)
+    for (int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; ++chunkX) {
         initChunk(chunkX + WORLD_RADIUS, m_diameter - 1, chunkX + m_offset.x, inputZ);
+    }
 
     m_chunkThreads.wait();
 
-    for(int32_t x = 0; x < m_diameter; ++x) {
+    for (int32_t x = 0; x < m_diameter; ++x) {
         generateChunkMeshAsync(x, m_diameter - 1);
         generateChunkMeshAsync(x, m_diameter - 2);
     }
 
     m_chunkThreads.wait();
 
-    for(int32_t x = 0; x < m_diameter; ++x) {
+    for (int32_t x = 0; x < m_diameter; ++x) {
         ChunkManager::uploadMesh(*m_chunks[x][m_diameter - 1], MeshType::OPAQUE);
         ChunkManager::uploadMesh(*m_chunks[x][m_diameter - 1], MeshType::TRANSPARENT);
         ChunkManager::uploadMesh(*m_chunks[x][m_diameter - 2], MeshType::OPAQUE);
@@ -141,27 +152,28 @@ void World::generateChunkFront() {
     sortChunks();
 }
 
-
 void World::generateChunkBack() {
-    for(int32_t z = m_diameter - 1; z > 0; --z)
-        for(int32_t x = 0; x < m_diameter; ++x)
+    for (int32_t z = m_diameter - 1; z > 0; --z) {
+        for (int32_t x = 0; x < m_diameter; ++x) {
             m_chunks[x][z] = std::move(m_chunks[x][z - 1]);
-
+        }
+    }
 
     int32_t inputZ = -WORLD_RADIUS + --m_offset.z;
-    for(int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; ++chunkX)
+    for (int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; ++chunkX) {
         initChunk(chunkX + WORLD_RADIUS, 0, chunkX + m_offset.x, inputZ);
+    }
 
     m_chunkThreads.wait();
 
-    for(int32_t x = 0; x < m_diameter; ++x) {
+    for (int32_t x = 0; x < m_diameter; ++x) {
         generateChunkMeshAsync(x, 0);
         generateChunkMeshAsync(x, 1);
     }
 
     m_chunkThreads.wait();
 
-    for(int32_t x = 0; x < m_diameter; ++x) {
+    for (int32_t x = 0; x < m_diameter; ++x) {
         ChunkManager::uploadMesh(*m_chunks[x][0], MeshType::OPAQUE);
         ChunkManager::uploadMesh(*m_chunks[x][0], MeshType::TRANSPARENT);
         ChunkManager::uploadMesh(*m_chunks[x][1], MeshType::OPAQUE);
@@ -174,23 +186,24 @@ void World::generateChunkBack() {
 void World::sortChunks() {
     m_sortedChunks.clear();
 
-    for(int32_t x = 0; x < m_diameter; ++x) {
-        for(int32_t z = 0; z < m_diameter; ++z) {
-            float distance = glm::length(Player::get()->getPosition() - (m_chunks[x][z]->getPosition() + CHUNK_SIZE / 2.0f));
+    for (int32_t x = 0; x < m_diameter; ++x) {
+        for (int32_t z = 0; z < m_diameter; ++z) {
+            float distance =
+                glm::length(Player::get()->getPosition() - (m_chunks[x][z]->getPosition() + CHUNK_SIZE / 2.0f));
             m_sortedChunks.emplace(distance, m_chunks[x][z].get());
         }
     }
 }
 
 void World::sortChunkFaces(int32_t chunkX, int32_t chunkZ, uint8_t radius) {
-    std::queue<Chunk*> chunks;
-    for(int32_t x = chunkX - radius; x <= chunkX + radius; ++x)
-        for(int32_t z = chunkZ - radius; z <= chunkZ + radius; ++z) {
-
+    std::queue<Chunk *> chunks;
+    for (int32_t x = chunkX - radius; x <= chunkX + radius; ++x) {
+        for (int32_t z = chunkZ - radius; z <= chunkZ + radius; ++z) {
             auto chunk = getChunk(x, z);
 
-            if(!chunk)
+            if (!chunk) {
                 continue;
+            }
 
             chunks.push(chunk);
             m_chunkThreads.enqueue([chunk, &chunks, this] {
@@ -198,14 +211,14 @@ void World::sortChunkFaces(int32_t chunkX, int32_t chunkZ, uint8_t radius) {
                 ChunkManager::updateMesh(*chunk, transparentMesh, MeshType::TRANSPARENT);
             });
         }
+    }
 
     m_chunkThreads.wait();
-    while(!chunks.empty()) {
+    while (!chunks.empty()) {
         ChunkManager::uploadMesh(*chunks.front(), MeshType::TRANSPARENT);
         chunks.pop();
     }
 }
-
 
 void World::initTexture() {
     m_texture = std::make_unique<Texture>(GL_TEXTURE_2D, 1);
@@ -216,33 +229,32 @@ void World::initTexture() {
     m_texture->loadImage("res/atlas.png");
 }
 
-
 const int32_t World::getDiameter() const {
     return m_diameter;
 }
 
-Chunk* World::getChunk(int32_t x, int32_t z) {
-    if(x < 0 || x >= m_diameter || z < 0 || z >= m_diameter)
+Chunk *World::getChunk(int32_t x, int32_t z) {
+    if (x < 0 || x >= m_diameter || z < 0 || z >= m_diameter) {
         return nullptr;
+    }
 
     return m_chunks[x][z].get();
 }
 
-
-void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) {
+void World::render(bool wireFrameMode, Shader *worldShader, Shader *lineShader) {
     lineShader->use();
     lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
 
-    Shader* currentShader = (wireFrameMode) ? lineShader : worldShader;
+    Shader *currentShader = (wireFrameMode) ? lineShader : worldShader;
     currentShader->use();
     m_texture->bind(0);
 
     static bool isInitialized = false;
-    if(!isInitialized) {
+    if (!isInitialized) {
         m_chunkThreads.wait();
 
-        for(int32_t x = 0; x < m_diameter; ++x) {
-            for(int32_t z = 0; z < m_diameter; ++z) {
+        for (int32_t x = 0; x < m_diameter; ++x) {
+            for (int32_t z = 0; z < m_diameter; ++z) {
                 ChunkManager::uploadMesh(*m_chunks[x][z], MeshType::OPAQUE);
                 ChunkManager::uploadMesh(*m_chunks[x][z], MeshType::TRANSPARENT);
             }
@@ -253,9 +265,8 @@ void World::render(bool wireFrameMode, Shader* worldShader, Shader* lineShader) 
         isInitialized = true;
     }
 
-
-    for(uint8_t type = 0; type < static_cast<uint8_t>(MeshType::TOTAL_MESHES); ++type) {
-        for(auto i = m_sortedChunks.rbegin(); i != m_sortedChunks.rend(); ++i) {
+    for (uint8_t type = 0; type < static_cast<uint8_t>(MeshType::TOTAL_MESHES); ++type) {
+        for (auto i = m_sortedChunks.rbegin(); i != m_sortedChunks.rend(); ++i) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, i->second->getPosition());
             currentShader->setMat4("model", model);

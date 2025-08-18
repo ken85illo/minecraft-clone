@@ -14,30 +14,29 @@
 #define RANGE_RADIUS 8
 
 class Player : public Camera {
-public:
+  public:
     Player();
 
     void init();
-    static Player* get();
+    static Player *get();
 
-    bool setCurrentChunk(Chunk* chunk);
+    bool setCurrentChunk(Chunk *chunk);
 
-    void drawCursor(bool wireFrameMode, Shader* shader);
+    void drawCursor(bool wireFrameMode, Shader *shader);
     void placeBlock();
     void destroyBlock();
-    void movementInput(Window* window, float deltaTime);
+    void movementInput(Window *window, float deltaTime);
 
-    const glm::ivec2& getChunkCoords() const;
+    const glm::ivec2 &getChunkCoords() const;
 
-private:
+  private:
     static std::unique_ptr<Player> s_instance;
     RayCast m_rayCast;
-    World* m_world;
+    World *m_world;
 
     std::unique_ptr<Texture> m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;
     glm::ivec2 m_chunkCoord;
-
 
     void uploadCursor();
     void initTexture();

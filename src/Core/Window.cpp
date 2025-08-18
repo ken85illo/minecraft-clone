@@ -2,39 +2,40 @@
 
 std::unique_ptr<Window> Window::s_instance;
 
-Window::Window(uint16_t windowWidth, uint16_t windowHeight, const char* title, bool fullscreen)
+Window::Window(uint16_t windowWidth, uint16_t windowHeight, const char *title, bool fullscreen)
 : m_windowWidth(windowWidth), m_windowHeight(windowHeight), m_title(title) {
-
-    if(!glfwInit())
+    if (!glfwInit()) {
         std::println("Failed to initialize GLFW!");
+    }
 
-    GLFWmonitor* monitor = initWindowHints();
+    GLFWmonitor *monitor = initWindowHints();
 
     m_window = glfwCreateWindow(windowWidth, windowHeight, m_title, fullscreen ? monitor : nullptr, nullptr);
 
-    if(!m_window)
+    if (!m_window) {
         std::println("Failed to initialize window!");
+    }
 
     initWindow();
     setupCallbacks();
 }
-
 
 Window::~Window() {
     glfwDestroyWindow(m_window);
     glfwTerminate();
 }
 
-Window* Window::get() {
-    if(!s_instance)
+Window *Window::get() {
+    if (!s_instance) {
         s_instance = std::make_unique<Window>(1664, 936, "Minecraft", false);
+    }
 
     return s_instance.get();
 }
 
-GLFWmonitor* Window::initWindowHints() {
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+GLFWmonitor *Window::initWindowHints() {
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -50,10 +51,10 @@ GLFWmonitor* Window::initWindowHints() {
 
 void Window::initWindow() {
     glfwMakeContextCurrent(m_window);
-    glfwSetWindowUserPointer(m_window, (void*)this);
+    glfwSetWindowUserPointer(m_window, (void *)this);
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::println("Failed to initialize GLAD!");
         return;
     }
@@ -72,12 +73,12 @@ void Window::setupCallbacks() {
     glfwSetKeyCallback(m_window, InputHandler::keyCallback);
 }
 
+void Window::frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
+    static Window *self = static_cast<Window *>(glfwGetWindowUserPointer(window));
 
-void Window::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
-    static Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-
-    if(self)
+    if (self) {
         self->setWindowSize(width, height);
+    }
 }
 
 void Window::setWindowSize(int windowWidth, int windowHeight) {
@@ -102,7 +103,7 @@ void Window::setShouldClose(bool value) {
     glfwSetWindowShouldClose(m_window, value);
 }
 
-GLFWwindow* Window::getWindow() const {
+GLFWwindow *Window::getWindow() const {
     return m_window;
 }
 

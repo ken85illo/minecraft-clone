@@ -5,13 +5,13 @@
 #include <vector>
 
 class PerlinNoise {
-public:
+  public:
     PerlinNoise(float frequency, float amplitude, uint16_t permutationSize, uint8_t numberOfOctaves);
 
     // Main function
     float fractalBrownianMotion(float x, float y);
 
-private:
+  private:
     const float m_frequency;
     const float m_amplitude;
     const uint16_t m_permutationSize;
@@ -23,5 +23,5 @@ private:
     float fade(float t);
     glm::vec2 getConstantVec(int32_t val);
     std::vector<int32_t> makePermutation();
-    void shufflePermutation(std::vector<int32_t>& permutation);
+    void shufflePermutation(std::vector<int32_t> &permutation);
 };

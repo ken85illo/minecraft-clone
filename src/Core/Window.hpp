@@ -10,8 +10,8 @@
 #include <print>
 
 class Window {
-public:
-    Window(uint16_t windowWidth, uint16_t windowHeight, const char* title, bool fullscreen);
+  public:
+    Window(uint16_t windowWidth, uint16_t windowHeight, const char *title, bool fullscreen);
     ~Window();
 
     // GLFW Functions
@@ -21,21 +21,21 @@ public:
     void setShouldClose(bool value);
 
     // Getter functions
-    static Window* get();
-    GLFWwindow* getWindow() const;
+    static Window *get();
+    GLFWwindow *getWindow() const;
     uint16_t getWidth() const;
     uint16_t getHeight() const;
 
-private:
+  private:
     static std::unique_ptr<Window> s_instance;
-    const char* m_title;
+    const char *m_title;
     uint16_t m_windowWidth, m_windowHeight;
-    GLFWwindow* m_window;
+    GLFWwindow *m_window;
 
-    GLFWmonitor* initWindowHints();
+    GLFWmonitor *initWindowHints();
     void initWindow();
     void setupCallbacks();
 
     void setWindowSize(int windowWidth, int windowHeight);
-    static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
+    static void frameBufferSizeCallback(GLFWwindow *window, int width, int height);
 };

@@ -7,14 +7,14 @@ struct MeshData;
 enum class MeshType : uint8_t;
 
 class ChunkRenderer {
-public:
+  public:
     ChunkRenderer();
     ~ChunkRenderer();
 
-    void uploadMesh(const MeshData& mesh, MeshType type);
+    void uploadMesh(const MeshData &mesh, MeshType type);
     void render(MeshType type);
 
-private:
+  private:
     uint32_t m_VAO[2];
     uint32_t m_VBO[2];
     uint32_t m_TBO[2];

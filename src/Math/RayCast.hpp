@@ -10,12 +10,12 @@ class Chunk;
 class Block;
 
 struct RayCoords {
-    Chunk* chunk;
+    Chunk *chunk;
     uint32_t x, y, z;
 };
 
 class RayCast {
-public:
+  public:
     RayCast(float rangeRadius);
 
     RayCoords sendRay();
@@ -24,6 +24,6 @@ public:
     const glm::vec3 getRayOrigin() const;
     const glm::vec3 getRayDirection() const;
 
-private:
+  private:
     float m_rangeRadius;
 };

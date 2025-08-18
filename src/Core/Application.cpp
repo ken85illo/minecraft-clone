@@ -30,7 +30,7 @@ Application::Application() {
 void Application::mainLoop() {
     float lastFrame = 0.0f;
     float deltaTime = 0.0f;
-    while(!m_window->shouldClose()) {
+    while (!m_window->shouldClose()) {
         update(deltaTime);
         render();
 
@@ -44,20 +44,23 @@ void Application::mainLoop() {
 }
 
 void Application::update(float deltaTime) {
-    if(InputHandler::isKeyPressed(GLFW_KEY_ESCAPE))
+    if (InputHandler::isKeyPressed(GLFW_KEY_ESCAPE)) {
         m_window->setShouldClose(true);
+    }
 
-    if(InputHandler::isKeyPressed(GLFW_KEY_F1))
+    if (InputHandler::isKeyPressed(GLFW_KEY_F1)) {
         m_wireFrameMode = !m_wireFrameMode;
+    }
 
     m_player->movementInput(m_window, deltaTime);
 }
 
 void Application::render() {
-    if(!m_wireFrameMode) {
+    if (!m_wireFrameMode) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glClearColor(135 / 255.f, 206 / 255.f, 235 / 255.f, 1.f);
-    } else {
+    }
+    else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     }
@@ -67,7 +70,6 @@ void Application::render() {
     glm::mat4 view = m_player->getViewMat4();
     glm::mat4 projection = m_player->getProjectionMat4(m_window->getWidth(), m_window->getHeight());
     static glm::mat4 interfaceProjection = projection;
-
 
     m_worldShader->use();
     m_worldShader->setMat4("view", view);

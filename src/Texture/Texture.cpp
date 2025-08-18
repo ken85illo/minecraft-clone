@@ -1,6 +1,7 @@
 #include "Texture.hpp"
 
-Texture::Texture(int target, int size) : m_target(target), m_size(size) {
+Texture::Texture(int target, int size)
+: m_target(target), m_size(size) {
     m_ID = std::make_unique<uint32_t[]>(5);
     glGenTextures(size, m_ID.get());
 
@@ -11,13 +12,14 @@ Texture::~Texture() {
     glDeleteTextures(m_size, m_ID.get());
 }
 
-void Texture::loadImage(const char* filepath) {
+void Texture::loadImage(const char *filepath) {
     int width, height, nrChannels;
-    uint8_t* data = stbi_load(filepath, &width, &height, &nrChannels, 0);
+    uint8_t *data = stbi_load(filepath, &width, &height, &nrChannels, 0);
 
-    if(!data) {
+    if (!data) {
         std::println("Failed to load image texture!");
-    } else {
+    }
+    else {
         glTexImage2D(m_target, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(m_target);
     }
