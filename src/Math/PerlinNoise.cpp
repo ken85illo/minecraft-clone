@@ -7,7 +7,8 @@ PerlinNoise::PerlinNoise(float frequency, float amplitude, uint16_t permutationS
 : m_frequency(frequency),
   m_amplitude(amplitude),
   m_permutationSize(permutationSize),
-  m_numberOfOctaves(numberOfOctaves) {}
+  m_numberOfOctaves(numberOfOctaves),
+  m_permutation(makePermutation()) {}
 
 float PerlinNoise::fractalBrownianMotion(float x, float y) {
     float result = 0.0f;
@@ -41,16 +42,10 @@ float PerlinNoise::perlin2D(float x, float y) {
     const glm::vec2 bottomRight = glm::vec2(xf - 1.0f, yf);
     const glm::vec2 bottomLeft = glm::vec2(xf, yf);
 
-    static std::vector<int32_t> permutation = {};
-
-    if (permutation.empty()) {
-        permutation = makePermutation();
-    }
-
-    const int32_t valueTopRight = permutation[permutation[X + 1] + Y + 1];
-    const int32_t valueTopLeft = permutation[permutation[X] + Y + 1];
-    const int32_t valueBottomRight = permutation[permutation[X + 1] + Y];
-    const int32_t valueBottomLeft = permutation[permutation[X] + Y];
+    const int32_t valueTopRight = m_permutation[m_permutation[X + 1] + Y + 1];
+    const int32_t valueTopLeft = m_permutation[m_permutation[X] + Y + 1];
+    const int32_t valueBottomRight = m_permutation[m_permutation[X + 1] + Y];
+    const int32_t valueBottomLeft = m_permutation[m_permutation[X] + Y];
 
     const float dotTopRight = glm::dot(topRight, getConstantVec(valueTopRight));
     const float dotTopLeft = glm::dot(topLeft, getConstantVec(valueTopLeft));
@@ -87,24 +82,24 @@ glm::vec2 PerlinNoise::getConstantVec(int32_t val) {
 }
 
 std::vector<int32_t> PerlinNoise::makePermutation() {
-    std::vector<int32_t> permutation;
+    std::vector<int32_t> m_permutation;
 
     for (int32_t i = 0; i < m_permutationSize; i++) {
-        permutation.emplace_back(i);
+        m_permutation.emplace_back(i);
     }
 
-    shufflePermutation(permutation);
+    shufflePermutation(m_permutation);
 
     for (int32_t i = 0; i < m_permutationSize; i++) {
-        permutation.emplace_back(permutation[i]);
+        m_permutation.emplace_back(m_permutation[i]);
     }
 
-    return permutation;
+    return m_permutation;
 }
 
-void PerlinNoise::shufflePermutation(std::vector<int32_t> &permutation) {
+void PerlinNoise::shufflePermutation(std::vector<int32_t> &m_permutation) {
     for (int32_t i = 0; i < m_permutationSize; i++) {
         int32_t index = std::rand() % m_permutationSize;
-        std::swap(permutation[i], permutation[index]);
+        std::swap(m_permutation[i], m_permutation[index]);
     }
 }

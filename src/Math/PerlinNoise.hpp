@@ -16,6 +16,7 @@ private:
     const float m_amplitude;
     const uint16_t m_permutationSize;
     const uint8_t m_numberOfOctaves;
+    std::vector<int32_t> m_permutation;
 
     // Helper functions
     float perlin2D(float x, float y);
