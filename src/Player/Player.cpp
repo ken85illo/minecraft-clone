@@ -16,7 +16,7 @@ void Player::init() {
     m_pos = glm::vec3(
         chunk->getPosition().x + CHUNK_SIZE / 2.0f, chunk->getHighestBlock(), chunk->getPosition().z + CHUNK_SIZE / 2.0f
     );
-    m_chunkCoord = glm::ivec2(diameter / 2, diameter / 2);
+    m_chunkCoord = ChunkCoords(diameter / 2, diameter / 2);
 }
 
 Player *Player::get() {
@@ -69,12 +69,12 @@ void Player::initTexture() {
     m_texture->loadImage("res/cursor.png");
 }
 
-const glm::ivec2 &Player::getChunkCoords() const {
+const ChunkCoords &Player::getChunkCoords() const {
     return m_chunkCoord;
 }
 
 void Player::updateCurrentChunk() {
-    const ChunkBounds &bounds = m_world->getChunk(m_chunkCoord.x, m_chunkCoord.y)->getBounds();
+    const ChunkBounds &bounds = m_world->getChunk(m_chunkCoord.x, m_chunkCoord.z)->getBounds();
 
     if (m_pos.z > bounds.max.z) {
         std::println("You moved to front chunk!");
@@ -104,8 +104,8 @@ void Player::updateCurrentChunk() {
         float x = std::copysign(std::round(std::fabs(m_frontXZ.x)), m_frontXZ.x) * 2;
         float z = std::copysign(std::round(std::fabs(m_frontXZ.z)), m_frontXZ.z) * 2;
 
-        m_world->sortChunkFaces(m_chunkCoord.x + x, m_chunkCoord.y + z, 1);
-        m_world->sortChunkFaces(m_chunkCoord.x, m_chunkCoord.y, 0);
+        m_world->sortChunkFaces(m_chunkCoord.x + x, m_chunkCoord.z + z, 1);
+        m_world->sortChunkFaces(m_chunkCoord.x, m_chunkCoord.z, 0);
         playerPos = m_pos;
     }
 }

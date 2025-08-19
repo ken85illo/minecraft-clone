@@ -2,6 +2,15 @@
 
 #include <glm/glm.hpp>
 
+struct ChunkCoords {
+    int32_t x;
+    int32_t z;
+
+    bool operator==(const ChunkCoords &other) const {
+        return x == other.x && z == other.z;
+    }
+};
+
 struct ChunkBounds {
     glm::vec3 min;
     glm::vec3 max;

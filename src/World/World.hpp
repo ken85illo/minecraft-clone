@@ -3,6 +3,7 @@
 #include "Chunk/Chunk.hpp"
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
+#include "Utils/HashFunctor.hpp"
 #include "Utils/ThreadPool.hpp"
 #include <cstdint>
 #include <map>
@@ -26,18 +27,22 @@ public:
 
     const int32_t getDiameter() const;
     Chunk *getChunk(int32_t x, int32_t z);
+    const int32_t getPositionIndex(int32_t index);
 
 private:
     static std::unique_ptr<World> s_instance;
     static constexpr int32_t m_diameter = WORLD_RADIUS * 2 + 1;
     std::unique_ptr<Texture> m_texture;
-    glm::ivec3 m_offset = { 0, 0, 0 };
+    ChunkCoords m_offset = { 0, 0 };
 
     std::array<std::array<std::unique_ptr<Chunk>, m_diameter>, m_diameter> m_chunks;
+    std::unordered_map<ChunkCoords, std::unique_ptr<Chunk>, HashFunctor> m_deletedChunks;
     std::multimap<float, Chunk *> m_sortedChunks;
-    ThreadPool m_chunkThreads;
 
-    void initChunk(int32_t ix, int32_t iz, int32_t chunkX, int32_t chunkZ);
-    Chunk *generateChunkMeshAsync(int32_t chunkX, int32_t chunkZ);
+    ThreadPool m_chunkThreads;
+    std::mutex m_chunkMutex;
+
+    void initChunk(int32_t indexX, int32_t indexZ);
+    Chunk *generateChunkMeshAsync(int32_t indexX, int32_t indexZ);
     void initTexture();
 };

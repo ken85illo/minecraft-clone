@@ -10,17 +10,17 @@ World::World() {
     Timer::startTimer();
     initTexture();
 
-    for (int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; chunkX++) {
-        for (int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; chunkZ++) {
-            initChunk(chunkX + WORLD_RADIUS, chunkZ + WORLD_RADIUS, chunkX, chunkZ);
+    for (int32_t x = 0; x <= m_diameter - 1; x++) {
+        for (int32_t z = 0; z <= m_diameter - 1; z++) {
+            initChunk(x, z);
         }
     }
 
     m_chunkThreads.wait();
 
-    for (int32_t chunkX = 0; chunkX < m_diameter; chunkX++) {
-        for (int32_t chunkZ = 0; chunkZ < m_diameter; chunkZ++) {
-            generateChunkMeshAsync(chunkX, chunkZ);
+    for (int32_t x = 0; x < m_diameter - 1; x++) {
+        for (int32_t z = 0; z < m_diameter - 1; z++) {
+            generateChunkMeshAsync(x, z);
         }
     }
 }
@@ -33,22 +33,36 @@ World *World::get() {
     return s_instance.get();
 }
 
-void World::initChunk(int32_t ix, int32_t iz, int32_t chunkX, int32_t chunkZ) {
-    m_chunkThreads.enqueue([ix, iz, chunkX, chunkZ, this] {
+void World::initChunk(int32_t indexX, int32_t indexZ) {
+    m_chunkThreads.enqueue([=, this] {
+        int32_t chunkX = indexX - WORLD_RADIUS + m_offset.x;
+        int32_t chunkZ = indexZ - WORLD_RADIUS + m_offset.z;
+
         std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
         Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
-        m_chunks[ix][iz] =
+
+        {
+            std::lock_guard<std::mutex> lock(m_chunkMutex);
+            auto it = m_deletedChunks.find(ChunkCoords(chunkX, chunkZ));
+            if (it != m_deletedChunks.end()) {
+                m_chunks[indexX][indexZ] = std::move(it->second);
+                m_deletedChunks.erase(it);
+                return;
+            }
+        }
+
+        m_chunks[indexX][indexZ] =
             std::make_unique<Chunk>(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
     });
 }
 
-Chunk *World::generateChunkMeshAsync(int32_t chunkX, int32_t chunkZ) {
-    Chunk *currentChunk = m_chunks[chunkX][chunkZ].get();
-    m_chunkThreads.enqueue([currentChunk, chunkX, chunkZ, this]() {
-        auto north = getChunk(chunkX, chunkZ + 1);
-        auto south = getChunk(chunkX, chunkZ - 1);
-        auto east = getChunk(chunkX + 1, chunkZ);
-        auto west = getChunk(chunkX - 1, chunkZ);
+Chunk *World::generateChunkMeshAsync(int32_t indexX, int32_t indexZ) {
+    Chunk *currentChunk = m_chunks[indexX][indexZ].get();
+    m_chunkThreads.enqueue([=, this]() {
+        auto north = getChunk(indexX, indexZ + 1);
+        auto south = getChunk(indexX, indexZ - 1);
+        auto east = getChunk(indexX + 1, indexZ);
+        auto west = getChunk(indexX - 1, indexZ);
 
         currentChunk->setNeighbours(north, south, east, west);
 
@@ -64,13 +78,19 @@ Chunk *World::generateChunkMeshAsync(int32_t chunkX, int32_t chunkZ) {
 void World::generateChunkRight() {
     for (int32_t x = 0; x < m_diameter - 1; ++x) {
         for (int32_t z = 0; z < m_diameter; ++z) {
+            if (x == 0) {
+                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+
+                m_deletedChunks.emplace(ChunkCoords(chunkX, chunkZ), std::move(m_chunks[x][z]));
+            }
             m_chunks[x][z] = std::move(m_chunks[x + 1][z]);
         }
     }
 
-    int32_t inputX = WORLD_RADIUS + ++m_offset.x;
-    for (int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; ++chunkZ) {
-        initChunk(m_diameter - 1, chunkZ + WORLD_RADIUS, inputX, chunkZ + m_offset.z);
+    ++m_offset.x;
+    for (int32_t z = 0; z <= m_diameter - 1; ++z) {
+        initChunk(m_diameter - 1, z);
     }
 
     m_chunkThreads.wait();
@@ -94,13 +114,19 @@ void World::generateChunkRight() {
 void World::generateChunkLeft() {
     for (int32_t x = m_diameter - 1; x > 0; --x) {
         for (int32_t z = 0; z < m_diameter; ++z) {
+            if (x == m_diameter - 1) {
+                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+
+                m_deletedChunks.emplace(ChunkCoords(chunkX, chunkZ), std::move(m_chunks[x][z]));
+            }
             m_chunks[x][z] = std::move(m_chunks[x - 1][z]);
         }
     }
 
-    int32_t inputX = -WORLD_RADIUS + --m_offset.x;
-    for (int32_t chunkZ = -WORLD_RADIUS; chunkZ <= WORLD_RADIUS; ++chunkZ) {
-        initChunk(0, chunkZ + WORLD_RADIUS, inputX, chunkZ + m_offset.z);
+    --m_offset.x;
+    for (int32_t z = 0; z <= m_diameter - 1; ++z) {
+        initChunk(0, z);
     }
 
     m_chunkThreads.wait();
@@ -124,13 +150,19 @@ void World::generateChunkLeft() {
 void World::generateChunkFront() {
     for (int32_t z = 0; z < m_diameter - 1; ++z) {
         for (int32_t x = 0; x < m_diameter; ++x) {
+            if (z == 0) {
+                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+
+                m_deletedChunks.emplace(ChunkCoords(chunkX, chunkZ), std::move(m_chunks[x][z]));
+            }
             m_chunks[x][z] = std::move(m_chunks[x][z + 1]);
         }
     }
 
-    int32_t inputZ = WORLD_RADIUS + ++m_offset.z;
-    for (int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; ++chunkX) {
-        initChunk(chunkX + WORLD_RADIUS, m_diameter - 1, chunkX + m_offset.x, inputZ);
+    ++m_offset.z;
+    for (int32_t x = 0; x <= m_diameter - 1; ++x) {
+        initChunk(x, m_diameter - 1);
     }
 
     m_chunkThreads.wait();
@@ -155,13 +187,19 @@ void World::generateChunkFront() {
 void World::generateChunkBack() {
     for (int32_t z = m_diameter - 1; z > 0; --z) {
         for (int32_t x = 0; x < m_diameter; ++x) {
+            if (z == m_diameter - 1) {
+                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+
+                m_deletedChunks.emplace(ChunkCoords(chunkX, chunkZ), std::move(m_chunks[x][z]));
+            }
             m_chunks[x][z] = std::move(m_chunks[x][z - 1]);
         }
     }
 
-    int32_t inputZ = -WORLD_RADIUS + --m_offset.z;
-    for (int32_t chunkX = -WORLD_RADIUS; chunkX <= WORLD_RADIUS; ++chunkX) {
-        initChunk(chunkX + WORLD_RADIUS, 0, chunkX + m_offset.x, inputZ);
+    --m_offset.z;
+    for (int32_t x = 0; x <= m_diameter - 1; ++x) {
+        initChunk(x, 0);
     }
 
     m_chunkThreads.wait();

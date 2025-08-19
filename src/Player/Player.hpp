@@ -27,7 +27,7 @@ public:
     void destroyBlock();
     void movementInput(Window *window, float deltaTime);
 
-    const glm::ivec2 &getChunkCoords() const;
+    const ChunkCoords &getChunkCoords() const;
 
 private:
     static std::unique_ptr<Player> s_instance;
@@ -36,7 +36,7 @@ private:
 
     std::unique_ptr<Texture> m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;
-    glm::ivec2 m_chunkCoord;
+    ChunkCoords m_chunkCoord;
 
     void uploadCursor();
     void initTexture();

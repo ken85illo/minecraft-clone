@@ -41,8 +41,8 @@ RayCoords RayCast::sendRay() {
 }
 
 RayCoords RayCast::getCoordsAtPoint(glm::vec3 point) {
-    glm::ivec2 chunkCoord = Player::get()->getChunkCoords();
-    Chunk *currentChunk = World::get()->getChunk(chunkCoord.x, chunkCoord.y);
+    ChunkCoords chunkCoord = Player::get()->getChunkCoords();
+    Chunk *currentChunk = World::get()->getChunk(chunkCoord.x, chunkCoord.z);
 
     if (!currentChunk || point.y < 0.0f || point.y >= MAX_HEIGHT) {
         return RayCoords(nullptr, 0, 0, 0);
