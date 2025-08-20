@@ -2,7 +2,6 @@
 
 #include "BlockData.hpp"
 #include "Texture/Atlas.hpp"
-#include <glm/glm.hpp>
 
 class Chunk;
 enum BlockTexture : uint16_t;

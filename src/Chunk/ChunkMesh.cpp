@@ -1,6 +1,5 @@
 #include "ChunkMesh.hpp"
 #include "Player/Player.hpp"
-#include <map>
 
 static const int8_t dx[6] = { 0, 0, 0, 0, 1, -1 };
 static const int8_t dy[6] = { 0, 0, 1, -1, 0, 0 };

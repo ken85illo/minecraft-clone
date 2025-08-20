@@ -1,9 +1,5 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <unordered_map>
-
 class InputHandler {
 public:
     static bool isKeyPressed(uint16_t key);

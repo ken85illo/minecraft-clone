@@ -1,11 +1,5 @@
 #pragma once
 
-#include <array>
-#include <cstdint>
-#include <glm/glm.hpp>
-#include <string>
-#include <unordered_map>
-
 #define BITS_PER_TEXTURE 16
 #define TOTAL_BITS 256
 

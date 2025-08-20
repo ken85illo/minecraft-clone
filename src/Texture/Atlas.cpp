@@ -1,5 +1,4 @@
 #include "Atlas.hpp"
-#include <cstring>
 
 Atlas::Atlas(uint16_t textures[][6])
 : m_textures(*textures) {}

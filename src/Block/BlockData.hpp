@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 struct BlockRect {
     glm::vec3 min;
     glm::vec3 max;

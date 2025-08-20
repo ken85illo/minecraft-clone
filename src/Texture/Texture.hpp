@@ -1,10 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <memory>
-#include <print>
-#include <stb_image.h>
-
 class Texture {
 public:
     Texture(int target, int size);

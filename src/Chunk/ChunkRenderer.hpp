@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstddef>
-#include <glad/glad.h>
-
 struct MeshData;
 enum class MeshType : uint8_t;
 

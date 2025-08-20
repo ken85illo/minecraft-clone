@@ -1,9 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <random>
-#include <vector>
-
 class PerlinNoise {
 public:
     PerlinNoise();

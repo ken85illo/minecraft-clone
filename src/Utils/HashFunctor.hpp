@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Chunk/ChunkContext.hpp>
-#include <cstddef>
-#include <functional>
 
 struct HashFunctor {
     const size_t operator()(const ChunkCoords &c) const {

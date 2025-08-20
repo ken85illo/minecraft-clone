@@ -2,7 +2,6 @@
 
 #include "Chunk/ChunkContext.hpp"
 #include "Math/PerlinNoise.hpp"
-#include <array>
 
 #define AMPLITUDE 0.5f
 #define FREQUENCY 0.005f

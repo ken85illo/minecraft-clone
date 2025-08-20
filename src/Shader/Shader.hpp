@@ -1,11 +1,5 @@
 #pragma once
 
-#include <fstream>
-#include <glad/glad.h>
-#include <glm/gtc/type_ptr.hpp>
-#include <print>
-#include <string>
-
 class Shader {
 public:
     Shader(const char *vertexPath, const char *fragmentPath);

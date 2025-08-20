@@ -2,7 +2,6 @@
 
 #include "Block/Block.hpp"
 #include "ChunkMesh.hpp"
-#include <cstdint>
 
 struct MeshData;
 class Chunk;

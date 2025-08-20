@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 struct ChunkCoords {
     int32_t x;
     int32_t z;

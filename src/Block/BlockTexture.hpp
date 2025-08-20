@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 enum BlockTexture : uint16_t {
     DIRT = 0,
     GRASS_SIDE,

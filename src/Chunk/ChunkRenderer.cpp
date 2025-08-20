@@ -1,6 +1,5 @@
 #include "ChunkRenderer.hpp"
 #include "ChunkMesh.hpp"
-#include <algorithm>
 
 ChunkRenderer::ChunkRenderer() {
     glGenVertexArrays(2, m_VAO);

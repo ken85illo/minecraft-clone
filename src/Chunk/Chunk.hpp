@@ -5,9 +5,6 @@
 #include "ChunkContext.hpp"
 #include "ChunkManager.hpp"
 #include "ChunkMesh.hpp"
-#include <array>
-#include <glm/glm.hpp>
-#include <memory>
 
 class Player;
 class Treeminator;

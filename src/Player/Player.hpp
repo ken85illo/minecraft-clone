@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
-
 #include "Camera.hpp"
 #include "Core/Window.hpp"
 #include "Math/RayCast.hpp"
@@ -9,7 +7,6 @@
 #include "Texture/Texture.hpp"
 #include "Utils/InputHandler.hpp"
 #include "World/World.hpp"
-#include <stack>
 
 #define RANGE_RADIUS 8
 

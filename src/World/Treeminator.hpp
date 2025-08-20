@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Block/Block.hpp"
-#include <cstdint>
-#include <stack>
 
 class Chunk;
 

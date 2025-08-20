@@ -5,8 +5,6 @@
 #include "Texture/Texture.hpp"
 #include "Utils/HashFunctor.hpp"
 #include "Utils/ThreadPool.hpp"
-#include <cstdint>
-#include <map>
 
 #define WORLD_RADIUS 12
 

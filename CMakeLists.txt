@@ -5,7 +5,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPERIMENTAL_CXX_MODULES OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(Minecraft)
+project(Minecraft LANGUAGES C CXX)
 set(INCLUDE_DIR "./include" "./src")
 set(LIBRARY_DIR "./lib")
 
@@ -19,6 +19,7 @@ file(
     "./src/*.cpp" "./src/*.c")
 
 add_executable(${PROJECT_NAME} ${SOURCE_LIST})
+target_precompile_headers(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:pch.hpp>")
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})
 target_link_directories(${PROJECT_NAME} PRIVATE ${LIBRARY_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE "glfw3")
