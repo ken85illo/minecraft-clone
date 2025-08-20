@@ -6,6 +6,9 @@
 std::unique_ptr<World> World::s_instance = nullptr;
 
 World::World() {
+    // Initialize terrain seed
+    Terrain::init();
+
     std::println("Generating {} x {} chunks...", m_diameter, m_diameter);
     Timer::startTimer();
     initTexture();

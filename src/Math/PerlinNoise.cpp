@@ -3,12 +3,11 @@
 // NOTE: This code is ported from a javascript source code I found on the internet
 // See: https://rtouti.github.io/graphics/perlin-noise-algorithm
 
-PerlinNoise::PerlinNoise(float frequency, float amplitude, uint16_t permutationSize, uint8_t numberOfOctaves)
-: m_frequency(frequency),
-  m_amplitude(amplitude),
-  m_permutationSize(permutationSize),
-  m_numberOfOctaves(numberOfOctaves),
-  m_permutation(makePermutation()) {}
+PerlinNoise::PerlinNoise()
+: m_frequency(0.0f), m_amplitude(0.0f), m_numberOfOctaves(0) {}
+
+PerlinNoise::PerlinNoise(float frequency, float amplitude, uint8_t numberOfOctaves)
+: m_frequency(frequency), m_amplitude(amplitude), m_numberOfOctaves(numberOfOctaves) {}
 
 float PerlinNoise::fractalBrownianMotion(float x, float y) {
     float result = 0.0f;
@@ -81,23 +80,19 @@ glm::vec2 PerlinNoise::getConstantVec(int32_t val) {
     return glm::vec3(0.0f);
 }
 
-std::vector<int32_t> PerlinNoise::makePermutation() {
-    std::vector<int32_t> m_permutation;
-
+void PerlinNoise::makePermutation() {
     for (int32_t i = 0; i < m_permutationSize; i++) {
-        m_permutation.emplace_back(i);
+        m_permutation[i] = i;
     }
 
-    shufflePermutation(m_permutation);
+    shufflePermutation();
 
     for (int32_t i = 0; i < m_permutationSize; i++) {
-        m_permutation.emplace_back(m_permutation[i]);
+        m_permutation[m_permutationSize + i] = m_permutation[i];
     }
-
-    return m_permutation;
 }
 
-void PerlinNoise::shufflePermutation(std::vector<int32_t> &m_permutation) {
+void PerlinNoise::shufflePermutation() {
     for (int32_t i = 0; i < m_permutationSize; i++) {
         int32_t index = std::rand() % m_permutationSize;
         std::swap(m_permutation[i], m_permutation[index]);
