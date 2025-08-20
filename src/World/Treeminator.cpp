@@ -13,9 +13,9 @@ void Treeminator::createTree(Chunk &chunk, int32_t x, int32_t y, int32_t z) {
         return;
     }
 
-    uint8_t radius[4] = {2, 2, 1, 1};
-    uint8_t removeEdge[4] = {true, true, false, true};
-    uint8_t removeCenter[4] = {true, true, true, false};
+    uint8_t radius[4] = { 2, 2, 1, 1 };
+    uint8_t removeEdge[4] = { true, true, false, true };
+    uint8_t removeCenter[4] = { true, true, true, false };
 
     for (uint8_t i = 0; i < 4; i++) {
         uint8_t height = i + 3;

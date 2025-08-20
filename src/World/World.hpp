@@ -6,7 +6,7 @@
 #include "Utils/HashFunctor.hpp"
 #include "Utils/ThreadPool.hpp"
 
-#define WORLD_RADIUS 12
+#define WORLD_RADIUS 20
 
 class World {
 public:

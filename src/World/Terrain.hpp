@@ -3,9 +3,9 @@
 #include "Chunk/ChunkContext.hpp"
 #include "Math/PerlinNoise.hpp"
 
-#define AMPLITUDE 0.5f
-#define FREQUENCY 0.005f
-#define NUMBER_OF_OCTAVES 5
+#define AMPLITUDE 1.0f
+#define FREQUENCY 0.0025f
+#define NUMBER_OF_OCTAVES 6
 
 class Terrain {
 public:
