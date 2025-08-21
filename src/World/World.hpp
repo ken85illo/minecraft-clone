@@ -3,7 +3,6 @@
 #include "Chunk/Chunk.hpp"
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
-#include "Utils/HashFunctor.hpp"
 #include "Utils/ThreadPool.hpp"
 
 #define WORLD_RADIUS 20

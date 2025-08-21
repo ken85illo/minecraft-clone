@@ -1,7 +1,6 @@
 #include "World.hpp"
 #include "Player/Player.hpp"
 #include "Terrain.hpp"
-#include "Utils/Serializer.hpp"
 #include "Utils/Timer.hpp"
 
 std::unique_ptr<World> World::s_instance = nullptr;
@@ -99,7 +98,7 @@ void World::generateChunkRight() {
     }
 
     ++m_offset.x;
-    for (int32_t z = 0; z <= m_diameter - 1; ++z) {
+    for (int32_t z = 0; z < m_diameter; ++z) {
         initChunk(m_diameter - 1, z);
     }
 
@@ -135,7 +134,7 @@ void World::generateChunkLeft() {
     }
 
     --m_offset.x;
-    for (int32_t z = 0; z <= m_diameter - 1; ++z) {
+    for (int32_t z = 0; z < m_diameter; ++z) {
         initChunk(0, z);
     }
 
@@ -171,7 +170,7 @@ void World::generateChunkFront() {
     }
 
     ++m_offset.z;
-    for (int32_t x = 0; x <= m_diameter - 1; ++x) {
+    for (int32_t x = 0; x < m_diameter; ++x) {
         initChunk(x, m_diameter - 1);
     }
 
@@ -208,7 +207,7 @@ void World::generateChunkBack() {
     }
 
     --m_offset.z;
-    for (int32_t x = 0; x <= m_diameter - 1; ++x) {
+    for (int32_t x = 0; x < m_diameter; ++x) {
         initChunk(x, 0);
     }
 
