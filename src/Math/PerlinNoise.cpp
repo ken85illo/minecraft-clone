@@ -7,7 +7,9 @@ PerlinNoise::PerlinNoise()
 : m_frequency(0.0f), m_amplitude(0.0f), m_numberOfOctaves(0) {}
 
 PerlinNoise::PerlinNoise(float frequency, float amplitude, uint8_t numberOfOctaves)
-: m_frequency(frequency), m_amplitude(amplitude), m_numberOfOctaves(numberOfOctaves) {}
+: m_frequency(frequency), m_amplitude(amplitude), m_numberOfOctaves(numberOfOctaves) {
+    makePermutation();
+}
 
 float PerlinNoise::fractalBrownianMotion(float x, float y) {
     float result = 0.0f;
