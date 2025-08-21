@@ -1,8 +1,6 @@
 #include "Application.hpp"
 
 Application::Application() {
-    srand(static_cast<unsigned>(time(0)));
-
     m_window = Window::get();
 
     // Shaders
