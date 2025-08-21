@@ -31,12 +31,16 @@ World::World() {
 World::~World() {
     for (int32_t x = 0; x <= m_diameter - 1; x++) {
         for (int32_t z = 0; z <= m_diameter - 1; z++) {
-            int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-            int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+            m_chunkThreads.enqueue([=, this] {
+                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-            ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
+                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
+            });
         }
     }
+
+    m_chunkThreads.wait();
 }
 
 World *World::get() {
