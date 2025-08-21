@@ -25,9 +25,12 @@ float PerlinNoise::fractalBrownianMotion(float x, float y) {
 }
 
 float PerlinNoise::perlin2D(float x, float y) {
+    x = (x < 0) ? (x + m_permutationSize * std::ceil(std::abs(x) / m_permutationSize)) : x;
+    y = (y < 0) ? (y + m_permutationSize * std::ceil(std::abs(y) / m_permutationSize)) : y;
+
     // same as modulo but much faster cause of bitwise
-    const int32_t X = static_cast<int32_t>(floor(x)) & (m_permutationSize - 1);
-    const int32_t Y = static_cast<int32_t>(floor(y)) & (m_permutationSize - 1);
+    const int32_t X = static_cast<int32_t>(x) & (m_permutationSize - 1);
+    const int32_t Y = static_cast<int32_t>(y) & (m_permutationSize - 1);
 
     const float xf = x - floor(x);
     const float yf = y - floor(y);
@@ -89,6 +92,7 @@ void PerlinNoise::makePermutation() {
 }
 
 void PerlinNoise::shufflePermutation() {
+    srand(time(0));
     for (int32_t i = 0; i < m_permutationSize; i++) {
         int32_t index = std::rand() % m_permutationSize;
         std::swap(m_permutation[i], m_permutation[index]);
