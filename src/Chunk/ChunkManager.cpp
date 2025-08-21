@@ -58,7 +58,7 @@ void ChunkManager::serialize(Chunk &chunk, int32_t chunkX, int32_t chunkZ) {
     }
 
     const std::string filepath = dir.string() + getBinaryName(chunkX, chunkZ) + ".dat"s;
-    std::ofstream file(filepath);
+    std::ofstream file(filepath, std::ios::binary);
     if (!file.is_open()) {
         std::println("Error: Cant open chunk data file!");
         return;
@@ -88,7 +88,7 @@ Chunk *ChunkManager::deserialize(int32_t chunkX, int32_t chunkZ) {
     }
 
     const std::string filepath = dir.string() + getBinaryName(chunkX, chunkZ) + ".dat"s;
-    std::ifstream file(filepath);
+    std::ifstream file(filepath, std::ios::binary);
     if (!file.is_open()) {
         std::println("Error: Cant open chunk data file!");
         return nullptr;
