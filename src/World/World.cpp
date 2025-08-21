@@ -87,14 +87,17 @@ Chunk *World::generateChunkMeshAsync(int32_t indexX, int32_t indexZ) {
 void World::generateChunkRight() {
     for (int32_t x = 0; x < m_diameter - 1; ++x) {
         for (int32_t z = 0; z < m_diameter; ++z) {
-            if (x == 0) {
-                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+            m_chunkThreads.enqueue([=, this] {
+                if (x == 0) {
+                    int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                    int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-            }
-            m_chunks[x][z] = std::move(m_chunks[x + 1][z]);
+                    ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
+                }
+                m_chunks[x][z] = std::move(m_chunks[x + 1][z]);
+            });
         }
+        m_chunkThreads.wait();
     }
 
     ++m_offset.x;
@@ -123,14 +126,17 @@ void World::generateChunkRight() {
 void World::generateChunkLeft() {
     for (int32_t x = m_diameter - 1; x > 0; --x) {
         for (int32_t z = 0; z < m_diameter; ++z) {
-            if (x == m_diameter - 1) {
-                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+            m_chunkThreads.enqueue([=, this] {
+                if (x == m_diameter - 1) {
+                    int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                    int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-            }
-            m_chunks[x][z] = std::move(m_chunks[x - 1][z]);
+                    ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
+                }
+                m_chunks[x][z] = std::move(m_chunks[x - 1][z]);
+            });
         }
+        m_chunkThreads.wait();
     }
 
     --m_offset.x;
@@ -159,14 +165,17 @@ void World::generateChunkLeft() {
 void World::generateChunkFront() {
     for (int32_t z = 0; z < m_diameter - 1; ++z) {
         for (int32_t x = 0; x < m_diameter; ++x) {
-            if (z == 0) {
-                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+            m_chunkThreads.enqueue([=, this] {
+                if (z == 0) {
+                    int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                    int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-            }
-            m_chunks[x][z] = std::move(m_chunks[x][z + 1]);
+                    ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
+                }
+                m_chunks[x][z] = std::move(m_chunks[x][z + 1]);
+            });
         }
+        m_chunkThreads.wait();
     }
 
     ++m_offset.z;
@@ -196,14 +205,17 @@ void World::generateChunkFront() {
 void World::generateChunkBack() {
     for (int32_t z = m_diameter - 1; z > 0; --z) {
         for (int32_t x = 0; x < m_diameter; ++x) {
-            if (z == m_diameter - 1) {
-                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+            m_chunkThreads.enqueue([=, this] {
+                if (z == m_diameter - 1) {
+                    int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+                    int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-            }
-            m_chunks[x][z] = std::move(m_chunks[x][z - 1]);
+                    ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
+                }
+                m_chunks[x][z] = std::move(m_chunks[x][z - 1]);
+            });
         }
+        m_chunkThreads.wait();
     }
 
     --m_offset.z;
