@@ -11,6 +11,7 @@ class Treeminator;
 
 class Chunk {
 public:
+    Chunk();
     Chunk(const std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> &heightMap, glm::vec3 position);
 
     void setNeighbours(Chunk *front, Chunk *back, Chunk *right, Chunk *left);
@@ -43,7 +44,7 @@ private:
     Chunk *m_leftChunk = nullptr;
 
     MeshData m_meshData[2];
-    std::unique_ptr<ChunkRenderer> m_renderer;
+    ChunkRenderer m_renderer;
 
     friend class ChunkMesh;
     friend class ChunkManager;

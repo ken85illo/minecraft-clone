@@ -5,7 +5,7 @@ public:
     static bool fileExists(const std::string &filename) {
         using namespace std::literals::string_literals;
 
-        std::filesystem::path filepath = "./data/"s + filename + ".bin"s;
+        std::filesystem::path filepath = "./data/"s + filename + ".dat"s;
         return std::filesystem::exists(filepath);
     }
 
@@ -18,7 +18,7 @@ public:
             std::filesystem::create_directory(dir);
         }
 
-        std::string filepath = dir.string() + filename + ".bin"s;
+        std::string filepath = dir.string() + filename + ".dat"s;
         std::ofstream file(filepath, std::ios::binary);
 
         if (!file.is_open()) {
@@ -36,7 +36,7 @@ public:
         using namespace std::literals::string_literals;
         Serializable s;
 
-        std::string filepath = "./data/"s + filename + ".bin"s;
+        std::string filepath = "./data/"s + filename + ".dat"s;
         std::ifstream file(filepath, std::ios::binary);
 
         if (!file.is_open()) {

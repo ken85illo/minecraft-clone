@@ -1,18 +1,25 @@
 #include "ChunkRenderer.hpp"
 #include "ChunkMesh.hpp"
 
-ChunkRenderer::ChunkRenderer() {
-    glGenVertexArrays(2, m_VAO);
-    glGenBuffers(2, m_VBO);
-    glGenBuffers(2, m_TBO);
-    glGenBuffers(2, m_EBO);
+ChunkRenderer::ChunkRenderer() {}
+
+void ChunkRenderer::init() {
+    if (!m_initialized) {
+        glGenVertexArrays(2, m_VAO);
+        glGenBuffers(2, m_VBO);
+        glGenBuffers(2, m_TBO);
+        glGenBuffers(2, m_EBO);
+        m_initialized = true;
+    }
 }
 
 ChunkRenderer::~ChunkRenderer() {
-    glDeleteBuffers(2, m_VBO);
-    glDeleteBuffers(2, m_TBO);
-    glDeleteBuffers(2, m_EBO);
-    glDeleteVertexArrays(2, m_VAO);
+    if (m_initialized) {
+        glDeleteBuffers(2, m_VBO);
+        glDeleteBuffers(2, m_TBO);
+        glDeleteBuffers(2, m_EBO);
+        glDeleteVertexArrays(2, m_VAO);
+    }
 }
 
 void ChunkRenderer::uploadMesh(const MeshData &mesh, MeshType type) {

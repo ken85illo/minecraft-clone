@@ -11,6 +11,7 @@
 class World {
 public:
     World();
+    ~World();
 
     static World *get();
 
@@ -34,7 +35,6 @@ private:
     ChunkCoords m_offset = { 0, 0 };
 
     std::array<std::array<std::unique_ptr<Chunk>, m_diameter>, m_diameter> m_chunks;
-    std::unordered_map<ChunkCoords, std::unique_ptr<Chunk>, HashFunctor> m_deletedChunks;
     std::multimap<float, Chunk *> m_sortedChunks;
 
     ThreadPool m_chunkThreads;

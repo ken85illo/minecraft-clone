@@ -1,6 +1,7 @@
 #include "World.hpp"
 #include "Player/Player.hpp"
 #include "Terrain.hpp"
+#include "Utils/Serializer.hpp"
 #include "Utils/Timer.hpp"
 
 std::unique_ptr<World> World::s_instance = nullptr;
@@ -28,6 +29,17 @@ World::World() {
     }
 }
 
+World::~World() {
+    for (int32_t x = 0; x <= m_diameter - 1; x++) {
+        for (int32_t z = 0; z <= m_diameter - 1; z++) {
+            int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
+            int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
+
+            ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
+        }
+    }
+}
+
 World *World::get() {
     if (!s_instance) {
         s_instance = std::make_unique<World>();
@@ -44,14 +56,9 @@ void World::initChunk(int32_t indexX, int32_t indexZ) {
         std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
         Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
 
-        {
-            std::lock_guard<std::mutex> lock(m_chunkMutex);
-            auto it = m_deletedChunks.find(ChunkCoords(chunkX, chunkZ));
-            if (it != m_deletedChunks.end()) {
-                m_chunks[indexX][indexZ] = std::move(it->second);
-                m_deletedChunks.erase(it);
-                return;
-            }
+        if (ChunkManager::binaryExists(chunkX, chunkZ)) {
+            m_chunks[indexX][indexZ].reset(ChunkManager::deserialize(chunkX, chunkZ));
+            return;
         }
 
         m_chunks[indexX][indexZ] =
@@ -85,7 +92,7 @@ void World::generateChunkRight() {
                 int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
                 int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-                m_deletedChunks.emplace(ChunkCoords(chunkX, chunkZ), std::move(m_chunks[x][z]));
+                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
             }
             m_chunks[x][z] = std::move(m_chunks[x + 1][z]);
         }
@@ -121,7 +128,7 @@ void World::generateChunkLeft() {
                 int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
                 int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-                m_deletedChunks.emplace(ChunkCoords(chunkX, chunkZ), std::move(m_chunks[x][z]));
+                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
             }
             m_chunks[x][z] = std::move(m_chunks[x - 1][z]);
         }
@@ -157,7 +164,7 @@ void World::generateChunkFront() {
                 int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
                 int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-                m_deletedChunks.emplace(ChunkCoords(chunkX, chunkZ), std::move(m_chunks[x][z]));
+                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
             }
             m_chunks[x][z] = std::move(m_chunks[x][z + 1]);
         }
@@ -194,7 +201,7 @@ void World::generateChunkBack() {
                 int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
                 int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
 
-                m_deletedChunks.emplace(ChunkCoords(chunkX, chunkZ), std::move(m_chunks[x][z]));
+                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
             }
             m_chunks[x][z] = std::move(m_chunks[x][z - 1]);
         }

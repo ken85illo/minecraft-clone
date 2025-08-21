@@ -1,6 +1,8 @@
 #include "Chunk.hpp"
 #include "World/Treeminator.hpp"
 
+Chunk::Chunk() {}
+
 Chunk::Chunk(const std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> &heightMap, glm::vec3 position)
 : m_position(position.x - CHUNK_SIZE / 2.0f, 0.0f, position.z - CHUNK_SIZE / 2.0f),
   m_chunkBounds(m_position, m_position + glm::vec3(CHUNK_SIZE, MAX_HEIGHT, CHUNK_SIZE)) {
