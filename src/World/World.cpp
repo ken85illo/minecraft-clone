@@ -56,14 +56,13 @@ void World::initChunk(int32_t indexX, int32_t indexZ) {
         int32_t chunkX = indexX - WORLD_RADIUS + m_offset.x;
         int32_t chunkZ = indexZ - WORLD_RADIUS + m_offset.z;
 
-        std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
-        Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
-
         if (ChunkManager::binaryExists(chunkX, chunkZ)) {
             m_chunks[indexX][indexZ].reset(ChunkManager::deserialize(chunkX, chunkZ));
             return;
         }
 
+        std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
+        Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
         m_chunks[indexX][indexZ] =
             std::make_unique<Chunk>(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
     });
