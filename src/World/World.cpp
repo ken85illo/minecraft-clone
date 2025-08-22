@@ -304,8 +304,13 @@ Chunk *World::getChunk(int32_t x, int32_t z) {
 }
 
 void World::render(bool wireFrameMode, Shader *worldShader, Shader *lineShader) {
+
     lineShader->use();
     lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
+
+    glm::vec3 playerPos = Player::get()->getPosition();
+    worldShader->use();
+    worldShader->setVec3("lightPos", glm::vec3(playerPos.x, MAX_HEIGHT, playerPos.z + WORLD_RADIUS * CHUNK_SIZE));
 
     Shader *currentShader = (wireFrameMode) ? lineShader : worldShader;
     currentShader->use();

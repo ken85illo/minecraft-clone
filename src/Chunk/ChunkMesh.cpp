@@ -65,7 +65,7 @@ void ChunkMesh::fillFaces(Chunk &chunk, int32_t x, int32_t y, int32_t z, MeshDat
     auto &currentBlock = chunk.m_blocks[x][y][z];
 
     static const std::vector<uint32_t> indicesTemplate = { 0, 1, 3, 1, 2, 3 };
-    static const float reciprocal = 1 / 3.0f;
+    static const float reciprocal = 1 / 6.0f;
 
     for (uint8_t face = 0; face < 6; face++) {
         auto offsetBlock = chunk.getBlockType(x + dx[face], y + dy[face], z + dz[face]);

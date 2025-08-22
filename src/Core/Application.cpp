@@ -4,7 +4,7 @@ Application::Application() {
     m_window = Window::get();
 
     // Shaders
-    m_worldShader = std::make_unique<Shader>("src/Shader/GLSL/Textured.vert", "src/Shader/GLSL/Textured.frag");
+    m_worldShader = std::make_unique<Shader>("src/Shader/GLSL/Lighting.vert", "src/Shader/GLSL/Lighting.frag");
     m_lineShader = std::make_unique<Shader>("src/Shader/GLSL/Colored.vert", "src/Shader/GLSL/Colored.frag");
     m_interfaceShader = std::make_unique<Shader>("src/Shader/GLSL/Interface.vert", "src/Shader/GLSL/Textured.frag");
 

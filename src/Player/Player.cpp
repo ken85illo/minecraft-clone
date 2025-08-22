@@ -1,9 +1,11 @@
 #include "Player.hpp"
+#include "Utils/InputHandler.hpp"
 
 std::unique_ptr<Player> Player::s_instance = nullptr;
 
 Player::Player()
-: Camera(0.1f, 500.0f, glm::vec3(0.0f, 0.0f, 0.0f), 7.0f, 0.1f, 60.0f), m_rayCast(RANGE_RADIUS) {
+: Camera(0.1f, (WORLD_RADIUS * 2 + 1) * CHUNK_SIZE, glm::vec3(0.0f, 0.0f, 0.0f), 7.0f, 0.1f, 60.0f),
+  m_rayCast(RANGE_RADIUS) {
     uploadCursor();
     initTexture();
 }

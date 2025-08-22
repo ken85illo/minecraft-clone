@@ -2,45 +2,45 @@
 #include "BlockTexture.hpp"
 #include "Chunk/Chunk.hpp"
 
-float Block::s_vertices[6][12] = {
+float Block::s_vertices[6][24] = {
     // front face
-    0.0f, 0.0f, 1.0f, // bottom-left
-    1.0f, 0.0f, 1.0f, // bottom-right
-    1.0f, 1.0f, 1.0f, // top-right
-    0.0f, 1.0f, 1.0f, // top-left
+    0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+    1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom-right
+    1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-right
+    0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
 
     // back face
-    1.0f, 0.0f, 0.0f, // bottom-left
-    0.0f, 0.0f, 0.0f, // bottom-right
-    0.0f, 1.0f, 0.0f, // top-right
-    1.0f, 1.0f, 0.0f, // top-left
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, // bottom-left
+    0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, // bottom-right
+    0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, // top-right
+    1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, // top-left
 
     // top face
-    0.0f, 1.0f, 1.0f, // bottom-left
-    1.0f, 1.0f, 1.0f, // bottom-right
-    1.0f, 1.0f, 0.0f, // top-right
-    0.0f, 1.0f, 0.0f, // top-left
+    0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-left
+    1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
+    1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+    0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-left
 
     // bottom face
-    1.0f, 0.0f, 1.0f, // bottom-left
-    0.0f, 0.0f, 1.0f, // bottom-right
-    0.0f, 0.0f, 0.0f, // top-right
-    1.0f, 0.0f, 0.0f, // top-left
+    1.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f, // bottom-left
+    0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f, // bottom-right
+    0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, // top-right
+    1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, // top-left
 
     // right face
-    1.0f, 0.0f, 1.0f, // bottom-left
-    1.0f, 0.0f, 0.0f, // bottom-right
-    1.0f, 1.0f, 0.0f, // top-right
-    1.0f, 1.0f, 1.0f, // top-left
+    1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, // bottom-left
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-right
+    1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, // top-right
+    1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // top-left
 
     // left face
-    0.0f, 0.0f, 0.0f, // bottom-left
-    0.0f, 0.0f, 1.0f, // bottom-right
-    0.0f, 1.0f, 1.0f, // top-right
-    0.0f, 1.0f, 0.0f, // top-left
+    0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+    0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, // bottom-right
+    0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, // top-right
+    0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, // top-left
 };
 
-uint16_t Block::s_textures[][6] = {
+uint8_t Block::s_textures[][6] = {
     {       DIRT,       DIRT,           DIRT,           DIRT,       DIRT,       DIRT }, // DIRT_BLOCK
     { GRASS_SIDE, GRASS_SIDE,      GRASS_TOP,           DIRT, GRASS_SIDE, GRASS_SIDE }, // GRASS_BLOCK
     {      STONE,      STONE,          STONE,          STONE,      STONE,      STONE }, // STONE BLOCK
@@ -69,15 +69,19 @@ const BlockRect Block::getLocalRect(int32_t x, int32_t y, int32_t z) {
     return { localPos, localPos + 1.0f };
 }
 
-const std::array<float, 12> Block::getFace(BlockType &type, uint8_t face, int32_t x, int32_t y, int32_t z) {
+const std::array<float, 24> Block::getFace(BlockType &type, uint8_t face, int32_t x, int32_t y, int32_t z) {
     glm::vec3 localPos = getLocalRect(x, y, z).min;
-    std::array<float, 12> posVertices;
+    std::array<float, 24> posVertices;
 
     float decrement = (face == 2 && type == BlockType::WATER) ? 0.125f : 0.0f;
-    for (uint8_t i = 0; i < 12; i += 3) {
+    for (uint8_t i = 0; i < 24; i += 6) {
         posVertices[i] = s_vertices[face][i] + localPos.x;
         posVertices[i + 1] = s_vertices[face][i + 1] + localPos.y - decrement;
         posVertices[i + 2] = s_vertices[face][i + 2] + localPos.z;
+
+        for (uint8_t j = 3; j <= 5; ++j) {
+            posVertices[i + j] = s_vertices[face][i + j];
+        }
     }
 
     return posVertices;

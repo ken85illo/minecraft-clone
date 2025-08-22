@@ -1,6 +1,6 @@
 #pragma once
 
-enum BlockTexture : uint16_t {
+enum BlockTexture : uint8_t {
     DIRT = 0,
     GRASS_SIDE,
     GRASS_TOP,

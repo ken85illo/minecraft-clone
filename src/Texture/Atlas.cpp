@@ -1,6 +1,6 @@
 #include "Atlas.hpp"
 
-Atlas::Atlas(uint16_t textures[][6])
+Atlas::Atlas(uint8_t textures[][6])
 : m_textures(*textures) {}
 
 std::unordered_map<std::string, float> Atlas::getMap(uint16_t side) {
