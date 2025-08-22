@@ -10,16 +10,16 @@ uniform float lightValue = 1.0;
 uniform sampler2D texture0;
 
 void main() {
-    float ambientStrength = 0.75;
+    float ambientStrength = 1.0;
     vec3 ambient = ambientStrength * vec3(max(lightValue, 0.25));
 
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * vec3(lightValue);
+    vec3 diffuse = diff * vec3(max(lightValue, 0.125));
 
     vec3 color = ambient + diffuse;
-    vec3 min = vec3(1.25);
+    vec3 min = vec3(1.125);
 
     if (length(color) > length(min)) {
         color = min;
