@@ -6,6 +6,7 @@ Application::Application() {
     // Shaders
     m_worldShader = std::make_unique<Shader>("src/Shader/GLSL/Lighting.vert", "src/Shader/GLSL/Lighting.frag");
     m_lineShader = std::make_unique<Shader>("src/Shader/GLSL/Colored.vert", "src/Shader/GLSL/Colored.frag");
+    m_lightShader = std::make_unique<Shader>("src/Shader/GLSL/Textured.vert", "src/Shader/GLSL/Textured.frag");
     m_interfaceShader = std::make_unique<Shader>("src/Shader/GLSL/Interface.vert", "src/Shader/GLSL/Textured.frag");
 
     // Load texture atlas
@@ -54,9 +55,13 @@ void Application::update(float deltaTime) {
 }
 
 void Application::render() {
+    static glm::vec3 lightBlue = glm::vec3(135 / 255.f, 206 / 255.f, 235 / 255.f);
+    static float lightValue = 0.0f;
+
     if (!m_wireFrameMode) {
+        glm::vec3 skyColor = lightBlue * lightValue;
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glClearColor(135 / 255.f, 206 / 255.f, 235 / 255.f, 1.f);
+        glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.f);
     }
     else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -77,11 +82,15 @@ void Application::render() {
     m_lineShader->setMat4("view", view);
     m_lineShader->setMat4("projection", projection);
 
+    m_lightShader->use();
+    m_lightShader->setMat4("view", view);
+    m_lightShader->setMat4("projection", projection);
+
     m_interfaceShader->use();
     m_interfaceShader->setMat4("projection", interfaceProjection);
 
     // Render stuff here
     //-----------------------------------------------------------
-    m_world->render(m_wireFrameMode, m_worldShader.get(), m_lineShader.get());
+    m_world->render(lightValue, m_wireFrameMode, m_worldShader.get(), m_lineShader.get(), m_lightShader.get());
     m_player->drawCursor(m_wireFrameMode, m_interfaceShader.get());
 }

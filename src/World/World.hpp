@@ -4,6 +4,7 @@
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
 #include "Utils/ThreadPool.hpp"
+#include "World/LightOrigin.hpp"
 
 #define WORLD_RADIUS 20
 
@@ -14,7 +15,7 @@ public:
 
     static World *get();
 
-    void render(bool wireFrameMode, Shader *worldShader, Shader *lineShader);
+    void render(float &lightValue, bool wireFrameMode, Shader *worldShader, Shader *lineShader, Shader *lightShader);
     void sortChunks();
     void sortChunkFaces(int32_t chunkX, int32_t chunkZ, uint8_t radius);
 
@@ -32,6 +33,8 @@ private:
     static constexpr int32_t m_diameter = WORLD_RADIUS * 2 + 1;
     std::unique_ptr<Texture> m_texture;
     ChunkCoords m_offset = { 0, 0 };
+
+    LightOrigin m_lightOrigin;
 
     std::array<std::array<std::unique_ptr<Chunk>, m_diameter>, m_diameter> m_chunks;
     std::multimap<float, Chunk *> m_sortedChunks;

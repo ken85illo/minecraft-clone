@@ -5,7 +5,8 @@
 
 std::unique_ptr<World> World::s_instance = nullptr;
 
-World::World() {
+World::World()
+: m_lightOrigin((WORLD_RADIUS + 2) * CHUNK_SIZE, 50.0f) {
     // Initialize terrain seed
     Terrain::init();
 
@@ -303,18 +304,17 @@ Chunk *World::getChunk(int32_t x, int32_t z) {
     return m_chunks[x][z].get();
 }
 
-void World::render(bool wireFrameMode, Shader *worldShader, Shader *lineShader) {
+void World::render(
+    float &lightValue, bool wireFrameMode, Shader *worldShader, Shader *lineShader, Shader *lightShader
+) {
+    m_lightOrigin.render(lightShader);
 
-    lineShader->use();
-    lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
-
-    glm::vec3 playerPos = Player::get()->getPosition();
-    worldShader->use();
-    worldShader->setVec3("lightPos", glm::vec3(playerPos.x, MAX_HEIGHT, playerPos.z + WORLD_RADIUS * CHUNK_SIZE));
-
-    Shader *currentShader = (wireFrameMode) ? lineShader : worldShader;
-    currentShader->use();
-    m_texture->bind(0);
+    // Get sine value between two vectors
+    glm::vec3 v1 = glm::normalize(m_lightOrigin.getLightPosition());
+    glm::vec3 v2 = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 n = glm::vec3(0.0f, 0.0f, -1.0f);
+    lightValue = glm::dot(glm::cross(v1, v2), n);
+    lightValue = std::max(std::min(lightValue + 0.25f, 1.0f), 0.0f);
 
     static bool isInitialized = false;
     if (!isInitialized) {
@@ -332,6 +332,17 @@ void World::render(bool wireFrameMode, Shader *worldShader, Shader *lineShader) 
         isInitialized = true;
     }
 
+    lineShader->use();
+    lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));
+
+    glm::vec3 playerPos = Player::get()->getPosition();
+    worldShader->use();
+    worldShader->setVec3("lightPos", m_lightOrigin.getLightPosition());
+    worldShader->setFloat("lightValue", lightValue);
+
+    Shader *currentShader = (wireFrameMode) ? lineShader : worldShader;
+    currentShader->use();
+    m_texture->bind(0);
     for (uint8_t type = 0; type < static_cast<uint8_t>(MeshType::TOTAL_MESHES); ++type) {
         for (auto i = m_sortedChunks.rbegin(); i != m_sortedChunks.rend(); ++i) {
             glm::mat4 model = glm::mat4(1.0f);

@@ -16,6 +16,7 @@ private:
 
     std::unique_ptr<Shader> m_worldShader;
     std::unique_ptr<Shader> m_lineShader;
+    std::unique_ptr<Shader> m_lightShader;
     std::unique_ptr<Shader> m_interfaceShader;
 
     Window *m_window;

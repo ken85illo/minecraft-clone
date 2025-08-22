@@ -38,7 +38,7 @@ void Player::uploadCursor() {
         -0.002f, 0.002f,  0.0f, 0.0f, 1.0f, // top-left
     };
 
-    uint32_t indices[6] = {
+    uint8_t indices[6] = {
         0, 1, 3, // first triangle
         1, 2, 3, // second triangle
     };
@@ -124,7 +124,7 @@ void Player::drawCursor(bool wireFrameMode, Shader *shader) {
     shader->use();
     shader->setMat4("model", model);
     glBindVertexArray(m_VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
 
     if (wireFrameMode) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
