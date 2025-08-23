@@ -14,7 +14,7 @@ public:
     static void render(Chunk &chunk, MeshType type);
 
     static void serialize(Chunk &chunk, int32_t chunkX, int32_t chunkZ);
-    static Chunk *deserialize(int32_t chunkX, int32_t chunkZ);
+    static Chunk deserialize(int32_t chunkX, int32_t chunkZ);
     static bool binaryExists(int32_t chunkX, int32_t chunkZ);
 
 private:

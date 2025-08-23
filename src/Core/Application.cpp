@@ -15,9 +15,6 @@ Application::Application() {
     m_player = Player::get();
     m_world = World::get();
 
-    m_player->init();
-    m_world->sortChunks();
-
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     std::println("Maximum Vertex Attributes: {}", nrAttributes);

@@ -78,27 +78,27 @@ bool ChunkManager::binaryExists(int32_t chunkX, int32_t chunkZ) {
     return std::filesystem::exists(filepath);
 }
 
-Chunk *ChunkManager::deserialize(int32_t chunkX, int32_t chunkZ) {
+Chunk ChunkManager::deserialize(int32_t chunkX, int32_t chunkZ) {
     using namespace std::literals::string_literals;
 
+    Chunk chunk;
     std::filesystem::path dir = "./data/world/";
     if (!std::filesystem::exists(dir)) {
         std::println("Error: Directory does not exist!");
-        return nullptr;
+        return chunk;
     }
 
     const std::string filepath = dir.string() + getBinaryName(chunkX, chunkZ) + ".dat"s;
     std::ifstream file(filepath, std::ios::binary);
     if (!file.is_open()) {
         std::println("Error: Cant open chunk data file!");
-        return nullptr;
+        return chunk;
     }
 
-    Chunk *chunk = new Chunk;
-    file.read(reinterpret_cast<char *>(&chunk->m_position), sizeof(chunk->m_position));
-    file.read(reinterpret_cast<char *>(&chunk->m_chunkBounds), sizeof(chunk->m_chunkBounds));
-    file.read(reinterpret_cast<char *>(chunk->m_blocks), sizeof(chunk->m_blocks));
-    file.read(reinterpret_cast<char *>(&chunk->m_highestBlock), sizeof(chunk->m_highestBlock));
+    file.read(reinterpret_cast<char *>(&chunk.m_position), sizeof(chunk.m_position));
+    file.read(reinterpret_cast<char *>(&chunk.m_chunkBounds), sizeof(chunk.m_chunkBounds));
+    file.read(reinterpret_cast<char *>(chunk.m_blocks), sizeof(chunk.m_blocks));
+    file.read(reinterpret_cast<char *>(&chunk.m_highestBlock), sizeof(chunk.m_highestBlock));
     file.close();
 
     std::filesystem::remove(filepath);

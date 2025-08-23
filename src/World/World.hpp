@@ -3,6 +3,7 @@
 #include "Chunk/Chunk.hpp"
 #include "Shader/Shader.hpp"
 #include "Texture/Texture.hpp"
+#include "Utils/HashFunctor.hpp"
 #include "Utils/ThreadPool.hpp"
 #include "World/LightOrigin.hpp"
 
@@ -40,9 +41,16 @@ private:
     std::multimap<float, Chunk *> m_sortedChunks;
 
     ThreadPool m_chunkThreads;
-    std::mutex m_chunkMutex;
+
+    std::mutex m_initMutex;
+    std::condition_variable m_initCV;
+
+    std::unordered_map<ChunkCoords, bool, HashFunctor> m_waitingChunks;
+    std::mutex m_waitingMutex;
+    std::condition_variable m_waitingCV;
 
     void initChunk(int32_t indexX, int32_t indexZ);
-    Chunk *generateChunkMeshAsync(int32_t indexX, int32_t indexZ);
+    void generateChunkMeshAsync(int32_t indexX, int32_t indexZ);
+    void uploadChunk(int32_t indexX, int32_t indexZ);
     void initTexture();
 };

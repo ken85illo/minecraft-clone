@@ -14,24 +14,22 @@ World::World()
     Timer::startTimer();
     initTexture();
 
-    for (int32_t x = 0; x <= m_diameter - 1; x++) {
-        for (int32_t z = 0; z <= m_diameter - 1; z++) {
+    for (int32_t x = 0; x < m_diameter; x++) {
+        for (int32_t z = 0; z < m_diameter; z++) {
             initChunk(x, z);
         }
     }
 
-    m_chunkThreads.wait();
-
-    for (int32_t x = 0; x < m_diameter - 1; x++) {
-        for (int32_t z = 0; z < m_diameter - 1; z++) {
+    for (int32_t x = 0; x < m_diameter; x++) {
+        for (int32_t z = 0; z < m_diameter; z++) {
             generateChunkMeshAsync(x, z);
         }
     }
 }
 
 World::~World() {
-    for (int32_t x = 0; x <= m_diameter - 1; x++) {
-        for (int32_t z = 0; z <= m_diameter - 1; z++) {
+    for (int32_t x = 0; x < m_diameter; x++) {
+        for (int32_t z = 0; z < m_diameter; z++) {
             m_chunkThreads.enqueue([=, this] {
                 int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
                 int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
@@ -58,25 +56,47 @@ void World::initChunk(int32_t indexX, int32_t indexZ) {
         int32_t chunkZ = indexZ - WORLD_RADIUS + m_offset.z;
 
         if (ChunkManager::binaryExists(chunkX, chunkZ)) {
-            m_chunks[indexX][indexZ].reset(ChunkManager::deserialize(chunkX, chunkZ));
-            return;
+            std::lock_guard<std::mutex> lock(m_initMutex);
+            m_chunks[indexX][indexZ] = std::make_unique<Chunk>(ChunkManager::deserialize(chunkX, chunkZ));
+        }
+        else {
+            std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
+            Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
+            std::lock_guard<std::mutex> lock(m_initMutex);
+            m_chunks[indexX][indexZ] =
+                std::make_unique<Chunk>(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
         }
 
-        std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
-        Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
-        m_chunks[indexX][indexZ] =
-            std::make_unique<Chunk>(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
+        m_initCV.notify_all();
     });
 }
 
-Chunk *World::generateChunkMeshAsync(int32_t indexX, int32_t indexZ) {
-    Chunk *currentChunk = m_chunks[indexX][indexZ].get();
+void World::generateChunkMeshAsync(int32_t indexX, int32_t indexZ) {
     m_chunkThreads.enqueue([=, this]() {
+        {
+            std::unique_lock<std::mutex> lock(m_initMutex);
+            m_initCV.wait(lock, [=, this] {
+                bool currentChunk = getChunk(indexX, indexZ);
+                bool north = (indexZ + 1 < m_diameter) ? static_cast<bool>(getChunk(indexX, indexZ + 1)) : true;
+                bool south = (indexZ - 1 >= 0) ? static_cast<bool>(getChunk(indexX, indexZ - 1)) : true;
+                bool east = (indexX + 1 < m_diameter) ? static_cast<bool>(getChunk(indexX + 1, indexZ)) : true;
+                bool west = (indexX - 1 >= 0) ? static_cast<bool>(getChunk(indexX - 1, indexZ)) : true;
+
+                return currentChunk && north && south && east && west;
+            });
+        }
+
+        ChunkCoords coords = ChunkCoords(indexX, indexZ);
+        {
+            std::unique_lock<std::mutex> lock(m_waitingMutex);
+            m_waitingChunks[coords] = true;
+        }
+
+        auto currentChunk = getChunk(indexX, indexZ);
         auto north = getChunk(indexX, indexZ + 1);
         auto south = getChunk(indexX, indexZ - 1);
         auto east = getChunk(indexX + 1, indexZ);
         auto west = getChunk(indexX - 1, indexZ);
-
         currentChunk->setNeighbours(north, south, east, west);
 
         MeshData opaqueMesh = ChunkMesh::buildOpaque(*currentChunk);
@@ -84,8 +104,33 @@ Chunk *World::generateChunkMeshAsync(int32_t indexX, int32_t indexZ) {
 
         ChunkManager::updateMesh(*currentChunk, opaqueMesh, MeshType::OPAQUE);
         ChunkManager::updateMesh(*currentChunk, transparentMesh, MeshType::TRANSPARENT);
+
+        {
+            std::lock_guard<std::mutex> lock(m_waitingMutex);
+            m_waitingChunks[coords] = false;
+        }
+
+        m_waitingCV.notify_one();
     });
-    return currentChunk;
+}
+
+void World::uploadChunk(int32_t indexX, int32_t indexZ) {
+    ChunkCoords coords = ChunkCoords(indexX, indexZ);
+    {
+        std::unique_lock<std::mutex> lock(m_waitingMutex);
+        m_waitingCV.wait(lock, [=, this] {
+            auto it = m_waitingChunks.find(coords);
+            return it != m_waitingChunks.end() && m_waitingChunks[coords] == false;
+        });
+    }
+
+    ChunkManager::uploadMesh(*m_chunks[indexX][indexZ], MeshType::OPAQUE);
+    ChunkManager::uploadMesh(*m_chunks[indexX][indexZ], MeshType::TRANSPARENT);
+
+    {
+        std::lock_guard<std::mutex> lock(m_waitingMutex);
+        m_waitingChunks.erase(coords);
+    }
 }
 
 void World::generateChunkRight() {
@@ -109,21 +154,16 @@ void World::generateChunkRight() {
         initChunk(m_diameter - 1, z);
     }
 
-    m_chunkThreads.wait();
-
     for (int32_t z = 0; z < m_diameter; ++z) {
         generateChunkMeshAsync(m_diameter - 1, z);
         generateChunkMeshAsync(m_diameter - 2, z);
     }
 
-    m_chunkThreads.wait();
-
     for (int32_t z = 0; z < m_diameter; ++z) {
-        ChunkManager::uploadMesh(*m_chunks[m_diameter - 1][z], MeshType::OPAQUE);
-        ChunkManager::uploadMesh(*m_chunks[m_diameter - 1][z], MeshType::TRANSPARENT);
-        ChunkManager::uploadMesh(*m_chunks[m_diameter - 2][z], MeshType::OPAQUE);
-        ChunkManager::uploadMesh(*m_chunks[m_diameter - 2][z], MeshType::TRANSPARENT);
+        uploadChunk(m_diameter - 1, z);
+        uploadChunk(m_diameter - 2, z);
     }
+
     sortChunks();
 }
 
@@ -148,21 +188,16 @@ void World::generateChunkLeft() {
         initChunk(0, z);
     }
 
-    m_chunkThreads.wait();
-
     for (int32_t z = 0; z < m_diameter; ++z) {
         generateChunkMeshAsync(0, z);
         generateChunkMeshAsync(1, z);
     }
 
-    m_chunkThreads.wait();
-
     for (int32_t z = 0; z < m_diameter; ++z) {
-        ChunkManager::uploadMesh(*m_chunks[0][z], MeshType::OPAQUE);
-        ChunkManager::uploadMesh(*m_chunks[0][z], MeshType::TRANSPARENT);
-        ChunkManager::uploadMesh(*m_chunks[1][z], MeshType::OPAQUE);
-        ChunkManager::uploadMesh(*m_chunks[1][z], MeshType::TRANSPARENT);
+        uploadChunk(0, z);
+        uploadChunk(1, z);
     }
+
     sortChunks();
 }
 
@@ -187,22 +222,15 @@ void World::generateChunkFront() {
         initChunk(x, m_diameter - 1);
     }
 
-    m_chunkThreads.wait();
-
     for (int32_t x = 0; x < m_diameter; ++x) {
         generateChunkMeshAsync(x, m_diameter - 1);
         generateChunkMeshAsync(x, m_diameter - 2);
     }
 
-    m_chunkThreads.wait();
-
     for (int32_t x = 0; x < m_diameter; ++x) {
-        ChunkManager::uploadMesh(*m_chunks[x][m_diameter - 1], MeshType::OPAQUE);
-        ChunkManager::uploadMesh(*m_chunks[x][m_diameter - 1], MeshType::TRANSPARENT);
-        ChunkManager::uploadMesh(*m_chunks[x][m_diameter - 2], MeshType::OPAQUE);
-        ChunkManager::uploadMesh(*m_chunks[x][m_diameter - 2], MeshType::TRANSPARENT);
+        uploadChunk(x, m_diameter - 1);
+        uploadChunk(x, m_diameter - 2);
     }
-
     sortChunks();
 }
 
@@ -227,20 +255,14 @@ void World::generateChunkBack() {
         initChunk(x, 0);
     }
 
-    m_chunkThreads.wait();
-
     for (int32_t x = 0; x < m_diameter; ++x) {
         generateChunkMeshAsync(x, 0);
         generateChunkMeshAsync(x, 1);
     }
 
-    m_chunkThreads.wait();
-
     for (int32_t x = 0; x < m_diameter; ++x) {
-        ChunkManager::uploadMesh(*m_chunks[x][0], MeshType::OPAQUE);
-        ChunkManager::uploadMesh(*m_chunks[x][0], MeshType::TRANSPARENT);
-        ChunkManager::uploadMesh(*m_chunks[x][1], MeshType::OPAQUE);
-        ChunkManager::uploadMesh(*m_chunks[x][1], MeshType::TRANSPARENT);
+        uploadChunk(x, 0);
+        uploadChunk(x, 1);
     }
 
     sortChunks();
@@ -318,14 +340,14 @@ void World::render(
 
     static bool isInitialized = false;
     if (!isInitialized) {
-        m_chunkThreads.wait();
-
         for (int32_t x = 0; x < m_diameter; ++x) {
             for (int32_t z = 0; z < m_diameter; ++z) {
-                ChunkManager::uploadMesh(*m_chunks[x][z], MeshType::OPAQUE);
-                ChunkManager::uploadMesh(*m_chunks[x][z], MeshType::TRANSPARENT);
+                uploadChunk(x, z);
             }
         }
+
+        Player::get()->init();
+        sortChunks();
 
         std::println("The chunks has finished generating...");
         std::println("Time spent: {} ms", Timer::stopTimer());
