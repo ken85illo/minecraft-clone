@@ -19,10 +19,10 @@ void main() {
     vec3 diffuse = diff * vec3(max(lightValue, 0.125));
 
     vec3 color = ambient + diffuse;
-    vec3 min = vec3(1.125);
+    vec3 max = vec3(1.125);
 
-    if (length(color) > length(min)) {
-        color = min;
+    if (length(color) > length(max)) {
+        color = max;
     }
 
     vec4 result = vec4(color, 1.0) * texture(texture0, TexCoord);

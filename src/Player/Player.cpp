@@ -79,22 +79,18 @@ void Player::updateCurrentChunk() {
     const ChunkBounds &bounds = m_world->getChunk(m_chunkCoord.x, m_chunkCoord.z)->getBounds();
 
     if (m_pos.z > bounds.max.z) {
-        std::println("You moved to front chunk!");
         m_world->generateChunkFront();
     }
 
     if (m_pos.z < bounds.min.z) {
-        std::println("You moved to back chunk!");
         m_world->generateChunkBack();
     }
 
     if (m_pos.x > bounds.max.x) {
-        std::println("You moved to right chunk!");
         m_world->generateChunkRight();
     }
 
     if (m_pos.x < bounds.min.x) {
-        std::println("You moved to left chunk!");
         m_world->generateChunkLeft();
     }
 
