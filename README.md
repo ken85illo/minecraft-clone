@@ -24,7 +24,7 @@ scripts/debug.sh
 ## Images
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d1e5bce4-6d02-4025-a9fa-25d7aa1d3c87" />
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b28fc151-1f55-47b0-ac5c-946617f3788c" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e30bc7a4-b157-4ce7-9043-fa9419b4f315" />
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ec5e45df-8b5a-4fa1-a908-56ed66087d14" />
 
