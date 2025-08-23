@@ -2,25 +2,25 @@
 #include "Player/Player.hpp"
 #include "Shader/Shader.hpp"
 
-LightOrigin::LightOrigin(float height, float scale)
-: m_position(0.0f, height, 0.0f, 1.0f) {
+LightOrigin::LightOrigin(float speed, float height, float scale)
+: m_position(0.0f, height, 0.0f, 1.0f), m_speed(speed), m_height(height), m_scale(scale) {
     glGenVertexArrays(2, m_VAO);
     glGenBuffers(2, m_VBO);
     glGenBuffers(2, m_EBO);
 
-    uploadObject(Type::SUN, height, scale);
+    uploadObject(Type::SUN);
     initTexture(Type::SUN, "res/sunlight.png");
 
-    uploadObject(Type::MOON, height, scale);
+    uploadObject(Type::MOON);
     initTexture(Type::MOON, "res/moonlight.png");
 }
 
-void LightOrigin::uploadObject(Type type, float height, float scale) {
+void LightOrigin::uploadObject(Type type) {
     float vertices[20] = {
-        -0.5f * scale, height, -0.5f * scale, 0.0f, 0.0f, // bottom-left
-        0.5f * scale,  height, -0.5f * scale, 1.0f, 0.0f, // bottom-right
-        0.5f * scale,  height, 0.5f * scale,  1.0f, 1.0f, // top-right
-        -0.5f * scale, height, 0.5f * scale,  0.0f, 1.0f, // top-left
+        -0.5f * m_scale, m_height, -0.5f * m_scale, 0.0f, 0.0f, // bottom-left
+        0.5f * m_scale,  m_height, -0.5f * m_scale, 1.0f, 0.0f, // bottom-right
+        0.5f * m_scale,  m_height, 0.5f * m_scale,  1.0f, 1.0f, // top-right
+        -0.5f * m_scale, m_height, 0.5f * m_scale,  0.0f, 1.0f, // top-left
     };
 
     uint8_t indices[6] = {
@@ -66,7 +66,7 @@ void LightOrigin::render(Shader *shader) {
 
     shader->use();
     model = glm::translate(model, glm::vec3(playerPos.x, MAX_HEIGHT / 2.0f, playerPos.z));
-    model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime() * 20.0f)), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime() * m_speed)), glm::vec3(0.0f, 0.0f, 1.0f));
     static glm::vec4 originalPos = m_position;
     m_position = originalPos * model;
 

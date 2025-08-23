@@ -6,7 +6,7 @@
 std::unique_ptr<World> World::s_instance = nullptr;
 
 World::World()
-: m_lightOrigin((WORLD_RADIUS + 2) * CHUNK_SIZE, 50.0f) {
+: m_lightOrigin(20.0f, (WORLD_RADIUS + 2) * CHUNK_SIZE, 50.0f) {
     // Initialize terrain seed
     Terrain::init();
 
