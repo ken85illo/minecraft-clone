@@ -15,6 +15,12 @@ LightOrigin::LightOrigin(float speed, float height, float scale)
     initTexture(Type::MOON, "res/moonlight.png");
 }
 
+LightOrigin::~LightOrigin() {
+    glDeleteBuffers(2, m_VBO);
+    glDeleteBuffers(2, m_EBO);
+    glDeleteVertexArrays(2, m_VAO);
+}
+
 void LightOrigin::uploadObject(Type type) {
     float vertices[20] = {
         -0.5f * m_scale, m_height, -0.5f * m_scale, 0.0f, 0.0f, // bottom-left

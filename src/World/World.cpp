@@ -57,7 +57,7 @@ void World::initChunk(int32_t indexX, int32_t indexZ) {
 
         if (ChunkManager::binaryExists(chunkX, chunkZ)) {
             std::lock_guard<std::mutex> lock(m_initMutex);
-            m_chunks[indexX][indexZ] = std::make_unique<Chunk>(ChunkManager::deserialize(chunkX, chunkZ));
+            m_chunks[indexX][indexZ].reset(ChunkManager::deserialize(chunkX, chunkZ));
         }
         else {
             std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
@@ -143,6 +143,7 @@ void World::generateChunkRight() {
 
                     ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
                 }
+                m_chunks[x][z].reset();
                 m_chunks[x][z] = std::move(m_chunks[x + 1][z]);
             });
         }
@@ -177,6 +178,7 @@ void World::generateChunkLeft() {
 
                     ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
                 }
+                m_chunks[x][z].reset();
                 m_chunks[x][z] = std::move(m_chunks[x - 1][z]);
             });
         }
@@ -211,6 +213,7 @@ void World::generateChunkFront() {
 
                     ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
                 }
+                m_chunks[x][z].reset();
                 m_chunks[x][z] = std::move(m_chunks[x][z + 1]);
             });
         }
@@ -244,6 +247,7 @@ void World::generateChunkBack() {
 
                     ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
                 }
+                m_chunks[x][z].reset();
                 m_chunks[x][z] = std::move(m_chunks[x][z - 1]);
             });
         }

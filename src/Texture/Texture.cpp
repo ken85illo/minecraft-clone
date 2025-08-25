@@ -2,7 +2,7 @@
 
 Texture::Texture(int target, int size)
 : m_target(target), m_size(size) {
-    m_ID = std::make_unique<uint32_t[]>(5);
+    m_ID = std::make_unique<uint32_t[]>(size);
     glGenTextures(size, m_ID.get());
 
     stbi_set_flip_vertically_on_load(true);

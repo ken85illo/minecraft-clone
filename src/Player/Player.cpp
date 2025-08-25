@@ -10,6 +10,12 @@ Player::Player()
     initTexture();
 }
 
+Player::~Player() {
+    glDeleteBuffers(1, &m_VBO);
+    glDeleteBuffers(1, &m_EBO);
+    glDeleteVertexArrays(1, &m_VAO);
+}
+
 void Player::init() {
     m_world = World::get();
     auto diameter = m_world->getDiameter();

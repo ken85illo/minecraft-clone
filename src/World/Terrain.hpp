@@ -3,7 +3,7 @@
 #include "Chunk/ChunkContext.hpp"
 #include "Math/PerlinNoise.hpp"
 
-#define AMPLITUDE 1.0f
+#define AMPLITUDE 0.75f
 #define FREQUENCY 0.0025f
 #define NUMBER_OF_OCTAVES 6
 
@@ -15,5 +15,5 @@ public:
     generateHeightMap(std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> &heightMap, int32_t chunkX, int32_t chunkZ);
 
 private:
-    static PerlinNoise s_perlinNoise;
+    static std::unique_ptr<PerlinNoise> s_perlinNoise;
 };

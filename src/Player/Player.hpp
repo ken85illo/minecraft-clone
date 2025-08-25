@@ -12,6 +12,7 @@
 class Player : public Camera {
 public:
     Player();
+    ~Player();
 
     void init();
     static Player *get();

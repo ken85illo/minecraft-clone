@@ -6,6 +6,7 @@ class Shader;
 class LightOrigin {
 public:
     LightOrigin(float speed, float height, float scale);
+    ~LightOrigin();
     void render(Shader *shader);
 
     glm::vec3 getLightPosition();

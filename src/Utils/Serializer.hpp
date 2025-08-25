@@ -32,19 +32,19 @@ public:
     }
 
     template <typename Serializable>
-    static Serializable read(const std::string &filename) {
+    static Serializable *read(const std::string &filename) {
         using namespace std::literals::string_literals;
-        Serializable s;
 
         std::string filepath = "./data/"s + filename + ".dat"s;
         std::ifstream file(filepath, std::ios::binary);
 
         if (!file.is_open()) {
             std::println("Error: Cannot open/read file.");
-            return s;
+            return nullptr;
         }
 
-        file.read(reinterpret_cast<char *>(&s), sizeof(s));
+        Serializable *s = new Serializable;
+        file.read(reinterpret_cast<char *>(s), sizeof(*s));
         file.close();
         std::println("{}: Object has been successfully deserialized.", filepath);
         return s;
