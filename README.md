@@ -1,8 +1,6 @@
 # Minecraft Voxel Engine
-This project is currently in progress, I might update this readme in the future. 
-I'm still in the process of learning, so please excuse the poor structure of my codebase. 😅
-
-For now, I have implemented chunk mesh culling and octave perlin noise for random terrain generation.
+This is my first attempt at recreating Minecraft with OpenGL from scratch (with a few libraries to help out). 
+The codebase is kind of messy, but who knows — maybe I’ll remake this in the future.
 
 ## Build
 ### Linux
@@ -21,8 +19,10 @@ You can also debug with gdb
 scripts/debug.sh
 ```
 
-## Images
+## Demo
 ![Demo](/images/demo.gif)
+
+## Images
 ![Screenshot](/images/screenshot1.png)
 ![Screenshot](/images/screenshot2.png)
 ![Screenshot](/images/screenshot3.png)
