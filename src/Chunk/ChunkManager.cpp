@@ -46,21 +46,28 @@ void ChunkManager::updateNeighbour(Chunk *neighbourChunk, bool condition, int32_
     buildMesh(*neighbourChunk);
 }
 
-const std::string ChunkManager::getBinaryName(int32_t chunkX, int32_t chunkZ) {
+const std::string ChunkManager::getRegionName(int32_t chunkX, int32_t chunkZ) {
     std::stringstream stream;
-    stream << "chunk_" << chunkX << "_" << chunkZ;
+    int32_t regionX = std::floor(static_cast<float>(chunkX) / REGION_SIZE);
+    int32_t regionZ = std::floor(static_cast<float>(chunkZ) / REGION_SIZE);
+    stream << "region_" << regionX << "_" << regionZ << "/";
+    return stream.str();
+}
+const std::string ChunkManager::getBinaryName(int32_t chunkX, int32_t chunkZ) {
+    using namespace std::literals::string_literals;
+    std::stringstream stream;
+    stream << "chunk_" << chunkX << "_" << chunkZ << ".dat"s;
     return stream.str();
 }
 
 void ChunkManager::serialize(Chunk &chunk, int32_t chunkX, int32_t chunkZ) {
     using namespace std::literals::string_literals;
-
-    std::filesystem::path dir = "./data/world/";
+    std::filesystem::path dir = "./data/world/"s + getRegionName(chunkX, chunkZ);
     if (!std::filesystem::exists(dir)) {
-        std::filesystem::create_directory(dir);
+        std::filesystem::create_directories(dir);
     }
 
-    const std::string filepath = dir.string() + getBinaryName(chunkX, chunkZ) + ".dat"s;
+    const std::string filepath = dir.string() + getBinaryName(chunkX, chunkZ);
     std::ofstream file(filepath, std::ios::binary);
     if (!file.is_open()) {
         std::println("Error: Cant open chunk data file!");
@@ -77,20 +84,20 @@ void ChunkManager::serialize(Chunk &chunk, int32_t chunkX, int32_t chunkZ) {
 bool ChunkManager::binaryExists(int32_t chunkX, int32_t chunkZ) {
     using namespace std::literals::string_literals;
 
-    const std::string filepath = "./data/world/"s + getBinaryName(chunkX, chunkZ) + ".dat"s;
+    const std::string filepath = "./data/world/"s + getRegionName(chunkX, chunkZ) + getBinaryName(chunkX, chunkZ);
     return std::filesystem::exists(filepath);
 }
 
 Chunk *ChunkManager::deserialize(int32_t chunkX, int32_t chunkZ) {
     using namespace std::literals::string_literals;
 
-    std::filesystem::path dir = "./data/world/";
+    std::filesystem::path dir = "./data/world/"s + getRegionName(chunkX, chunkZ);
     if (!std::filesystem::exists(dir)) {
         std::println("Error: Directory does not exist!");
         return nullptr;
     }
 
-    const std::string filepath = dir.string() + getBinaryName(chunkX, chunkZ) + ".dat"s;
+    const std::string filepath = dir.string() + getBinaryName(chunkX, chunkZ);
     std::ifstream file(filepath, std::ios::binary);
     if (!file.is_open()) {
         std::println("Error: Cant open chunk data file!");
@@ -104,9 +111,9 @@ Chunk *ChunkManager::deserialize(int32_t chunkX, int32_t chunkZ) {
     file.read(reinterpret_cast<char *>(&chunk->m_highestBlock), sizeof(chunk->m_highestBlock));
     file.close();
 
-    std::filesystem::remove(filepath);
     return chunk;
 }
+
 void ChunkManager::render(Chunk &chunk, MeshType type) {
     chunk.m_renderer.render(type);
 }

@@ -3,6 +3,8 @@
 #include "Block/Block.hpp"
 #include "ChunkMesh.hpp"
 
+#define REGION_SIZE 16
+
 struct MeshData;
 class Chunk;
 
@@ -21,4 +23,5 @@ private:
     static void buildMesh(Chunk &chunk);
     static void updateNeighbour(Chunk *neighbourChunk, bool condition, int32_t x, int32_t y, int32_t z);
     static const std::string getBinaryName(int32_t chunkX, int32_t chunkZ);
+    static const std::string getRegionName(int32_t chunkX, int32_t chunkZ);
 };
