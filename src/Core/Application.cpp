@@ -54,13 +54,14 @@ void Application::update(float deltaTime) {
 void Application::render() {
     static glm::vec3 lightBlue = glm::vec3(135 / 255.f, 206 / 255.f, 235 / 255.f);
     static float lightValue = 0.0f;
+    glm::vec3 skyColor = lightBlue * lightValue;
 
     if (!m_wireFrameMode) {
-        glm::vec3 skyColor = lightBlue * lightValue;
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glClearColor(skyColor.x, skyColor.y, skyColor.z, 1.f);
     }
     else {
+        skyColor = glm::vec3(0.0f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     }
@@ -74,6 +75,7 @@ void Application::render() {
     m_worldShader->use();
     m_worldShader->setMat4("view", view);
     m_worldShader->setMat4("projection", projection);
+    m_worldShader->setVec3("fogColor", skyColor);
 
     m_lineShader->use();
     m_lineShader->setMat4("view", view);

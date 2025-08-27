@@ -30,6 +30,7 @@ public:
     const int32_t getPositionIndex(int32_t index);
 
 private:
+    static constexpr int32_t m_lightHeight = (WORLD_RADIUS + 2) * CHUNK_SIZE;
     static std::unique_ptr<World> s_instance;
     static constexpr int32_t m_diameter = WORLD_RADIUS * 2 + 1;
     std::unique_ptr<Texture> m_texture;

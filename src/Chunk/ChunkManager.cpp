@@ -111,6 +111,7 @@ Chunk *ChunkManager::deserialize(int32_t chunkX, int32_t chunkZ) {
     file.read(reinterpret_cast<char *>(&chunk->m_highestBlock), sizeof(chunk->m_highestBlock));
     file.close();
 
+    std::filesystem::remove(filepath);
     return chunk;
 }
 

@@ -6,7 +6,7 @@
 std::unique_ptr<World> World::s_instance = nullptr;
 
 World::World()
-: m_lightOrigin(20.0f, (WORLD_RADIUS + 2) * CHUNK_SIZE, 50.0f) {
+: m_lightOrigin(20.0f, m_lightHeight, 50.0f) {
     // Initialize terrain seed
     Terrain::init();
 
@@ -364,6 +364,7 @@ void World::render(
     glm::vec3 playerPos = Player::get()->getPosition();
     worldShader->use();
     worldShader->setVec3("lightPos", m_lightOrigin.getLightPosition());
+    worldShader->setFloat("fogMaxDist", m_lightHeight - 10.0f);
     worldShader->setFloat("lightValue", lightValue);
 
     Shader *currentShader = (wireFrameMode) ? lineShader : worldShader;
