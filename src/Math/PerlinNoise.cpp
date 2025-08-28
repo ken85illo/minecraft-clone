@@ -94,7 +94,6 @@ void PerlinNoise::makePermutation() {
 }
 
 void PerlinNoise::shufflePermutation() {
-    srand(time(0));
     for (int32_t i = 0; i < m_permutationSize; i++) {
         int32_t index = std::rand() % m_permutationSize;
         std::swap(m_permutation[i], m_permutation[index]);

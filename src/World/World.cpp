@@ -8,6 +8,7 @@ std::unique_ptr<World> World::s_instance = nullptr;
 World::World()
 : m_lightOrigin(20.0f, m_lightHeight, 50.0f) {
     // Initialize terrain seed
+    srand(time(0));
     Terrain::init();
 
     std::println("Generating {} x {} chunks...", m_diameter, m_diameter);
