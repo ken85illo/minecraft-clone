@@ -334,14 +334,6 @@ Chunk *World::getChunk(int32_t x, int32_t z) {
 void World::render(
     float &lightValue, bool wireFrameMode, Shader *worldShader, Shader *lineShader, Shader *lightShader
 ) {
-    m_lightOrigin.render(lightShader);
-
-    // Get sine value between two vectors
-    glm::vec3 v1 = glm::normalize(m_lightOrigin.getLightPosition());
-    glm::vec3 v2 = glm::vec3(1.0f, 0.0f, 0.0f);
-    glm::vec3 n = glm::vec3(0.0f, 0.0f, -1.0f);
-    lightValue = glm::dot(glm::cross(v1, v2), n);
-    lightValue = std::max(std::min(lightValue + 0.25f, 1.0f), 0.0f);
 
     static bool isInitialized = false;
     if (!isInitialized) {
@@ -380,4 +372,13 @@ void World::render(
             ChunkManager::render(*i->second, static_cast<MeshType>(type));
         }
     }
+
+    m_lightOrigin.render(lightShader);
+
+    // Get sine value between two vectors
+    glm::vec3 v1 = glm::normalize(m_lightOrigin.getLightPosition());
+    glm::vec3 v2 = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 n = glm::vec3(0.0f, 0.0f, -1.0f);
+    lightValue = glm::dot(glm::cross(v1, v2), n);
+    lightValue = std::max(std::min(lightValue + 0.25f, 1.0f), 0.0f);
 }
