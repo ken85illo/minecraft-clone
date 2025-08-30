@@ -26,6 +26,8 @@ public:
 
     const ChunkCoords &getChunkCoords() const;
 
+    void saveChunk();
+
 private:
     static std::unique_ptr<Player> s_instance;
     RayCast m_rayCast;
@@ -39,5 +41,4 @@ private:
     void uploadCursor();
     void initTexture();
     void updateCurrentChunk();
-    void saveChunk();
 };

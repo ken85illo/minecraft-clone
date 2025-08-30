@@ -12,8 +12,8 @@ Application::Application() {
     // Load texture atlas
     Block::loadTextures();
 
-    m_player = Player::get();
     m_world = World::get();
+    m_player = Player::get();
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
@@ -41,6 +41,7 @@ void Application::mainLoop() {
 
 void Application::update(float deltaTime) {
     if (InputHandler::isKeyPressed(GLFW_KEY_ESCAPE)) {
+        Player::get()->saveChunk();
         m_window->setShouldClose(true);
     }
 
