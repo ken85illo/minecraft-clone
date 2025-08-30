@@ -11,6 +11,8 @@ Player::Player()
 }
 
 Player::~Player() {
+    saveChunk();
+
     glDeleteBuffers(1, &m_VBO);
     glDeleteBuffers(1, &m_EBO);
     glDeleteVertexArrays(1, &m_VAO);
@@ -85,18 +87,22 @@ void Player::updateCurrentChunk() {
     const ChunkBounds &bounds = m_world->getChunk(m_chunkCoord.x, m_chunkCoord.z)->getBounds();
 
     if (m_pos.z > bounds.max.z) {
+        saveChunk();
         m_world->generateChunkFront();
     }
 
     if (m_pos.z < bounds.min.z) {
+        saveChunk();
         m_world->generateChunkBack();
     }
 
     if (m_pos.x > bounds.max.x) {
+        saveChunk();
         m_world->generateChunkRight();
     }
 
     if (m_pos.x < bounds.min.x) {
+        saveChunk();
         m_world->generateChunkLeft();
     }
 
@@ -111,6 +117,13 @@ void Player::updateCurrentChunk() {
         m_world->sortChunkFaces(m_chunkCoord.x + x, m_chunkCoord.z + z, 1);
         m_world->sortChunkFaces(m_chunkCoord.x, m_chunkCoord.z, 0);
         playerPos = m_pos;
+    }
+}
+
+void Player::saveChunk() {
+    if (m_saveChunk) {
+        m_world->saveChunk(m_chunkCoord.x, m_chunkCoord.z);
+        m_saveChunk = false;
     }
 }
 
@@ -186,6 +199,7 @@ void Player::placeBlock() {
     }
 
     ChunkManager::updateBlock(*bchunk, bx, by, bz, BlockType::STONE);
+    m_saveChunk = true;
 }
 
 void Player::destroyBlock() {
@@ -196,6 +210,7 @@ void Player::destroyBlock() {
     }
 
     ChunkManager::updateBlock(*chunk, x, y, z, BlockType::AIR);
+    m_saveChunk = true;
 }
 
 void Player::movementInput(Window *window, float deltaTime) {

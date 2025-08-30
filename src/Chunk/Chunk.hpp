@@ -43,7 +43,7 @@ private:
     Chunk *m_rightChunk = nullptr;
     Chunk *m_leftChunk = nullptr;
 
-    MeshData m_meshData[2];
+    std::array<MeshData, 2> m_meshData;
     ChunkRenderer m_renderer;
 
     friend class ChunkMesh;

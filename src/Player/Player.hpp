@@ -34,8 +34,10 @@ private:
     std::unique_ptr<Texture> m_texture;
     uint32_t m_VAO, m_VBO, m_EBO;
     ChunkCoords m_chunkCoord;
+    bool m_saveChunk = false;
 
     void uploadCursor();
     void initTexture();
     void updateCurrentChunk();
+    void saveChunk();
 };

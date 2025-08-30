@@ -12,7 +12,6 @@
 class World {
 public:
     World();
-    ~World();
 
     static World *get();
 
@@ -24,6 +23,8 @@ public:
     void generateChunkLeft();
     void generateChunkFront();
     void generateChunkBack();
+
+    void saveChunk(int32_t indexX, int32_t indexZ);
 
     const int32_t getDiameter() const;
     Chunk *getChunk(int32_t x, int32_t z);

@@ -28,21 +28,6 @@ World::World()
     }
 }
 
-World::~World() {
-    for (int32_t x = 0; x < m_diameter; x++) {
-        for (int32_t z = 0; z < m_diameter; z++) {
-            m_chunkThreads.enqueue([=, this] {
-                int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
-
-                ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-            });
-        }
-    }
-
-    m_chunkThreads.wait();
-}
-
 World *World::get() {
     if (!s_instance) {
         s_instance = std::make_unique<World>();
@@ -57,26 +42,25 @@ void World::initChunk(int32_t indexX, int32_t indexZ) {
         int32_t chunkZ = indexZ - WORLD_RADIUS + m_offset.z;
 
         if (ChunkManager::binaryExists(chunkX, chunkZ)) {
-            std::lock_guard<std::mutex> lock(m_initMutex);
             m_chunks[indexX][indexZ].reset(ChunkManager::deserialize(chunkX, chunkZ));
         }
         else {
             std::array<std::array<float, CHUNK_SIZE>, CHUNK_SIZE> heightMap;
             Terrain::generateHeightMap(heightMap, chunkX, chunkZ);
-            std::lock_guard<std::mutex> lock(m_initMutex);
             m_chunks[indexX][indexZ] =
                 std::make_unique<Chunk>(heightMap, glm::vec3(chunkX * CHUNK_SIZE, 0.0f, chunkZ * CHUNK_SIZE));
+            ChunkManager::serialize(*m_chunks[indexX][indexZ], chunkX, chunkZ);
         }
 
-        m_initCV.notify_all();
+        m_waitingCV.notify_all();
     });
 }
 
 void World::generateChunkMeshAsync(int32_t indexX, int32_t indexZ) {
     m_chunkThreads.enqueue([=, this]() {
         {
-            std::unique_lock<std::mutex> lock(m_initMutex);
-            m_initCV.wait(lock, [=, this] {
+            std::unique_lock<std::mutex> lock(m_waitingMutex);
+            m_waitingCV.wait(lock, [=, this] {
                 bool currentChunk = getChunk(indexX, indexZ);
                 bool north = (indexZ + 1 < m_diameter) ? static_cast<bool>(getChunk(indexX, indexZ + 1)) : true;
                 bool south = (indexZ - 1 >= 0) ? static_cast<bool>(getChunk(indexX, indexZ - 1)) : true;
@@ -111,7 +95,7 @@ void World::generateChunkMeshAsync(int32_t indexX, int32_t indexZ) {
             m_waitingChunks[coords] = false;
         }
 
-        m_waitingCV.notify_one();
+        m_waitingCV.notify_all();
     });
 }
 
@@ -137,18 +121,9 @@ void World::uploadChunk(int32_t indexX, int32_t indexZ) {
 void World::generateChunkRight() {
     for (int32_t x = 0; x < m_diameter - 1; ++x) {
         for (int32_t z = 0; z < m_diameter; ++z) {
-            m_chunkThreads.enqueue([=, this] {
-                if (x == 0) {
-                    int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                    int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
-
-                    ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-                }
-                m_chunks[x][z].reset();
-                m_chunks[x][z] = std::move(m_chunks[x + 1][z]);
-            });
+            m_chunks[x][z].reset();
+            m_chunks[x][z] = std::move(m_chunks[x + 1][z]);
         }
-        m_chunkThreads.wait();
     }
 
     ++m_offset.x;
@@ -172,16 +147,8 @@ void World::generateChunkRight() {
 void World::generateChunkLeft() {
     for (int32_t x = m_diameter - 1; x > 0; --x) {
         for (int32_t z = 0; z < m_diameter; ++z) {
-            m_chunkThreads.enqueue([=, this] {
-                if (x == m_diameter - 1) {
-                    int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                    int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
-
-                    ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-                }
-                m_chunks[x][z].reset();
-                m_chunks[x][z] = std::move(m_chunks[x - 1][z]);
-            });
+            m_chunks[x][z].reset();
+            m_chunks[x][z] = std::move(m_chunks[x - 1][z]);
         }
         m_chunkThreads.wait();
     }
@@ -207,18 +174,9 @@ void World::generateChunkLeft() {
 void World::generateChunkFront() {
     for (int32_t z = 0; z < m_diameter - 1; ++z) {
         for (int32_t x = 0; x < m_diameter; ++x) {
-            m_chunkThreads.enqueue([=, this] {
-                if (z == 0) {
-                    int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                    int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
-
-                    ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-                }
-                m_chunks[x][z].reset();
-                m_chunks[x][z] = std::move(m_chunks[x][z + 1]);
-            });
+            m_chunks[x][z].reset();
+            m_chunks[x][z] = std::move(m_chunks[x][z + 1]);
         }
-        m_chunkThreads.wait();
     }
 
     ++m_offset.z;
@@ -241,16 +199,8 @@ void World::generateChunkFront() {
 void World::generateChunkBack() {
     for (int32_t z = m_diameter - 1; z > 0; --z) {
         for (int32_t x = 0; x < m_diameter; ++x) {
-            m_chunkThreads.enqueue([=, this] {
-                if (z == m_diameter - 1) {
-                    int32_t chunkX = x - WORLD_RADIUS + m_offset.x;
-                    int32_t chunkZ = z - WORLD_RADIUS + m_offset.z;
-
-                    ChunkManager::serialize(*m_chunks[x][z], chunkX, chunkZ);
-                }
-                m_chunks[x][z].reset();
-                m_chunks[x][z] = std::move(m_chunks[x][z - 1]);
-            });
+            m_chunks[x][z].reset();
+            m_chunks[x][z] = std::move(m_chunks[x][z - 1]);
         }
         m_chunkThreads.wait();
     }
@@ -310,12 +260,18 @@ void World::sortChunkFaces(int32_t chunkX, int32_t chunkZ, uint8_t radius) {
     }
 }
 
+void World::saveChunk(int32_t indexX, int32_t indexZ) {
+    int32_t chunkX = indexX - WORLD_RADIUS + m_offset.x;
+    int32_t chunkZ = indexZ - WORLD_RADIUS + m_offset.z;
+    ChunkManager::serialize(*m_chunks[indexX][indexZ], chunkX, chunkZ);
+}
+
 void World::initTexture() {
     m_texture = std::make_unique<Texture>(GL_TEXTURE_2D, 1);
     m_texture->bind(0);
     m_texture->setParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     m_texture->setParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_texture->setParameter(GL_TEXTURE_MAX_LEVEL, 3);
+    m_texture->setParameter(GL_TEXTURE_MAX_LEVEL, 4);
     m_texture->loadImage("res/atlas.png");
 }
 
