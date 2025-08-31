@@ -3,7 +3,7 @@
 #include "Shader/Shader.hpp"
 
 LightOrigin::LightOrigin(float speed, float height, float scale)
-: m_position(0.0f, height, 0.0f, 1.0f), m_speed(speed), m_height(height), m_scale(scale) {
+: m_position(0.0f, height, 0.0f, 1.0f), m_speed(speed), m_height(height), m_scale(scale), m_angle(0.0f) {
     glGenVertexArrays(2, m_VAO);
     glGenBuffers(2, m_VBO);
     glGenBuffers(2, m_EBO);
@@ -66,13 +66,18 @@ glm::vec3 LightOrigin::getLightPosition() {
     return glm::vec3(-m_position.x, m_position.y, m_position.z);
 }
 
+void LightOrigin::update(const float deltaTime) {
+    m_angle += m_speed * deltaTime;
+    std::println("{}", m_angle);
+}
+
 void LightOrigin::render(Shader *shader) {
     glm::vec3 playerPos = Player::get()->getPosition();
     glm::mat4 model = glm::mat4(1.0f);
 
     shader->use();
     model = glm::translate(model, glm::vec3(playerPos.x, MAX_HEIGHT / 2.0f, playerPos.z));
-    model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime() * m_speed)), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(m_angle), glm::vec3(0.0f, 0.0f, 1.0f));
     static glm::vec4 originalPos = m_position;
     m_position = originalPos * model;
 

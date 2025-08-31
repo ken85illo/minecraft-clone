@@ -6,7 +6,7 @@
 std::unique_ptr<World> World::s_instance = nullptr;
 
 World::World()
-: m_lightOrigin(20.0f, m_lightHeight, 50.0f) {
+: m_lightOrigin(1.0f, m_lightHeight, 50.0f) {
     // Initialize terrain seed
     srand(time(0));
     Terrain::init();
@@ -287,9 +287,8 @@ Chunk *World::getChunk(int32_t x, int32_t z) {
     return m_chunks[x][z].get();
 }
 
-void World::render(
-    float &lightValue, bool wireFrameMode, Shader *worldShader, Shader *lineShader, Shader *lightShader
-) {
+void World::update(const float deltaTime) {
+    m_lightOrigin.update(deltaTime);
 
     static bool isInitialized = false;
     if (!isInitialized) {
@@ -306,6 +305,11 @@ void World::render(
         std::println("Time spent: {} ms", Timer::stopTimer());
         isInitialized = true;
     }
+}
+
+void World::render(
+    float &lightValue, bool wireFrameMode, Shader *worldShader, Shader *lineShader, Shader *lightShader
+) {
 
     lineShader->use();
     lineShader->setVec3("color", glm::vec3(0.2f, 0.5f, 0.5f));

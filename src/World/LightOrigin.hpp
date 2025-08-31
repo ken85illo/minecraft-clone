@@ -7,6 +7,8 @@ class LightOrigin {
 public:
     LightOrigin(float speed, float height, float scale);
     ~LightOrigin();
+
+    void update(const float deltaTime);
     void render(Shader *shader);
 
     glm::vec3 getLightPosition();
@@ -23,6 +25,7 @@ private:
     float m_speed;
     float m_height;
     float m_scale;
+    float m_angle;
 
     void uploadObject(Type type);
     void initTexture(Type type, const std::string &filepath);

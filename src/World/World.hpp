@@ -16,6 +16,7 @@ public:
     static World *get();
 
     void render(float &lightValue, bool wireFrameMode, Shader *worldShader, Shader *lineShader, Shader *lightShader);
+    void update(const float deltaTime);
     void sortChunks();
     void sortChunkFaces(int32_t chunkX, int32_t chunkZ, uint8_t radius);
 

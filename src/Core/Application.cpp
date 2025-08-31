@@ -49,6 +49,7 @@ void Application::update(float deltaTime) {
         m_wireFrameMode = !m_wireFrameMode;
     }
 
+    m_world->update(deltaTime);
     m_player->movementInput(m_window, deltaTime);
 }
 
