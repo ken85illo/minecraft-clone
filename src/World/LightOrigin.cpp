@@ -2,6 +2,8 @@
 #include "Player/Player.hpp"
 #include "Shader/Shader.hpp"
 
+#define LIGHT_POS_Y (MAX_HEIGHT - 100.0f) * 0.5f
+
 LightOrigin::LightOrigin(float speed, float height, float scale)
 : m_position(0.0f, height, 0.0f, 1.0f), m_speed(speed), m_height(height), m_scale(scale), m_angle(0.0f) {
     glGenVertexArrays(2, m_VAO);
@@ -76,7 +78,7 @@ void LightOrigin::render(Shader *shader) {
     glm::mat4 model = glm::mat4(1.0f);
 
     shader->use();
-    model = glm::translate(model, glm::vec3(playerPos.x, MAX_HEIGHT / 2.0f, playerPos.z));
+    model = glm::translate(model, glm::vec3(playerPos.x, LIGHT_POS_Y, playerPos.z));
     model = glm::rotate(model, glm::radians(m_angle), glm::vec3(0.0f, 0.0f, 1.0f));
     static glm::vec4 originalPos = m_position;
     m_position = originalPos * model;

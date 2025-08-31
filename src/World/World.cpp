@@ -6,7 +6,7 @@
 std::unique_ptr<World> World::s_instance = nullptr;
 
 World::World()
-: m_lightOrigin(1.0f, m_lightHeight, 50.0f) {
+: m_lightOrigin(5.0f, m_lightHeight, 50.0f) {
     // Initialize terrain seed
     srand(time(0));
     Terrain::init();
